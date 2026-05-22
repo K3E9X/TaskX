@@ -501,6 +501,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_cron_recent_runs: {
+        Args: never
+        Returns: {
+          end_time: string
+          jobname: string
+          return_message: string
+          start_time: string
+          status: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

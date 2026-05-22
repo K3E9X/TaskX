@@ -1,11 +1,12 @@
 import { createFileRoute, Outlet, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
 import { useI18n, LangToggle, type TKey } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import {
   LayoutDashboard, CheckSquare, FileText, Repeat, FolderKanban,
-  CalendarClock, GitBranch, Rss, Terminal, Bookmark, Users, LogOut, Gauge,
+  CalendarClock, GitBranch, Rss, Terminal, Bookmark, Users, LogOut, Gauge, Shield,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated")({
@@ -33,6 +34,16 @@ function AuthenticatedLayout() {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [open, setOpen] = useState(false);
+
+  const { data: isAdmin } = useQuery({
+    queryKey: ["sidebar-isAdmin", session?.user.id],
+    enabled: !!session?.user.id,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("user_roles").select("role").eq("user_id", session!.user.id);
+      return (data ?? []).some((r) => r.role === "admin");
+    },
+  });
 
   useEffect(() => {
     if (!loading && !session) navigate({ to: "/login" });
@@ -68,6 +79,20 @@ function AuthenticatedLayout() {
               </Link>
             );
           })}
+          {isAdmin && (
+            <Link
+              to="/admin"
+              onClick={() => setOpen(false)}
+              className={`flex items-center gap-2.5 rounded-md px-2.5 py-1.5 transition-colors ${
+                pathname === "/admin" || pathname.startsWith("/admin/")
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                  : "hover:bg-sidebar-accent/60 text-amber-500/90"
+              }`}
+            >
+              <Shield className="h-4 w-4" />
+              <span>Admin</span>
+            </Link>
+          )}
         </nav>
         <div className="absolute bottom-0 left-0 right-0 border-t p-3">
           <UserChip email={session.user.email ?? ""} onSignOut={async () => { await signOut(); navigate({ to: "/login" }); }} />
