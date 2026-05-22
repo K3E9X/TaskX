@@ -221,7 +221,7 @@ function Editor({
         />
       ) : (
         <div className="flex-1 overflow-auto p-6">
-          <article className="prose prose-invert prose-sm max-w-none">
+          <article className="markdown text-sm leading-relaxed">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{content || "*Empty*"}</ReactMarkdown>
           </article>
         </div>
