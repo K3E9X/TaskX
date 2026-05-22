@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      bookmarks: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          tags: string[]
+          title: string
+          updated_at: string
+          url: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          tags?: string[]
+          title: string
+          updated_at?: string
+          url: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          tags?: string[]
+          title?: string
+          updated_at?: string
+          url?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       diagrams: {
         Row: {
           created_at: string
@@ -43,6 +79,54 @@ export type Database = {
           source?: string
           title?: string
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      feed_items: {
+        Row: {
+          created_at: string
+          external_id: string | null
+          id: string
+          published_at: string
+          read: boolean
+          severity: Database["public"]["Enums"]["feed_severity"]
+          source: Database["public"]["Enums"]["feed_source"]
+          summary: string | null
+          tags: string[]
+          title: string
+          updated_at: string
+          url: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          external_id?: string | null
+          id?: string
+          published_at?: string
+          read?: boolean
+          severity?: Database["public"]["Enums"]["feed_severity"]
+          source?: Database["public"]["Enums"]["feed_source"]
+          summary?: string | null
+          tags?: string[]
+          title: string
+          updated_at?: string
+          url?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          external_id?: string | null
+          id?: string
+          published_at?: string
+          read?: boolean
+          severity?: Database["public"]["Enums"]["feed_severity"]
+          source?: Database["public"]["Enums"]["feed_source"]
+          summary?: string | null
+          tags?: string[]
+          title?: string
+          updated_at?: string
+          url?: string | null
           user_id?: string
         }
         Relationships: []
@@ -262,6 +346,45 @@ export type Database = {
         }
         Relationships: []
       }
+      tips: {
+        Row: {
+          category: string
+          command: string | null
+          created_at: string
+          explanation: string | null
+          favorite: boolean
+          id: string
+          tags: string[]
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          command?: string | null
+          created_at?: string
+          explanation?: string | null
+          favorite?: boolean
+          id?: string
+          tags?: string[]
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          command?: string | null
+          created_at?: string
+          explanation?: string | null
+          favorite?: boolean
+          id?: string
+          tags?: string[]
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       todos: {
         Row: {
           created_at: string
@@ -344,6 +467,8 @@ export type Database = {
         | "architecture"
         | "state"
         | "other"
+      feed_severity: "info" | "low" | "medium" | "high" | "critical"
+      feed_source: "cve" | "cti" | "x" | "rss" | "other"
       project_status: "draft" | "active" | "on_hold" | "done"
       risk_level: "low" | "medium" | "high" | "critical"
       routine_frequency: "daily" | "weekly"
@@ -486,6 +611,8 @@ export const Constants = {
         "state",
         "other",
       ],
+      feed_severity: ["info", "low", "medium", "high", "critical"],
+      feed_source: ["cve", "cti", "x", "rss", "other"],
       project_status: ["draft", "active", "on_hold", "done"],
       risk_level: ["low", "medium", "high", "critical"],
       routine_frequency: ["daily", "weekly"],

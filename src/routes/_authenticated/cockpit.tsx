@@ -118,6 +118,34 @@ function CockpitPage() {
     },
   });
 
+  const { data: feedItems = [] } = useQuery({
+    queryKey: ["cockpit", "feed_items"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("feed_items").select("id,title,severity,source,read")
+        .order("published_at", { ascending: false }).limit(50);
+      return data ?? [];
+    },
+  });
+
+  const { data: tips = [] } = useQuery({
+    queryKey: ["cockpit", "tips"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("tips").select("id,title,favorite")
+        .order("favorite", { ascending: false }).order("updated_at", { ascending: false }).limit(20);
+      return data ?? [];
+    },
+  });
+
+  const { data: bookmarks = [] } = useQuery({
+    queryKey: ["cockpit", "bookmarks"],
+    queryFn: async () => {
+      const { data } = await supabase.from("bookmarks").select("id,title").limit(50);
+      return data ?? [];
+    },
+  });
+
   const todayTodos = todos.filter((x) => x.due_at && isToday(parseISO(x.due_at)));
   const overdue = todos.filter((x) => x.due_at && isPast(parseISO(x.due_at)) && !isToday(parseISO(x.due_at)));
   const meetingsToday = meetings.filter((m) => {
@@ -181,19 +209,24 @@ function CockpitPage() {
         />
         <Tile
           to="/feeds" icon={ShieldAlert} label={t("cockpit.cve")}
-          value="—" sub={t("cockpit.soon")} tone="muted"
+          value={feedItems.filter((f) => f.source === "cve" && (f.severity === "critical" || f.severity === "high")).length}
+          sub={feedItems.find((f) => f.source === "cve")?.title ?? t("cockpit.empty")}
+          tone={feedItems.some((f) => f.source === "cve" && f.severity === "critical" && !f.read) ? "warn" : "default"}
         />
         <Tile
           to="/feeds" icon={Rss} label={t("cockpit.feeds")}
-          value="—" sub={t("cockpit.soon")} tone="muted"
+          value={feedItems.filter((f) => !f.read).length}
+          sub={feedItems[0]?.title ?? t("cockpit.empty")}
         />
         <Tile
           to="/tips" icon={Terminal} label={t("cockpit.tip")}
-          value="—" sub={t("cockpit.soon")} tone="muted"
+          value={tips.length}
+          sub={tips.find((x) => x.favorite)?.title ?? tips[0]?.title ?? t("cockpit.empty")}
         />
         <Tile
           to="/bookmarks" icon={Bookmark} label={t("cockpit.bookmarks")}
-          value="—" sub={t("cockpit.soon")} tone="muted"
+          value={bookmarks.length}
+          sub={bookmarks[0]?.title ?? t("cockpit.empty")}
         />
         <Tile
           icon={Twitter} label={t("cockpit.x")}
