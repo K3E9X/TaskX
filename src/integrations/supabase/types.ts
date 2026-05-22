@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      notes: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          tags: string[]
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content?: string
+          created_at?: string
+          id?: string
+          tags?: string[]
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          tags?: string[]
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -38,6 +68,116 @@ export type Database = {
           id?: string
           team_role?: Database["public"]["Enums"]["team_role"]
           updated_at?: string
+        }
+        Relationships: []
+      }
+      routine_runs: {
+        Row: {
+          completed_steps: Json
+          created_at: string
+          id: string
+          routine_id: string
+          run_date: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_steps?: Json
+          created_at?: string
+          id?: string
+          routine_id: string
+          run_date?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_steps?: Json
+          created_at?: string
+          id?: string
+          routine_id?: string
+          run_date?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "routine_runs_routine_id_fkey"
+            columns: ["routine_id"]
+            isOneToOne: false
+            referencedRelation: "routines"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      routines: {
+        Row: {
+          created_at: string
+          description: string | null
+          frequency: Database["public"]["Enums"]["routine_frequency"]
+          id: string
+          name: string
+          steps: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          frequency?: Database["public"]["Enums"]["routine_frequency"]
+          id?: string
+          name: string
+          steps?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          frequency?: Database["public"]["Enums"]["routine_frequency"]
+          id?: string
+          name?: string
+          steps?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      todos: {
+        Row: {
+          created_at: string
+          description: string | null
+          due_at: string | null
+          id: string
+          priority: Database["public"]["Enums"]["todo_priority"]
+          status: Database["public"]["Enums"]["todo_status"]
+          tags: string[]
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          due_at?: string | null
+          id?: string
+          priority?: Database["public"]["Enums"]["todo_priority"]
+          status?: Database["public"]["Enums"]["todo_status"]
+          tags?: string[]
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          due_at?: string | null
+          id?: string
+          priority?: Database["public"]["Enums"]["todo_priority"]
+          status?: Database["public"]["Enums"]["todo_status"]
+          tags?: string[]
+          title?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -77,7 +217,10 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "member"
+      routine_frequency: "daily" | "weekly"
       team_role: "architect" | "pentester" | "forensic" | "analyst"
+      todo_priority: "low" | "med" | "high" | "urgent"
+      todo_status: "todo" | "doing" | "done"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -206,7 +349,10 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "member"],
+      routine_frequency: ["daily", "weekly"],
       team_role: ["architect", "pentester", "forensic", "analyst"],
+      todo_priority: ["low", "med", "high", "urgent"],
+      todo_status: ["todo", "doing", "done"],
     },
   },
 } as const
