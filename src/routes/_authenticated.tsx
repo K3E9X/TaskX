@@ -5,7 +5,7 @@ import { useI18n, LangToggle, type TKey } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import {
   LayoutDashboard, CheckSquare, FileText, Repeat, FolderKanban,
-  CalendarClock, GitBranch, Rss, Terminal, Bookmark, Users, LogOut,
+  CalendarClock, GitBranch, Rss, Terminal, Bookmark, Users, LogOut, Gauge,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated")({
@@ -14,6 +14,7 @@ export const Route = createFileRoute("/_authenticated")({
 
 const NAV: { to: string; key: TKey; icon: typeof LayoutDashboard }[] = [
   { to: "/dashboard", key: "nav.dashboard", icon: LayoutDashboard },
+  { to: "/cockpit", key: "nav.cockpit", icon: Gauge },
   { to: "/todos", key: "nav.todos", icon: CheckSquare },
   { to: "/notes", key: "nav.notes", icon: FileText },
   { to: "/routines", key: "nav.routines", icon: Repeat },
