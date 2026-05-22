@@ -275,3 +275,91 @@ function FeedForm({ onDone }: { onDone: () => void }) {
     </div>
   );
 }
+
+function SourcesPanel() {
+  const { t } = useI18n();
+  const qc = useQueryClient();
+  const [name, setName] = useState("");
+  const [url, setUrl] = useState("");
+  const [type, setType] = useState<Source>("rss");
+
+  const { data: sources = [] } = useQuery({
+    queryKey: ["rss_sources"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("rss_sources").select("*").order("name");
+      if (error) throw error;
+      return data as RssSource[];
+    },
+  });
+
+  const add = useMutation({
+    mutationFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not signed in");
+      const { error } = await supabase.from("rss_sources").insert({
+        user_id: user.id, name, url, source_type: type, default_severity: "medium",
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["rss_sources"] });
+      setName(""); setUrl("");
+    },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const toggle = useMutation({
+    mutationFn: async ({ id, enabled }: { id: string; enabled: boolean }) => {
+      const { error } = await supabase.from("rss_sources").update({ enabled }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["rss_sources"] }),
+  });
+
+  const remove = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("rss_sources").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["rss_sources"] }),
+  });
+
+  return (
+    <div className="rounded-lg border bg-card p-4 mb-4">
+      <p className="text-xs text-muted-foreground mb-3">{t("feeds.sourcesDesc")}</p>
+      <ul className="space-y-2 mb-4">
+        {sources.map((s) => (
+          <li key={s.id} className="flex items-center gap-2 text-sm">
+            <Switch checked={s.enabled} onCheckedChange={(v) => toggle.mutate({ id: s.id, enabled: v })} />
+            <div className="flex-1 min-w-0">
+              <div className="font-medium truncate">{s.name}</div>
+              <div className="text-[10px] text-muted-foreground truncate">{s.url}</div>
+            </div>
+            <span className="text-[10px] text-muted-foreground">
+              {t("feeds.lastFetch")}: {s.last_fetched_at ? formatDistanceToNow(new Date(s.last_fetched_at), { addSuffix: true }) : t("feeds.never")}
+            </span>
+            <Button variant="ghost" size="icon" className="h-7 w-7"
+              onClick={() => { if (confirm(`Delete ${s.name}?`)) remove.mutate(s.id); }}>
+              <Trash2 className="h-3.5 w-3.5" />
+            </Button>
+          </li>
+        ))}
+      </ul>
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr_auto_auto] gap-2">
+        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t("feeds.sourceNamePh")} className="h-8" />
+        <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder={t("feeds.sourceUrlPh")} className="h-8" />
+        <Select value={type} onValueChange={(v) => setType(v as Source)}>
+          <SelectTrigger className="h-8 w-24"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            {SOURCES.map((s) => <SelectItem key={s} value={s}>{s.toUpperCase()}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <Button size="sm" onClick={() => add.mutate()} disabled={!name || !url || add.isPending}>
+          <Plus className="h-4 w-4" /> {t("feeds.addSource")}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
