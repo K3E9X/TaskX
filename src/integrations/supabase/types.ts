@@ -88,6 +88,7 @@ export type Database = {
           created_at: string
           external_id: string | null
           id: string
+          is_auto: boolean
           published_at: string
           read: boolean
           severity: Database["public"]["Enums"]["feed_severity"]
@@ -103,6 +104,7 @@ export type Database = {
           created_at?: string
           external_id?: string | null
           id?: string
+          is_auto?: boolean
           published_at?: string
           read?: boolean
           severity?: Database["public"]["Enums"]["feed_severity"]
@@ -118,6 +120,7 @@ export type Database = {
           created_at?: string
           external_id?: string | null
           id?: string
+          is_auto?: boolean
           published_at?: string
           read?: boolean
           severity?: Database["public"]["Enums"]["feed_severity"]
@@ -205,6 +208,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          auto_tip_enabled: boolean
           avatar_url: string | null
           created_at: string
           display_name: string
@@ -213,6 +217,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          auto_tip_enabled?: boolean
           avatar_url?: string | null
           created_at?: string
           display_name?: string
@@ -221,6 +226,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          auto_tip_enabled?: boolean
           avatar_url?: string | null
           created_at?: string
           display_name?: string
@@ -342,6 +348,45 @@ export type Database = {
           name?: string
           steps?: Json
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      rss_sources: {
+        Row: {
+          created_at: string
+          default_severity: Database["public"]["Enums"]["feed_severity"]
+          enabled: boolean
+          id: string
+          last_fetched_at: string | null
+          name: string
+          source_type: Database["public"]["Enums"]["feed_source"]
+          updated_at: string
+          url: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          default_severity?: Database["public"]["Enums"]["feed_severity"]
+          enabled?: boolean
+          id?: string
+          last_fetched_at?: string | null
+          name: string
+          source_type?: Database["public"]["Enums"]["feed_source"]
+          updated_at?: string
+          url: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          default_severity?: Database["public"]["Enums"]["feed_severity"]
+          enabled?: boolean
+          id?: string
+          last_fetched_at?: string | null
+          name?: string
+          source_type?: Database["public"]["Enums"]["feed_source"]
+          updated_at?: string
+          url?: string
           user_id?: string
         }
         Relationships: []
