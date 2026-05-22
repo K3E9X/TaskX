@@ -63,7 +63,7 @@ function AuthenticatedLayout() {
         className={`fixed inset-y-0 left-0 z-40 w-60 border-r bg-sidebar text-sidebar-foreground transform transition-transform md:static md:translate-x-0 ${open ? "translate-x-0" : "-translate-x-full"}`}
       >
         <div className="h-14 flex items-center px-4 border-b">
-          <span className="text-sm font-semibold tracking-tight">SecDesk</span>
+          <span className="text-sm font-semibold tracking-tight">TaskX</span>
         </div>
         <nav className="p-2 space-y-0.5 text-sm">
           {NAV.map((item) => {
