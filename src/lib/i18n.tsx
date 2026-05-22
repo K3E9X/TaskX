@@ -1,0 +1,147 @@
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+
+export type Lang = "fr" | "en";
+
+const dict = {
+  fr: {
+    "app.tagline": "Your SecOps Workspace",
+    "auth.subtitle": "Plateforme équipe sécurité",
+    "auth.signin": "Connexion",
+    "auth.signup": "Créer un compte",
+    "auth.name": "Nom",
+    "auth.namePh": "Ton nom",
+    "auth.email": "Email",
+    "auth.password": "Mot de passe",
+    "auth.signinBtn": "Se connecter",
+    "auth.signupBtn": "Créer le compte",
+    "auth.or": "ou",
+    "auth.google": "Continuer avec Google",
+    "auth.back": "Retour",
+    "auth.createdToast": "Compte créé. Vérifie ta boîte mail pour confirmer.",
+    "auth.error": "Erreur d'authentification",
+    "auth.googleError": "Erreur Google",
+    "common.menu": "Menu",
+    "common.loading": "Chargement…",
+    "common.signout": "Se déconnecter",
+    "common.soon": "À venir dans le prochain lot.",
+    "common.retry": "Réessayer",
+    "common.errorTitle": "Une erreur est survenue",
+    "common.notFound": "Cette page n'existe pas.",
+    "nav.dashboard": "Dashboard",
+    "nav.todos": "To-do",
+    "nav.notes": "Notes",
+    "nav.routines": "Routines",
+    "nav.projects": "Projets",
+    "nav.meetings": "Meetings",
+    "nav.diagrams": "Diagrammes",
+    "nav.feeds": "Veille",
+    "nav.tips": "Tip Linux",
+    "nav.bookmarks": "Add-ons",
+    "nav.team": "Équipe",
+    "dash.title": "Dashboard",
+    "dash.subtitle": "Vue d'ensemble de ton activité sécurité.",
+    "dash.kpi.overdue": "Tâches en retard",
+    "dash.kpi.risks": "Risques ouverts",
+    "dash.kpi.projects": "Projets actifs",
+    "dash.kpi.cve": "CVE critiques (7j)",
+    "dash.tip": "Tip Linux du jour",
+    "dash.tipSoon": "À venir — banque de commandes & techniques.",
+    "dash.feed": "Dernière veille",
+    "dash.feedSoon": "À venir — flux CVE / CTI / X.",
+    "dash.lot1": "Lot 1 livré : authentification, équipe, layout. Les sections (To-do, Notes, Projets, Veille…) arrivent ensuite.",
+  },
+  en: {
+    "app.tagline": "Your SecOps Workspace",
+    "auth.subtitle": "Security team platform",
+    "auth.signin": "Sign in",
+    "auth.signup": "Create account",
+    "auth.name": "Name",
+    "auth.namePh": "Your name",
+    "auth.email": "Email",
+    "auth.password": "Password",
+    "auth.signinBtn": "Sign in",
+    "auth.signupBtn": "Create account",
+    "auth.or": "or",
+    "auth.google": "Continue with Google",
+    "auth.back": "Back",
+    "auth.createdToast": "Account created. Check your inbox to confirm.",
+    "auth.error": "Authentication error",
+    "auth.googleError": "Google error",
+    "common.menu": "Menu",
+    "common.loading": "Loading…",
+    "common.signout": "Sign out",
+    "common.soon": "Coming in the next iteration.",
+    "common.retry": "Retry",
+    "common.errorTitle": "Something went wrong",
+    "common.notFound": "This page does not exist.",
+    "nav.dashboard": "Dashboard",
+    "nav.todos": "To-do",
+    "nav.notes": "Notes",
+    "nav.routines": "Routines",
+    "nav.projects": "Projects",
+    "nav.meetings": "Meetings",
+    "nav.diagrams": "Diagrams",
+    "nav.feeds": "Watch",
+    "nav.tips": "Linux Tip",
+    "nav.bookmarks": "Add-ons",
+    "nav.team": "Team",
+    "dash.title": "Dashboard",
+    "dash.subtitle": "Overview of your security activity.",
+    "dash.kpi.overdue": "Overdue tasks",
+    "dash.kpi.risks": "Open risks",
+    "dash.kpi.projects": "Active projects",
+    "dash.kpi.cve": "Critical CVEs (7d)",
+    "dash.tip": "Linux tip of the day",
+    "dash.tipSoon": "Coming — commands & techniques library.",
+    "dash.feed": "Latest watch",
+    "dash.feedSoon": "Coming — CVE / CTI / X feeds.",
+    "dash.lot1": "Phase 1 shipped: auth, team, layout. Sections (To-do, Notes, Projects, Watch…) come next.",
+  },
+} as const satisfies Record<Lang, Record<string, string>>;
+
+export type TKey = keyof (typeof dict)["fr"];
+
+type Ctx = { lang: Lang; setLang: (l: Lang) => void; t: (k: TKey) => string };
+const I18nCtx = createContext<Ctx | null>(null);
+
+export function I18nProvider({ children }: { children: ReactNode }) {
+  const [lang, setLangState] = useState<Lang>("fr");
+
+  useEffect(() => {
+    const stored = (typeof window !== "undefined" && localStorage.getItem("taskx.lang")) as Lang | null;
+    if (stored === "fr" || stored === "en") setLangState(stored);
+    else if (typeof navigator !== "undefined" && navigator.language.toLowerCase().startsWith("en")) setLangState("en");
+  }, []);
+
+  const setLang = (l: Lang) => {
+    setLangState(l);
+    if (typeof window !== "undefined") localStorage.setItem("taskx.lang", l);
+  };
+
+  const t = (k: TKey) => dict[lang][k] ?? k;
+  return <I18nCtx.Provider value={{ lang, setLang, t }}>{children}</I18nCtx.Provider>;
+}
+
+export function useI18n() {
+  const ctx = useContext(I18nCtx);
+  if (!ctx) throw new Error("useI18n must be used within I18nProvider");
+  return ctx;
+}
+
+export function LangToggle({ className = "" }: { className?: string }) {
+  const { lang, setLang } = useI18n();
+  return (
+    <div className={`inline-flex items-center rounded-md border bg-card text-xs overflow-hidden ${className}`}>
+      <button
+        type="button"
+        onClick={() => setLang("fr")}
+        className={`px-2 py-1 transition-colors ${lang === "fr" ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground"}`}
+      >FR</button>
+      <button
+        type="button"
+        onClick={() => setLang("en")}
+        className={`px-2 py-1 transition-colors ${lang === "en" ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground"}`}
+      >EN</button>
+    </div>
+  );
+}
