@@ -149,6 +149,7 @@ const dict = {
     "diagrams.preview": "Aperçu",
     "diagrams.renderError": "Erreur de rendu Mermaid",
     "diagrams.deleteConfirm": "Supprimer ce diagramme ?",
+  },
   en: {
     "app.tagline": "Your SecOps Workspace",
     "auth.subtitle": "Security team platform",
