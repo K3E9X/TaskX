@@ -118,6 +118,34 @@ function CockpitPage() {
     },
   });
 
+  const { data: feedItems = [] } = useQuery({
+    queryKey: ["cockpit", "feed_items"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("feed_items").select("id,title,severity,source,read")
+        .order("published_at", { ascending: false }).limit(50);
+      return data ?? [];
+    },
+  });
+
+  const { data: tips = [] } = useQuery({
+    queryKey: ["cockpit", "tips"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("tips").select("id,title,favorite")
+        .order("favorite", { ascending: false }).order("updated_at", { ascending: false }).limit(20);
+      return data ?? [];
+    },
+  });
+
+  const { data: bookmarks = [] } = useQuery({
+    queryKey: ["cockpit", "bookmarks"],
+    queryFn: async () => {
+      const { data } = await supabase.from("bookmarks").select("id,title").limit(50);
+      return data ?? [];
+    },
+  });
+
   const todayTodos = todos.filter((x) => x.due_at && isToday(parseISO(x.due_at)));
   const overdue = todos.filter((x) => x.due_at && isPast(parseISO(x.due_at)) && !isToday(parseISO(x.due_at)));
   const meetingsToday = meetings.filter((m) => {
