@@ -48,8 +48,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "SecDesk — Plateforme architecte sécurité" },
-      { name: "description", content: "Plateforme de productivité et veille pour équipes sécurité." },
+      { title: "TaskX — Plateforme architecte sécurité" },
+      { name: "description", content: "TaskX : productivité et veille pour équipes sécurité." },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
