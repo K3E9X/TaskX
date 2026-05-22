@@ -5,6 +5,7 @@ import { useI18n, type TKey } from "@/lib/i18n";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { format, isPast, parseISO, isToday, startOfDay, endOfDay, subDays } from "date-fns";
+import { SendDigestButton } from "@/components/SendDigestButton";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   component: DashboardPage,
