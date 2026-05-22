@@ -5,7 +5,7 @@ import { useI18n, LangToggle, type TKey } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import {
   LayoutDashboard, CheckSquare, FileText, Repeat, FolderKanban,
-  CalendarClock, GitBranch, Rss, Terminal, Bookmark, Users, LogOut,
+  CalendarClock, GitBranch, Rss, Terminal, Bookmark, Users, LogOut, Gauge,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated")({
