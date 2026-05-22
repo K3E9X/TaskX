@@ -11,8 +11,9 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Plus, Trash2, ExternalLink, Eye, EyeOff, ShieldAlert } from "lucide-react";
+import { Plus, Trash2, ExternalLink, Eye, EyeOff, ShieldAlert, RefreshCw, Rss, Power } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { Switch } from "@/components/ui/switch";
 
 type Source = "cve" | "cti" | "x" | "rss" | "other";
 type Severity = "info" | "low" | "medium" | "high" | "critical";
