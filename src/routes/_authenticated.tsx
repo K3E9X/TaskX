@@ -79,6 +79,20 @@ function AuthenticatedLayout() {
               </Link>
             );
           })}
+          {isAdmin && (
+            <Link
+              to="/admin"
+              onClick={() => setOpen(false)}
+              className={`flex items-center gap-2.5 rounded-md px-2.5 py-1.5 transition-colors ${
+                pathname === "/admin" || pathname.startsWith("/admin/")
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                  : "hover:bg-sidebar-accent/60 text-amber-500/90"
+              }`}
+            >
+              <Shield className="h-4 w-4" />
+              <span>Admin</span>
+            </Link>
+          )}
         </nav>
         <div className="absolute bottom-0 left-0 right-0 border-t p-3">
           <UserChip email={session.user.email ?? ""} onSignOut={async () => { await signOut(); navigate({ to: "/login" }); }} />
