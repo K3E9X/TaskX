@@ -60,8 +60,10 @@ function FeedsPage() {
   const { t } = useI18n();
   const qc = useQueryClient();
   const [showForm, setShowForm] = useState(false);
+  const [showSources, setShowSources] = useState(false);
   const [filterSource, setFilterSource] = useState<Source | "all">("all");
   const [unreadOnly, setUnreadOnly] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const { data: items = [], isLoading } = useQuery({
     queryKey: ["feed_items"],
@@ -95,18 +97,44 @@ function FeedsPage() {
     return true;
   });
 
+  const refresh = async () => {
+    setRefreshing(true);
+    try {
+      const res = await fetch("/api/public/hooks/ingest-feeds", { method: "POST" });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json?.error ?? "Failed");
+      toast.success(`${t("feeds.refreshDone")} (+${json.inserted ?? 0})`);
+      qc.invalidateQueries({ queryKey: ["feed_items"] });
+      qc.invalidateQueries({ queryKey: ["rss_sources"] });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Error");
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   return (
     <div className="mx-auto max-w-5xl px-4 md:px-8 py-8">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 gap-2 flex-wrap">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">{t("feeds.title")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">{items.filter((i) => !i.read).length} unread / {items.length}</p>
         </div>
-        <Button size="sm" onClick={() => setShowForm((v) => !v)}>
-          <Plus className="h-4 w-4" /> {t("feeds.new")}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button size="sm" variant="outline" onClick={refresh} disabled={refreshing}>
+            <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
+            {refreshing ? t("feeds.refreshing") : t("feeds.refreshNow")}
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => setShowSources((v) => !v)}>
+            <Rss className="h-4 w-4" /> {t("feeds.sources")}
+          </Button>
+          <Button size="sm" onClick={() => setShowForm((v) => !v)}>
+            <Plus className="h-4 w-4" /> {t("feeds.new")}
+          </Button>
+        </div>
       </div>
 
+      {showSources && <SourcesPanel />}
       {showForm && <FeedForm onDone={() => setShowForm(false)} />}
 
       <div className="flex flex-wrap items-center gap-2 mb-4">
