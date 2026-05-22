@@ -35,6 +35,16 @@ function AuthenticatedLayout() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [open, setOpen] = useState(false);
 
+  const { data: isAdmin } = useQuery({
+    queryKey: ["sidebar-isAdmin", session?.user.id],
+    enabled: !!session?.user.id,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("user_roles").select("role").eq("user_id", session!.user.id);
+      return (data ?? []).some((r) => r.role === "admin");
+    },
+  });
+
   useEffect(() => {
     if (!loading && !session) navigate({ to: "/login" });
   }, [loading, session, navigate]);
