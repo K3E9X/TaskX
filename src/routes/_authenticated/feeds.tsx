@@ -35,6 +35,16 @@ export const Route = createFileRoute("/_authenticated/feeds")({
   component: FeedsPage,
 });
 
+type RssSource = {
+  id: string;
+  name: string;
+  url: string;
+  source_type: Source;
+  default_severity: Severity;
+  enabled: boolean;
+  last_fetched_at: string | null;
+};
+
 const SEV_VARIANT: Record<Severity, "default" | "secondary" | "destructive" | "outline"> = {
   info: "outline",
   low: "secondary",
