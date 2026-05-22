@@ -14,6 +14,81 @@ export type Database = {
   }
   public: {
     Tables: {
+      diagrams: {
+        Row: {
+          created_at: string
+          description: string | null
+          diagram_type: Database["public"]["Enums"]["diagram_type"]
+          id: string
+          source: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          diagram_type?: Database["public"]["Enums"]["diagram_type"]
+          id?: string
+          source?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          diagram_type?: Database["public"]["Enums"]["diagram_type"]
+          id?: string
+          source?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      meetings: {
+        Row: {
+          action_items: string | null
+          agenda: string | null
+          attendees: string[]
+          created_at: string
+          decisions: string | null
+          id: string
+          meeting_date: string
+          notes: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          action_items?: string | null
+          agenda?: string | null
+          attendees?: string[]
+          created_at?: string
+          decisions?: string | null
+          id?: string
+          meeting_date?: string
+          notes?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          action_items?: string | null
+          agenda?: string | null
+          attendees?: string[]
+          created_at?: string
+          decisions?: string | null
+          id?: string
+          meeting_date?: string
+          notes?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notes: {
         Row: {
           content: string
@@ -68,6 +143,51 @@ export type Database = {
           id?: string
           team_role?: Database["public"]["Enums"]["team_role"]
           updated_at?: string
+        }
+        Relationships: []
+      }
+      projects: {
+        Row: {
+          compliance: string[]
+          created_at: string
+          data_classification: string | null
+          description: string | null
+          id: string
+          name: string
+          risk_level: Database["public"]["Enums"]["risk_level"]
+          security_controls: string | null
+          status: Database["public"]["Enums"]["project_status"]
+          threat_model: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          compliance?: string[]
+          created_at?: string
+          data_classification?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          risk_level?: Database["public"]["Enums"]["risk_level"]
+          security_controls?: string | null
+          status?: Database["public"]["Enums"]["project_status"]
+          threat_model?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          compliance?: string[]
+          created_at?: string
+          data_classification?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          risk_level?: Database["public"]["Enums"]["risk_level"]
+          security_controls?: string | null
+          status?: Database["public"]["Enums"]["project_status"]
+          threat_model?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -217,6 +337,15 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "member"
+      diagram_type:
+        | "flowchart"
+        | "sequence"
+        | "erd"
+        | "architecture"
+        | "state"
+        | "other"
+      project_status: "draft" | "active" | "on_hold" | "done"
+      risk_level: "low" | "medium" | "high" | "critical"
       routine_frequency: "daily" | "weekly"
       team_role: "architect" | "pentester" | "forensic" | "analyst"
       todo_priority: "low" | "med" | "high" | "urgent"
@@ -349,6 +478,16 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "member"],
+      diagram_type: [
+        "flowchart",
+        "sequence",
+        "erd",
+        "architecture",
+        "state",
+        "other",
+      ],
+      project_status: ["draft", "active", "on_hold", "done"],
+      risk_level: ["low", "medium", "high", "critical"],
       routine_frequency: ["daily", "weekly"],
       team_role: ["architect", "pentester", "forensic", "analyst"],
       todo_priority: ["low", "med", "high", "urgent"],
