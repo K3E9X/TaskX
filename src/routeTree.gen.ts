@@ -26,6 +26,7 @@ import { Route as AuthenticatedCockpitRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedBookmarksRouteImport } from './routes/_authenticated/bookmarks'
 import { Route as ApiPublicHooksMonthlyTipRouteImport } from './routes/api/public/hooks/monthly-tip'
 import { Route as ApiPublicHooksIngestFeedsRouteImport } from './routes/api/public/hooks/ingest-feeds'
+import { Route as ApiPublicHooksDailyDigestRouteImport } from './routes/api/public/hooks/daily-digest'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -113,6 +114,12 @@ const ApiPublicHooksIngestFeedsRoute =
     path: '/api/public/hooks/ingest-feeds',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksDailyDigestRoute =
+  ApiPublicHooksDailyDigestRouteImport.update({
+    id: '/api/public/hooks/daily-digest',
+    path: '/api/public/hooks/daily-digest',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -129,6 +136,7 @@ export interface FileRoutesByFullPath {
   '/team': typeof AuthenticatedTeamRoute
   '/tips': typeof AuthenticatedTipsRoute
   '/todos': typeof AuthenticatedTodosRoute
+  '/api/public/hooks/daily-digest': typeof ApiPublicHooksDailyDigestRoute
   '/api/public/hooks/ingest-feeds': typeof ApiPublicHooksIngestFeedsRoute
   '/api/public/hooks/monthly-tip': typeof ApiPublicHooksMonthlyTipRoute
 }
@@ -147,6 +155,7 @@ export interface FileRoutesByTo {
   '/team': typeof AuthenticatedTeamRoute
   '/tips': typeof AuthenticatedTipsRoute
   '/todos': typeof AuthenticatedTodosRoute
+  '/api/public/hooks/daily-digest': typeof ApiPublicHooksDailyDigestRoute
   '/api/public/hooks/ingest-feeds': typeof ApiPublicHooksIngestFeedsRoute
   '/api/public/hooks/monthly-tip': typeof ApiPublicHooksMonthlyTipRoute
 }
@@ -167,6 +176,7 @@ export interface FileRoutesById {
   '/_authenticated/team': typeof AuthenticatedTeamRoute
   '/_authenticated/tips': typeof AuthenticatedTipsRoute
   '/_authenticated/todos': typeof AuthenticatedTodosRoute
+  '/api/public/hooks/daily-digest': typeof ApiPublicHooksDailyDigestRoute
   '/api/public/hooks/ingest-feeds': typeof ApiPublicHooksIngestFeedsRoute
   '/api/public/hooks/monthly-tip': typeof ApiPublicHooksMonthlyTipRoute
 }
@@ -187,6 +197,7 @@ export interface FileRouteTypes {
     | '/team'
     | '/tips'
     | '/todos'
+    | '/api/public/hooks/daily-digest'
     | '/api/public/hooks/ingest-feeds'
     | '/api/public/hooks/monthly-tip'
   fileRoutesByTo: FileRoutesByTo
@@ -205,6 +216,7 @@ export interface FileRouteTypes {
     | '/team'
     | '/tips'
     | '/todos'
+    | '/api/public/hooks/daily-digest'
     | '/api/public/hooks/ingest-feeds'
     | '/api/public/hooks/monthly-tip'
   id:
@@ -224,6 +236,7 @@ export interface FileRouteTypes {
     | '/_authenticated/team'
     | '/_authenticated/tips'
     | '/_authenticated/todos'
+    | '/api/public/hooks/daily-digest'
     | '/api/public/hooks/ingest-feeds'
     | '/api/public/hooks/monthly-tip'
   fileRoutesById: FileRoutesById
@@ -232,6 +245,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   LoginRoute: typeof LoginRoute
+  ApiPublicHooksDailyDigestRoute: typeof ApiPublicHooksDailyDigestRoute
   ApiPublicHooksIngestFeedsRoute: typeof ApiPublicHooksIngestFeedsRoute
   ApiPublicHooksMonthlyTipRoute: typeof ApiPublicHooksMonthlyTipRoute
 }
@@ -357,6 +371,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksIngestFeedsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/daily-digest': {
+      id: '/api/public/hooks/daily-digest'
+      path: '/api/public/hooks/daily-digest'
+      fullPath: '/api/public/hooks/daily-digest'
+      preLoaderRoute: typeof ApiPublicHooksDailyDigestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -398,19 +419,10 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   LoginRoute: LoginRoute,
+  ApiPublicHooksDailyDigestRoute: ApiPublicHooksDailyDigestRoute,
   ApiPublicHooksIngestFeedsRoute: ApiPublicHooksIngestFeedsRoute,
   ApiPublicHooksMonthlyTipRoute: ApiPublicHooksMonthlyTipRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

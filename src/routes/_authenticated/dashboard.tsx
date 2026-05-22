@@ -5,6 +5,7 @@ import { useI18n, type TKey } from "@/lib/i18n";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { format, isPast, parseISO, isToday, startOfDay, endOfDay, subDays } from "date-fns";
+import { SendDigestButton } from "@/components/SendDigestButton";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   component: DashboardPage,
@@ -123,11 +124,14 @@ function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 md:px-8 py-8">
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight">{t("dash.title")}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {format(new Date(), "EEEE d MMMM yyyy")}
-        </p>
+      <div className="mb-8 flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">{t("dash.title")}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {format(new Date(), "EEEE d MMMM yyyy")}
+          </p>
+        </div>
+        <SendDigestButton />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
