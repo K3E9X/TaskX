@@ -209,19 +209,24 @@ function CockpitPage() {
         />
         <Tile
           to="/feeds" icon={ShieldAlert} label={t("cockpit.cve")}
-          value="—" sub={t("cockpit.soon")} tone="muted"
+          value={feedItems.filter((f) => f.source === "cve" && (f.severity === "critical" || f.severity === "high")).length}
+          sub={feedItems.find((f) => f.source === "cve")?.title ?? t("cockpit.empty")}
+          tone={feedItems.some((f) => f.source === "cve" && f.severity === "critical" && !f.read) ? "warn" : "default"}
         />
         <Tile
           to="/feeds" icon={Rss} label={t("cockpit.feeds")}
-          value="—" sub={t("cockpit.soon")} tone="muted"
+          value={feedItems.filter((f) => !f.read).length}
+          sub={feedItems[0]?.title ?? t("cockpit.empty")}
         />
         <Tile
           to="/tips" icon={Terminal} label={t("cockpit.tip")}
-          value="—" sub={t("cockpit.soon")} tone="muted"
+          value={tips.length}
+          sub={tips.find((x) => x.favorite)?.title ?? tips[0]?.title ?? t("cockpit.empty")}
         />
         <Tile
           to="/bookmarks" icon={Bookmark} label={t("cockpit.bookmarks")}
-          value="—" sub={t("cockpit.soon")} tone="muted"
+          value={bookmarks.length}
+          sub={bookmarks[0]?.title ?? t("cockpit.empty")}
         />
         <Tile
           icon={Twitter} label={t("cockpit.x")}
