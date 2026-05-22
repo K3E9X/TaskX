@@ -1,11 +1,12 @@
 import { createFileRoute, Outlet, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
 import { useI18n, LangToggle, type TKey } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import {
   LayoutDashboard, CheckSquare, FileText, Repeat, FolderKanban,
-  CalendarClock, GitBranch, Rss, Terminal, Bookmark, Users, LogOut, Gauge,
+  CalendarClock, GitBranch, Rss, Terminal, Bookmark, Users, LogOut, Gauge, Shield,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated")({
