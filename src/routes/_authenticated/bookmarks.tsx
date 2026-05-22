@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Plus, Trash2, ExternalLink, Bookmark as BookmarkIcon } from "lucide-react";
+import { OutlookConnectCard } from "@/components/OutlookConnectCard";
 
 type Bookmark = {
   id: string;
@@ -74,6 +75,11 @@ function BookmarksPage() {
         <Button size="sm" onClick={() => setShowForm((v) => !v)}>
           <Plus className="h-4 w-4" /> {t("bookmarks.new")}
         </Button>
+      </div>
+
+      <div className="mb-6">
+        <h2 className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2">Intégrations</h2>
+        <OutlookConnectCard />
       </div>
 
       {showForm && <BookmarkForm onDone={() => setShowForm(false)} />}

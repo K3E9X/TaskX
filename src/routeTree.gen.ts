@@ -27,6 +27,7 @@ import { Route as AuthenticatedBookmarksRouteImport } from './routes/_authentica
 import { Route as ApiPublicHooksMonthlyTipRouteImport } from './routes/api/public/hooks/monthly-tip'
 import { Route as ApiPublicHooksIngestFeedsRouteImport } from './routes/api/public/hooks/ingest-feeds'
 import { Route as ApiPublicHooksDailyDigestRouteImport } from './routes/api/public/hooks/daily-digest'
+import { Route as ApiPublicHooksDailyDigestStatusRouteImport } from './routes/api/public/hooks/daily-digest.status'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -120,6 +121,12 @@ const ApiPublicHooksDailyDigestRoute =
     path: '/api/public/hooks/daily-digest',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksDailyDigestStatusRoute =
+  ApiPublicHooksDailyDigestStatusRouteImport.update({
+    id: '/status',
+    path: '/status',
+    getParentRoute: () => ApiPublicHooksDailyDigestRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -136,9 +143,10 @@ export interface FileRoutesByFullPath {
   '/team': typeof AuthenticatedTeamRoute
   '/tips': typeof AuthenticatedTipsRoute
   '/todos': typeof AuthenticatedTodosRoute
-  '/api/public/hooks/daily-digest': typeof ApiPublicHooksDailyDigestRoute
+  '/api/public/hooks/daily-digest': typeof ApiPublicHooksDailyDigestRouteWithChildren
   '/api/public/hooks/ingest-feeds': typeof ApiPublicHooksIngestFeedsRoute
   '/api/public/hooks/monthly-tip': typeof ApiPublicHooksMonthlyTipRoute
+  '/api/public/hooks/daily-digest/status': typeof ApiPublicHooksDailyDigestStatusRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -155,9 +163,10 @@ export interface FileRoutesByTo {
   '/team': typeof AuthenticatedTeamRoute
   '/tips': typeof AuthenticatedTipsRoute
   '/todos': typeof AuthenticatedTodosRoute
-  '/api/public/hooks/daily-digest': typeof ApiPublicHooksDailyDigestRoute
+  '/api/public/hooks/daily-digest': typeof ApiPublicHooksDailyDigestRouteWithChildren
   '/api/public/hooks/ingest-feeds': typeof ApiPublicHooksIngestFeedsRoute
   '/api/public/hooks/monthly-tip': typeof ApiPublicHooksMonthlyTipRoute
+  '/api/public/hooks/daily-digest/status': typeof ApiPublicHooksDailyDigestStatusRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -176,9 +185,10 @@ export interface FileRoutesById {
   '/_authenticated/team': typeof AuthenticatedTeamRoute
   '/_authenticated/tips': typeof AuthenticatedTipsRoute
   '/_authenticated/todos': typeof AuthenticatedTodosRoute
-  '/api/public/hooks/daily-digest': typeof ApiPublicHooksDailyDigestRoute
+  '/api/public/hooks/daily-digest': typeof ApiPublicHooksDailyDigestRouteWithChildren
   '/api/public/hooks/ingest-feeds': typeof ApiPublicHooksIngestFeedsRoute
   '/api/public/hooks/monthly-tip': typeof ApiPublicHooksMonthlyTipRoute
+  '/api/public/hooks/daily-digest/status': typeof ApiPublicHooksDailyDigestStatusRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -200,6 +210,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/daily-digest'
     | '/api/public/hooks/ingest-feeds'
     | '/api/public/hooks/monthly-tip'
+    | '/api/public/hooks/daily-digest/status'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -219,6 +230,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/daily-digest'
     | '/api/public/hooks/ingest-feeds'
     | '/api/public/hooks/monthly-tip'
+    | '/api/public/hooks/daily-digest/status'
   id:
     | '__root__'
     | '/'
@@ -239,13 +251,14 @@ export interface FileRouteTypes {
     | '/api/public/hooks/daily-digest'
     | '/api/public/hooks/ingest-feeds'
     | '/api/public/hooks/monthly-tip'
+    | '/api/public/hooks/daily-digest/status'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   LoginRoute: typeof LoginRoute
-  ApiPublicHooksDailyDigestRoute: typeof ApiPublicHooksDailyDigestRoute
+  ApiPublicHooksDailyDigestRoute: typeof ApiPublicHooksDailyDigestRouteWithChildren
   ApiPublicHooksIngestFeedsRoute: typeof ApiPublicHooksIngestFeedsRoute
   ApiPublicHooksMonthlyTipRoute: typeof ApiPublicHooksMonthlyTipRoute
 }
@@ -378,6 +391,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksDailyDigestRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/daily-digest/status': {
+      id: '/api/public/hooks/daily-digest/status'
+      path: '/status'
+      fullPath: '/api/public/hooks/daily-digest/status'
+      preLoaderRoute: typeof ApiPublicHooksDailyDigestStatusRouteImport
+      parentRoute: typeof ApiPublicHooksDailyDigestRoute
+    }
   }
 }
 
@@ -415,11 +435,25 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
+interface ApiPublicHooksDailyDigestRouteChildren {
+  ApiPublicHooksDailyDigestStatusRoute: typeof ApiPublicHooksDailyDigestStatusRoute
+}
+
+const ApiPublicHooksDailyDigestRouteChildren: ApiPublicHooksDailyDigestRouteChildren =
+  {
+    ApiPublicHooksDailyDigestStatusRoute: ApiPublicHooksDailyDigestStatusRoute,
+  }
+
+const ApiPublicHooksDailyDigestRouteWithChildren =
+  ApiPublicHooksDailyDigestRoute._addFileChildren(
+    ApiPublicHooksDailyDigestRouteChildren,
+  )
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   LoginRoute: LoginRoute,
-  ApiPublicHooksDailyDigestRoute: ApiPublicHooksDailyDigestRoute,
+  ApiPublicHooksDailyDigestRoute: ApiPublicHooksDailyDigestRouteWithChildren,
   ApiPublicHooksIngestFeedsRoute: ApiPublicHooksIngestFeedsRoute,
   ApiPublicHooksMonthlyTipRoute: ApiPublicHooksMonthlyTipRoute,
 }
