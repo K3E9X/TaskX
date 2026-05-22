@@ -162,12 +162,61 @@ function CockpitPage() {
 
   const highRiskProject = projects.find((p) => p.risk_level === "critical" || p.risk_level === "high");
 
+  const criticalCves = feedItems.filter((f) => f.source === "cve" && f.severity === "critical" && !f.read);
+  const unreadFeeds = feedItems.filter((f) => !f.read).length;
+
   return (
     <div className="mx-auto max-w-6xl px-4 md:px-8 py-8">
       <div className="mb-6">
         <h1 className="text-2xl font-semibold tracking-tight">{t("cockpit.title")}</h1>
         <p className="mt-1 text-sm text-muted-foreground">{t("cockpit.subtitle")} · {format(new Date(), "EEEE d MMMM")}</p>
       </div>
+
+      {/* Brief du jour */}
+      <div className="mb-5 rounded-lg border bg-gradient-to-br from-card to-accent/20 p-5">
+        <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-3">Brief du jour</div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="flex items-start gap-3">
+            <div className={`h-9 w-9 rounded-md flex items-center justify-center shrink-0 ${overdue.length > 0 ? "bg-destructive/15 text-destructive" : "bg-accent text-muted-foreground"}`}>
+              <AlertTriangle className="h-4 w-4" />
+            </div>
+            <div className="min-w-0">
+              <div className={`text-xl font-semibold tabular-nums leading-none ${overdue.length > 0 ? "text-destructive" : ""}`}>{overdue.length}</div>
+              <div className="text-[11px] text-muted-foreground mt-1 truncate">en retard {overdue[0]?.title ? `· ${overdue[0].title}` : ""}</div>
+            </div>
+          </div>
+          <div className="flex items-start gap-3">
+            <div className="h-9 w-9 rounded-md bg-accent flex items-center justify-center shrink-0">
+              <CheckSquare className="h-4 w-4 text-muted-foreground" />
+            </div>
+            <div className="min-w-0">
+              <div className="text-xl font-semibold tabular-nums leading-none">{todayTodos.length}</div>
+              <div className="text-[11px] text-muted-foreground mt-1 truncate">to-do du jour {todayTodos[0]?.title ? `· ${todayTodos[0].title}` : ""}</div>
+            </div>
+          </div>
+          <div className="flex items-start gap-3">
+            <div className={`h-9 w-9 rounded-md flex items-center justify-center shrink-0 ${criticalCves.length > 0 ? "bg-destructive/15 text-destructive" : "bg-accent text-muted-foreground"}`}>
+              <ShieldAlert className="h-4 w-4" />
+            </div>
+            <div className="min-w-0">
+              <div className={`text-xl font-semibold tabular-nums leading-none ${criticalCves.length > 0 ? "text-destructive" : ""}`}>{criticalCves.length}</div>
+              <div className="text-[11px] text-muted-foreground mt-1 truncate">CVE critiques non lues {criticalCves[0]?.title ? `· ${criticalCves[0].title}` : ""}</div>
+            </div>
+          </div>
+          <div className="flex items-start gap-3">
+            <div className="h-9 w-9 rounded-md bg-accent flex items-center justify-center shrink-0">
+              <CalendarClock className="h-4 w-4 text-muted-foreground" />
+            </div>
+            <div className="min-w-0">
+              <div className="text-xl font-semibold tabular-nums leading-none">{meetingsToday.length}</div>
+              <div className="text-[11px] text-muted-foreground mt-1 truncate">
+                {nextMeeting ? `${nextMeeting.title} · ${format(parseISO(nextMeeting.meeting_date), "dd/MM HH:mm")}` : "aucun meeting"}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
 
       <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
         <Tile
