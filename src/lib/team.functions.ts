@@ -93,7 +93,11 @@ export const updateMemberProfile = createServerFn({ method: "POST" })
   )
   .handler(async ({ context, data }) => {
     await assertAdmin(context.userId);
-    const patch: Record<string, string> = {};
+    const patch: {
+      first_name?: string;
+      last_name?: string;
+      team_role?: "architect" | "pentester" | "forensic" | "analyst";
+    } = {};
     if (data.first_name !== undefined) patch.first_name = data.first_name;
     if (data.last_name !== undefined) patch.last_name = data.last_name;
     if (data.team_role !== undefined) patch.team_role = data.team_role;
