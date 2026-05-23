@@ -16,6 +16,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedTodosRouteImport } from './routes/_authenticated/todos'
 import { Route as AuthenticatedTipsRouteImport } from './routes/_authenticated/tips'
+import { Route as AuthenticatedTemplatesRouteImport } from './routes/_authenticated/templates'
 import { Route as AuthenticatedTeamRouteImport } from './routes/_authenticated/team'
 import { Route as AuthenticatedSnippetsRouteImport } from './routes/_authenticated/snippets'
 import { Route as AuthenticatedSecurityRouteImport } from './routes/_authenticated/security'
@@ -66,6 +67,11 @@ const AuthenticatedTodosRoute = AuthenticatedTodosRouteImport.update({
 const AuthenticatedTipsRoute = AuthenticatedTipsRouteImport.update({
   id: '/tips',
   path: '/tips',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedTemplatesRoute = AuthenticatedTemplatesRouteImport.update({
+  id: '/templates',
+  path: '/templates',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedTeamRoute = AuthenticatedTeamRouteImport.update({
@@ -176,6 +182,7 @@ export interface FileRoutesByFullPath {
   '/security': typeof AuthenticatedSecurityRoute
   '/snippets': typeof AuthenticatedSnippetsRoute
   '/team': typeof AuthenticatedTeamRoute
+  '/templates': typeof AuthenticatedTemplatesRoute
   '/tips': typeof AuthenticatedTipsRoute
   '/todos': typeof AuthenticatedTodosRoute
   '/api/public/hooks/daily-digest': typeof ApiPublicHooksDailyDigestRouteWithChildren
@@ -201,6 +208,7 @@ export interface FileRoutesByTo {
   '/security': typeof AuthenticatedSecurityRoute
   '/snippets': typeof AuthenticatedSnippetsRoute
   '/team': typeof AuthenticatedTeamRoute
+  '/templates': typeof AuthenticatedTemplatesRoute
   '/tips': typeof AuthenticatedTipsRoute
   '/todos': typeof AuthenticatedTodosRoute
   '/api/public/hooks/daily-digest': typeof ApiPublicHooksDailyDigestRouteWithChildren
@@ -228,6 +236,7 @@ export interface FileRoutesById {
   '/_authenticated/security': typeof AuthenticatedSecurityRoute
   '/_authenticated/snippets': typeof AuthenticatedSnippetsRoute
   '/_authenticated/team': typeof AuthenticatedTeamRoute
+  '/_authenticated/templates': typeof AuthenticatedTemplatesRoute
   '/_authenticated/tips': typeof AuthenticatedTipsRoute
   '/_authenticated/todos': typeof AuthenticatedTodosRoute
   '/api/public/hooks/daily-digest': typeof ApiPublicHooksDailyDigestRouteWithChildren
@@ -255,6 +264,7 @@ export interface FileRouteTypes {
     | '/security'
     | '/snippets'
     | '/team'
+    | '/templates'
     | '/tips'
     | '/todos'
     | '/api/public/hooks/daily-digest'
@@ -280,6 +290,7 @@ export interface FileRouteTypes {
     | '/security'
     | '/snippets'
     | '/team'
+    | '/templates'
     | '/tips'
     | '/todos'
     | '/api/public/hooks/daily-digest'
@@ -306,6 +317,7 @@ export interface FileRouteTypes {
     | '/_authenticated/security'
     | '/_authenticated/snippets'
     | '/_authenticated/team'
+    | '/_authenticated/templates'
     | '/_authenticated/tips'
     | '/_authenticated/todos'
     | '/api/public/hooks/daily-digest'
@@ -374,6 +386,13 @@ declare module '@tanstack/react-router' {
       path: '/tips'
       fullPath: '/tips'
       preLoaderRoute: typeof AuthenticatedTipsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/templates': {
+      id: '/_authenticated/templates'
+      path: '/templates'
+      fullPath: '/templates'
+      preLoaderRoute: typeof AuthenticatedTemplatesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/team': {
@@ -512,6 +531,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedSecurityRoute: typeof AuthenticatedSecurityRoute
   AuthenticatedSnippetsRoute: typeof AuthenticatedSnippetsRoute
   AuthenticatedTeamRoute: typeof AuthenticatedTeamRoute
+  AuthenticatedTemplatesRoute: typeof AuthenticatedTemplatesRoute
   AuthenticatedTipsRoute: typeof AuthenticatedTipsRoute
   AuthenticatedTodosRoute: typeof AuthenticatedTodosRoute
 }
@@ -530,6 +550,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedSecurityRoute: AuthenticatedSecurityRoute,
   AuthenticatedSnippetsRoute: AuthenticatedSnippetsRoute,
   AuthenticatedTeamRoute: AuthenticatedTeamRoute,
+  AuthenticatedTemplatesRoute: AuthenticatedTemplatesRoute,
   AuthenticatedTipsRoute: AuthenticatedTipsRoute,
   AuthenticatedTodosRoute: AuthenticatedTodosRoute,
 }
