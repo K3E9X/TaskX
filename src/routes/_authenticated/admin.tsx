@@ -25,16 +25,21 @@ import {
   listAllContent, deleteContent,
   listFeatureFlags, upsertFeatureFlag, deleteFeatureFlag,
   getSystemInfo,
+  listUserNotes, addUserNote, deleteUserNote,
+  listBlockedIps, blockIp, unblockIp,
+  getTopUsers, getHourlyHeatmap, getCountryStats,
 } from "@/lib/admin-console.functions";
 import { setAppRole } from "@/lib/team.functions";
 import {
   Shield, Users as UsersIcon, Activity, FileText, Flag, History, Server,
   Search, UserPlus, Ban, KeyRound, Trash2, RotateCw, ShieldCheck, ExternalLink,
+  Globe, ShieldAlert, ArrowUpDown, StickyNote, Plus,
 } from "lucide-react";
 import {
   ResponsiveContainer, AreaChart, Area, LineChart, Line,
   XAxis, YAxis, Tooltip, CartesianGrid, Legend,
 } from "recharts";
+import { Textarea } from "@/components/ui/textarea";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
