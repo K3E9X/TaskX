@@ -175,7 +175,7 @@ function CockpitPage() {
 
       {/* Brief du jour */}
       <div className="mb-5 rounded-lg border bg-gradient-to-br from-card to-accent/20 p-5">
-        <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-3">Brief du jour</div>
+        <h2 className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-3">Brief du jour</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="flex items-start gap-3">
             <div className={`h-9 w-9 rounded-md flex items-center justify-center shrink-0 ${overdue.length > 0 ? "bg-destructive/15 text-destructive" : "bg-accent text-muted-foreground"}`}>

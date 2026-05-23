@@ -49,13 +49,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "TaskX — Plateforme architecte sécurité" },
-      { name: "description", content: "TaskX : productivité et veille pour équipes sécurité." },
+      // Sitewide non-page-specific defaults only. Per-route head() defines
+      // title, description, og:title, og:description, og:url, canonical.
       { property: "og:site_name", content: "TaskX" },
       { property: "og:type", content: "website" },
-      { property: "og:title", content: "TaskX — Plateforme architecte sécurité" },
-      { property: "og:description", content: "TaskX : productivité et veille pour équipes sécurité." },
-      { property: "og:url", content: "https://taskxx.lovable.app/" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },

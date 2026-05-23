@@ -95,6 +95,7 @@ function NotesPage() {
 
   return (
     <div className="flex h-[calc(100vh-3.5rem)]">
+      <h1 className="sr-only">{t("nav.notes")}</h1>
       {/* List */}
       <aside className="w-72 border-r flex flex-col">
         <div className="p-3 border-b space-y-2">
@@ -209,8 +210,8 @@ function Editor({
             className={`px-3 py-1 ${mode === "preview" ? "bg-accent" : "text-muted-foreground"}`}
           >{t("notes.preview")}</button>
         </div>
-        <Button variant="ghost" size="icon" onClick={onDelete}>
-          <Trash2 className="h-4 w-4" />
+        <Button variant="ghost" size="icon" aria-label={t("notes.delete") ?? "Delete note"} onClick={onDelete}>
+          <Trash2 className="h-4 w-4" aria-hidden="true" />
         </Button>
       </div>
       {mode === "edit" ? (

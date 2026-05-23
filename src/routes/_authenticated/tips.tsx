@@ -116,6 +116,7 @@ function TipsPage() {
                 <Badge variant="outline" className="h-5 px-1.5 text-[10px]">{x.category}</Badge>
                 <Button
                   variant="ghost" size="icon" className="h-6 w-6"
+                  aria-label={x.favorite ? `Unstar ${x.title}` : `Star ${x.title}`}
                   onClick={() => toggleFav.mutate({ id: x.id, favorite: !x.favorite })}
                 >
                   <Star className={`h-3.5 w-3.5 ${x.favorite ? "fill-primary text-primary" : ""}`} />
@@ -126,6 +127,7 @@ function TipsPage() {
                   <pre className="text-xs font-mono overflow-x-auto whitespace-pre-wrap break-all">{x.command}</pre>
                   <Button
                     variant="ghost" size="icon" className="h-6 w-6 absolute top-1 right-1 opacity-0 group-hover:opacity-100"
+                    aria-label={`Copy command for ${x.title}`}
                     onClick={() => copyCmd(x.command!)}
                   ><Copy className="h-3 w-3" /></Button>
                 </div>
@@ -139,6 +141,7 @@ function TipsPage() {
                 ))}
                 <Button
                   variant="ghost" size="icon" className="h-6 w-6 ml-auto"
+                  aria-label={`Delete ${x.title}`}
                   onClick={() => { if (confirm(t("tips.deleteConfirm"))) remove.mutate(x.id); }}
                 ><Trash2 className="h-3 w-3" /></Button>
               </div>

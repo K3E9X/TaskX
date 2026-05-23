@@ -15,7 +15,16 @@ import { SendDigestButton } from "@/components/SendDigestButton";
 import { Maximize2, Minimize2, X, Plus, RotateCcw } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
-  head: () => ({ meta: [{ title: "Dashboard — TaskX" }] }),
+  head: () => ({
+    meta: [
+      { title: "Dashboard — TaskX" },
+      { name: "description", content: "Your TaskX dashboard: today's to-dos, overdue tasks, daily routines, recent notes and CTI tip of the day in one cockpit." },
+      { property: "og:title", content: "Dashboard — TaskX" },
+      { property: "og:description", content: "Your TaskX cockpit with today's to-dos, overdue tasks, routines and recent notes." },
+      { property: "og:url", content: "https://taskxx.lovable.app/dashboard" },
+    ],
+    links: [{ rel: "canonical", href: "https://taskxx.lovable.app/dashboard" }],
+  }),
   component: DashboardPage,
 });
 
@@ -104,16 +113,16 @@ function Tile({
   return (
     <div className={`group relative rounded-lg border bg-card ${sizeClass(size)}`}>
       <div className={`flex items-center justify-between ${compact ? "px-4 pt-3 pb-1" : "px-5 pt-4 pb-2"}`}>
-        <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground truncate">{title}</h3>
+        <h2 className="text-xs font-medium uppercase tracking-wider text-muted-foreground truncate">{title}</h2>
         <div className="flex items-center gap-1">
           <div className="hidden group-hover:flex items-center gap-0.5">
-            <button onClick={onShrink} title="−" className="h-6 w-6 inline-flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-accent/60">
+            <button onClick={onShrink} aria-label={`Shrink ${title}`} title="−" className="h-6 w-6 inline-flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-accent/60">
               <Minimize2 className="h-3.5 w-3.5" />
             </button>
-            <button onClick={onResize} title="+" className="h-6 w-6 inline-flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-accent/60">
+            <button onClick={onResize} aria-label={`Resize ${title}`} title="+" className="h-6 w-6 inline-flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-accent/60">
               <Maximize2 className="h-3.5 w-3.5" />
             </button>
-            <button onClick={onRemove} title="×" className="h-6 w-6 inline-flex items-center justify-center rounded text-muted-foreground hover:text-destructive hover:bg-accent/60">
+            <button onClick={onRemove} aria-label={`Remove ${title}`} title="×" className="h-6 w-6 inline-flex items-center justify-center rounded text-muted-foreground hover:text-destructive hover:bg-accent/60">
               <X className="h-3.5 w-3.5" />
             </button>
           </div>
@@ -435,13 +444,13 @@ function KPITile({
   return (
     <div className={`group relative rounded-lg border bg-card p-5 ${sizeClass(size)}`}>
       <div className="absolute right-2 top-2 hidden group-hover:flex items-center gap-0.5">
-        <button onClick={onShrink} className="h-6 w-6 inline-flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-accent/60">
+        <button onClick={onShrink} aria-label={`Shrink ${title}`} className="h-6 w-6 inline-flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-accent/60">
           <Minimize2 className="h-3.5 w-3.5" />
         </button>
-        <button onClick={onResize} className="h-6 w-6 inline-flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-accent/60">
+        <button onClick={onResize} aria-label={`Resize ${title}`} className="h-6 w-6 inline-flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-accent/60">
           <Maximize2 className="h-3.5 w-3.5" />
         </button>
-        <button onClick={onRemove} className="h-6 w-6 inline-flex items-center justify-center rounded text-muted-foreground hover:text-destructive hover:bg-accent/60">
+        <button onClick={onRemove} aria-label={`Remove ${title}`} className="h-6 w-6 inline-flex items-center justify-center rounded text-muted-foreground hover:text-destructive hover:bg-accent/60">
           <X className="h-3.5 w-3.5" />
         </button>
       </div>

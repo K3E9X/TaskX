@@ -117,11 +117,12 @@ function AuthenticatedLayout() {
                 to={item.to}
                 onClick={() => setOpen(false)}
                 title={collapsed ? t(item.key) : undefined}
+                aria-label={collapsed ? t(item.key) : undefined}
                 className={`flex items-center gap-2.5 rounded-md ${collapsed ? "justify-center px-0 py-2" : "px-2.5 py-1.5"} transition-colors ${
                   active ? "bg-sidebar-accent text-sidebar-accent-foreground" : "hover:bg-sidebar-accent/60 text-muted-foreground"
                 }`}
               >
-                <Icon className="h-4 w-4 shrink-0" />
+                <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
                 {!collapsed && <span className="truncate">{t(item.key)}</span>}
               </Link>
             );
@@ -131,13 +132,14 @@ function AuthenticatedLayout() {
               to="/admin"
               onClick={() => setOpen(false)}
               title={collapsed ? "Admin" : undefined}
+              aria-label={collapsed ? "Admin" : undefined}
               className={`flex items-center gap-2.5 rounded-md ${collapsed ? "justify-center px-0 py-2" : "px-2.5 py-1.5"} transition-colors ${
                 pathname === "/admin" || pathname.startsWith("/admin/")
                   ? "bg-sidebar-accent text-sidebar-accent-foreground"
                   : "hover:bg-sidebar-accent/60 text-amber-500/90"
               }`}
             >
-              <Shield className="h-4 w-4 shrink-0" />
+              <Shield className="h-4 w-4 shrink-0" aria-hidden="true" />
               {!collapsed && <span>Admin</span>}
             </Link>
           )}
@@ -147,9 +149,10 @@ function AuthenticatedLayout() {
             <button
               onClick={async () => { await signOut(); navigate({ to: "/login" }); }}
               title={t("common.signout")}
+              aria-label={t("common.signout")}
               className="w-full h-8 flex items-center justify-center rounded-md hover:bg-sidebar-accent/60 text-muted-foreground"
             >
-              <LogOut className="h-4 w-4" />
+              <LogOut className="h-4 w-4" aria-hidden="true" />
             </button>
           ) : (
             <UserChip email={session.user.email ?? ""} onSignOut={async () => { await signOut(); navigate({ to: "/login" }); }} />
@@ -160,7 +163,7 @@ function AuthenticatedLayout() {
       <div className="flex-1 flex flex-col min-w-0">
         <header className="h-14 border-b flex items-center justify-between px-4 md:px-6 gap-2">
           <div className="flex items-center gap-2">
-            <button onClick={() => setOpen(!open)} className="md:hidden text-sm">{t("common.menu")}</button>
+            <button onClick={() => setOpen(!open)} aria-label={t("common.menu")} className="md:hidden text-sm">{t("common.menu")}</button>
             <button
               onClick={() => setCollapsed((c) => !c)}
               className="hidden md:inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-accent/50"
@@ -200,8 +203,8 @@ function UserChip({ email, onSignOut }: { email: string; onSignOut: () => void }
         <div className="truncate text-xs font-medium">{name}</div>
         <div className="truncate text-[10px] text-muted-foreground">{email}</div>
       </div>
-      <button onClick={onSignOut} className="text-muted-foreground hover:text-foreground" title={t("common.signout")}>
-        <LogOut className="h-3.5 w-3.5" />
+      <button onClick={onSignOut} aria-label={t("common.signout")} className="text-muted-foreground hover:text-foreground" title={t("common.signout")}>
+        <LogOut className="h-3.5 w-3.5" aria-hidden="true" />
       </button>
     </div>
   );

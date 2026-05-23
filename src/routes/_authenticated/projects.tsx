@@ -15,7 +15,16 @@ import { Plus, Trash2, ChevronDown, ChevronRight } from "lucide-react";
 import { format, parseISO } from "date-fns";
 
 export const Route = createFileRoute("/_authenticated/projects")({
-  head: () => ({ meta: [{ title: "Projects — TaskX" }] }),
+  head: () => ({
+    meta: [
+      { title: "Projects — TaskX" },
+      { name: "description", content: "Track your cybersecurity projects in TaskX: status, risk level, milestones and notes for every initiative across your team." },
+      { property: "og:title", content: "Projects — TaskX" },
+      { property: "og:description", content: "Track cybersecurity projects with status, risk level and milestones in TaskX." },
+      { property: "og:url", content: "https://taskxx.lovable.app/projects" },
+    ],
+    links: [{ rel: "canonical", href: "https://taskxx.lovable.app/projects" }],
+  }),
   component: ProjectsPage,
 });
 
