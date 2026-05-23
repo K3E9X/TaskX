@@ -21,7 +21,16 @@ type Tip = {
 };
 
 export const Route = createFileRoute("/_authenticated/tips")({
-  head: () => ({ meta: [{ title: "Tips — TaskX" }] }),
+  head: () => ({
+    meta: [
+      { title: "Tips — TaskX" },
+      { name: "description", content: "Security tips and command snippets in TaskX: save, tag and quickly copy reusable one-liners for your daily work." },
+      { property: "og:title", content: "Tips — TaskX" },
+      { property: "og:description", content: "Security tips and command snippets in TaskX: save, tag and quickly copy reusable one-liners for your daily work." },
+      { property: "og:url", content: "https://taskxx.lovable.app/tips" },
+    ],
+    links: [{ rel: "canonical", href: "https://taskxx.lovable.app/tips" }],
+  }),
   component: TipsPage,
 });
 

@@ -32,7 +32,16 @@ type FeedItem = {
 };
 
 export const Route = createFileRoute("/_authenticated/feeds")({
-  head: () => ({ meta: [{ title: "Feeds — TaskX" }] }),
+  head: () => ({
+    meta: [
+      { title: "Feeds — TaskX" },
+      { name: "description", content: "CTI watch and CVE tracking in TaskX: aggregated security feeds with severity filters and unread tracking." },
+      { property: "og:title", content: "Feeds — TaskX" },
+      { property: "og:description", content: "CTI watch and CVE tracking in TaskX: aggregated security feeds with severity filters and unread tracking." },
+      { property: "og:url", content: "https://taskxx.lovable.app/feeds" },
+    ],
+    links: [{ rel: "canonical", href: "https://taskxx.lovable.app/feeds" }],
+  }),
   component: FeedsPage,
 });
 

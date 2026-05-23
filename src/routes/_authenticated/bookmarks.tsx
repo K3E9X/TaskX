@@ -21,7 +21,16 @@ type Bookmark = {
 };
 
 export const Route = createFileRoute("/_authenticated/bookmarks")({
-  head: () => ({ meta: [{ title: "Bookmarks — TaskX" }] }),
+  head: () => ({
+    meta: [
+      { title: "Bookmarks — TaskX" },
+      { name: "description", content: "Save and organise your security bookmarks in TaskX: research links, tools and references, all in one searchable place." },
+      { property: "og:title", content: "Bookmarks — TaskX" },
+      { property: "og:description", content: "Save and organise your security bookmarks in TaskX: research links, tools and references, all in one searchable place." },
+      { property: "og:url", content: "https://taskxx.lovable.app/bookmarks" },
+    ],
+    links: [{ rel: "canonical", href: "https://taskxx.lovable.app/bookmarks" }],
+  }),
   component: BookmarksPage,
 });
 

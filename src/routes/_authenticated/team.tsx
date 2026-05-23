@@ -39,7 +39,16 @@ const ROLE_COLORS: Record<TeamRole, string> = {
 };
 
 export const Route = createFileRoute("/_authenticated/team")({
-  head: () => ({ meta: [{ title: "Team — TaskX" }] }),
+  head: () => ({
+    meta: [
+      { title: "Team — TaskX" },
+      { name: "description", content: "Team and RBAC in TaskX: invite members, assign roles and manage access across your security workspace." },
+      { property: "og:title", content: "Team — TaskX" },
+      { property: "og:description", content: "Team and RBAC in TaskX: invite members, assign roles and manage access across your security workspace." },
+      { property: "og:url", content: "https://taskxx.lovable.app/team" },
+    ],
+    links: [{ rel: "canonical", href: "https://taskxx.lovable.app/team" }],
+  }),
   component: Page,
 });
 

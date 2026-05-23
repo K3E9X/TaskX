@@ -9,7 +9,16 @@ import { toast } from "sonner";
 import { ShieldCheck, ShieldOff, Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/security")({
-  head: () => ({ meta: [{ title: "Security — TaskX" }] }),
+  head: () => ({
+    meta: [
+      { title: "Security — TaskX" },
+      { name: "description", content: "Account security in TaskX: manage two-factor authentication (TOTP), sessions and sign-in history." },
+      { property: "og:title", content: "Security — TaskX" },
+      { property: "og:description", content: "Account security in TaskX: manage two-factor authentication (TOTP), sessions and sign-in history." },
+      { property: "og:url", content: "https://taskxx.lovable.app/security" },
+    ],
+    links: [{ rel: "canonical", href: "https://taskxx.lovable.app/security" }],
+  }),
   component: SecurityPage,
 });
 
