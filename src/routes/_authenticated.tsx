@@ -199,10 +199,13 @@ function AuthenticatedLayout() {
           </div>
           <LangToggle />
         </header>
+        <AnnouncementBanner />
         <main className="flex-1 overflow-auto">
           <Outlet />
         </main>
       </div>
+      <CommandPalette />
+
 
       {open && <div onClick={() => setOpen(false)} className="fixed inset-0 bg-black/30 z-30 md:hidden" />}
     </div>
