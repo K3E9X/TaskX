@@ -7,10 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Plus, Trash2, FileText } from "lucide-react";
+import { Plus, Trash2, FileText, LayoutTemplate } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { TemplateGalleryDialog } from "@/components/TemplateGalleryDialog";
+import type { TemplateRole } from "@/lib/note-templates";
 
 export const Route = createFileRoute("/_authenticated/notes")({
   head: () => ({
