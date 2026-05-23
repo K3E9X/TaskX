@@ -297,14 +297,14 @@ function LogoStrip({ t }: { t: T }) {
 
 function FeatureGrid({ t }: { t: T }) {
   const FEATURES = [
+    { icon: Rss, t: t("land.f.feeds.t"), d: t("land.f.feeds.d") },
+    { icon: GitBranch, t: t("land.f.diagrams.t"), d: t("land.f.diagrams.d") },
+    { icon: Users, t: t("land.f.team.t"), d: t("land.f.team.d") },
+    { icon: FolderKanban, t: t("land.f.projects.t"), d: t("land.f.projects.d") },
     { icon: CheckSquare, t: t("land.f.todos.t"), d: t("land.f.todos.d") },
     { icon: FileText, t: t("land.f.notes.t"), d: t("land.f.notes.d") },
-    { icon: FolderKanban, t: t("land.f.projects.t"), d: t("land.f.projects.d") },
-    { icon: Repeat, t: t("land.f.routines.t"), d: t("land.f.routines.d") },
     { icon: CalendarClock, t: t("land.f.meetings.t"), d: t("land.f.meetings.d") },
-    { icon: GitBranch, t: t("land.f.diagrams.t"), d: t("land.f.diagrams.d") },
-    { icon: Rss, t: t("land.f.feeds.t"), d: t("land.f.feeds.d") },
-    { icon: Users, t: t("land.f.team.t"), d: t("land.f.team.d") },
+    { icon: Repeat, t: t("land.f.routines.t"), d: t("land.f.routines.d") },
     { icon: Bot, t: t("land.f.ai.t"), d: t("land.f.ai.d") },
   ];
   return (
