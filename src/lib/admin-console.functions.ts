@@ -267,8 +267,12 @@ export const getAuthLogs = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await assertAdmin(context.userId);
     type Entry = {
-      id: string; created_at: string; ip_address: string | null;
-      payload: { action?: string; actor_username?: string; actor_id?: string; traits?: Record<string, unknown> };
+      id: string;
+      created_at: string;
+      ip_address: string | null;
+      action: string | null;
+      actor_username: string | null;
+      actor_id: string | null;
     };
     const { data, error } = await supabaseAdmin
       .schema("auth" as never)
@@ -276,12 +280,22 @@ export const getAuthLogs = createServerFn({ method: "GET" })
       .select("id, created_at, ip_address, payload")
       .order("created_at", { ascending: false })
       .limit(200);
-    if (error) {
-      // Fallback : retourne vide plutôt que de casser l'UI
-      return { entries: [] as Entry[], error: error.message };
-    }
-    return { entries: (data ?? []) as Entry[], error: null };
+    if (error) return { entries: [] as Entry[], error: error.message };
+    const entries: Entry[] = (data ?? []).map((row: unknown) => {
+      const r = row as { id: string; created_at: string; ip_address: string | null; payload: Record<string, unknown> | null };
+      const p = r.payload ?? {};
+      return {
+        id: r.id,
+        created_at: r.created_at,
+        ip_address: r.ip_address,
+        action: (p.action as string) ?? null,
+        actor_username: (p.actor_username as string) ?? null,
+        actor_id: (p.actor_id as string) ?? null,
+      };
+    });
+    return { entries, error: null as string | null };
   });
+
 
 export const getAdminActionLogs = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
