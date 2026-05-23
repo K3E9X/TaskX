@@ -762,7 +762,7 @@ export const createAnnouncement = createServerFn({ method: "POST" })
       : null;
     const { error } = await supabaseAdmin.from("admin_announcements").insert({
       message: data.message, level: data.level, expires_at,
-      author_id: context.userId, author_email: email,
+      author_id: context.userId,
     });
     if (error) throw new Error(error.message);
     await logAction({ actorId: context.userId, actorEmail: email, action: "announcement.create", details: { level: data.level } });
