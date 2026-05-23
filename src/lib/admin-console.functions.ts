@@ -32,9 +32,10 @@ async function logAction(params: {
     target_type: params.targetType ?? null,
     target_id: params.targetId ?? null,
     target_email: params.targetEmail ?? null,
-    details: params.details ?? {},
+    details: (params.details ?? {}) as never,
   });
 }
+
 
 // ═════════════════ USERS ═════════════════
 export const listUsersDetailed = createServerFn({ method: "GET" })
