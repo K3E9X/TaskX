@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.get_engagement_stats() FROM public, anon, authenticated;
