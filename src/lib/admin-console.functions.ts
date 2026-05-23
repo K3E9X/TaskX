@@ -504,7 +504,24 @@ export const getSystemInfo = createServerFn({ method: "GET" })
     };
   });
 
-// Tracking — appelable par TOUT user authentifié (pas seulement admin)
+// ───────── helpers parse UA ─────────
+function parseUA(ua: string | null | undefined): { browser: string; os: string } {
+  if (!ua) return { browser: "unknown", os: "unknown" };
+  let browser = "Other";
+  if (/Edg\//.test(ua)) browser = "Edge";
+  else if (/OPR\/|Opera/.test(ua)) browser = "Opera";
+  else if (/Chrome\//.test(ua) && !/Chromium/.test(ua)) browser = "Chrome";
+  else if (/Firefox\//.test(ua)) browser = "Firefox";
+  else if (/Safari\//.test(ua) && !/Chrome/.test(ua)) browser = "Safari";
+  let os = "Other";
+  if (/Windows/.test(ua)) os = "Windows";
+  else if (/Mac OS X|Macintosh/.test(ua)) os = "macOS";
+  else if (/Android/.test(ua)) os = "Android";
+  else if (/iPhone|iPad|iOS/.test(ua)) os = "iOS";
+  else if (/Linux/.test(ua)) os = "Linux";
+  return { browser, os };
+}
+
 export const trackPageView = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) =>
@@ -517,19 +534,185 @@ export const trackPageView = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     const { getRequestIP, getRequestHeader } = await import("@tanstack/react-start/server");
     let ip: string | null = null;
+    let country: string | null = null;
     try {
       ip = getRequestIP({ xForwardedFor: true })
         ?? getRequestHeader("cf-connecting-ip")
         ?? getRequestHeader("x-real-ip")
         ?? null;
-    } catch { ip = null; }
+      country = getRequestHeader("cf-ipcountry") ?? null;
+      if (country === "XX" || country === "T1") country = null;
+    } catch { /* ignore */ }
+
+    if (ip) {
+      const { data: blocked } = await supabaseAdmin
+        .from("blocked_ips").select("id").eq("ip", ip).maybeSingle();
+      if (blocked) throw new Error("IP blocked");
+    }
+
+    const { browser, os } = parseUA(data.user_agent);
     const { error } = await supabaseAdmin.from("page_views").insert({
       user_id: context.userId,
       path: data.path,
       referrer: data.referrer ?? null,
       user_agent: data.user_agent ?? null,
-      ip,
+      ip, country, browser, os,
     });
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+// ═════════════════ ADMIN USER NOTES ═════════════════
+export const listUserNotes = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ userId: z.string().uuid() }).parse(d))
+  .handler(async ({ context, data }) => {
+    await assertAdmin(context.userId);
+    const { data: rows, error } = await supabaseAdmin
+      .from("admin_user_notes").select("*")
+      .eq("target_user_id", data.userId).order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return rows ?? [];
+  });
+
+export const addUserNote = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({ userId: z.string().uuid(), note: z.string().min(1).max(2000) }).parse(d),
+  )
+  .handler(async ({ context, data }) => {
+    await assertAdmin(context.userId);
+    const authorEmail = await getActorEmail(context.userId);
+    const { error } = await supabaseAdmin.from("admin_user_notes").insert({
+      target_user_id: data.userId, author_id: context.userId,
+      author_email: authorEmail, note: data.note,
+    });
+    if (error) throw new Error(error.message);
+    await logAction({
+      actorId: context.userId, actorEmail: authorEmail,
+      action: "note.add", targetType: "user", targetId: data.userId,
+    });
+    return { ok: true };
+  });
+
+export const deleteUserNote = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
+  .handler(async ({ context, data }) => {
+    await assertAdmin(context.userId);
+    const { error } = await supabaseAdmin.from("admin_user_notes").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// ═════════════════ BLOCKED IPS ═════════════════
+export const listBlockedIps = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context.userId);
+    const { data, error } = await supabaseAdmin
+      .from("blocked_ips").select("*").order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+export const blockIp = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({ ip: z.string().min(3).max(64), reason: z.string().max(280).optional() }).parse(d),
+  )
+  .handler(async ({ context, data }) => {
+    await assertAdmin(context.userId);
+    const email = await getActorEmail(context.userId);
+    const { error } = await supabaseAdmin.from("blocked_ips").insert({
+      ip: data.ip.trim(), reason: data.reason ?? null,
+      blocked_by: context.userId, blocked_by_email: email,
+    });
+    if (error) throw new Error(error.message);
+    await logAction({
+      actorId: context.userId, actorEmail: email,
+      action: "ip.block", targetType: "ip", targetId: data.ip,
+      details: { reason: data.reason },
+    });
+    return { ok: true };
+  });
+
+export const unblockIp = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
+  .handler(async ({ context, data }) => {
+    await assertAdmin(context.userId);
+    const { data: row } = await supabaseAdmin
+      .from("blocked_ips").select("ip").eq("id", data.id).maybeSingle();
+    const { error } = await supabaseAdmin.from("blocked_ips").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    await logAction({
+      actorId: context.userId, actorEmail: await getActorEmail(context.userId),
+      action: "ip.unblock", targetType: "ip", targetId: row?.ip,
+    });
+    return { ok: true };
+  });
+
+// ═════════════════ ANALYTICS AVANCÉS ═════════════════
+export const getTopUsers = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context.userId);
+    const since = new Date(Date.now() - 30 * 86400000).toISOString();
+    const { data: views } = await supabaseAdmin
+      .from("page_views").select("user_id, created_at")
+      .gte("created_at", since).limit(50000);
+
+    const byUser = new Map<string, { views: number; lastSeen: string }>();
+    (views ?? []).forEach((v) => {
+      const cur = byUser.get(v.user_id);
+      if (!cur) byUser.set(v.user_id, { views: 1, lastSeen: v.created_at });
+      else { cur.views++; if (v.created_at > cur.lastSeen) cur.lastSeen = v.created_at; }
+    });
+
+    const sorted = Array.from(byUser.entries())
+      .sort((a, b) => b[1].views - a[1].views).slice(0, 20);
+    const { data: usersPage } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
+    const emailMap = new Map(usersPage?.users.map((u) => [u.id, u.email ?? ""]) ?? []);
+
+    return sorted.map(([userId, stats]) => ({
+      userId, email: emailMap.get(userId) ?? "",
+      views: stats.views, lastSeen: stats.lastSeen,
+    }));
+  });
+
+export const getHourlyHeatmap = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context.userId);
+    const since = new Date(Date.now() - 30 * 86400000).toISOString();
+    const { data: views } = await supabaseAdmin
+      .from("page_views").select("created_at").gte("created_at", since).limit(50000);
+    const grid: number[][] = Array.from({ length: 7 }, () => Array(24).fill(0));
+    (views ?? []).forEach((v) => {
+      const d = new Date(v.created_at);
+      grid[d.getDay()][d.getHours()]++;
+    });
+    return grid;
+  });
+
+export const getCountryStats = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context.userId);
+    const since = new Date(Date.now() - 30 * 86400000).toISOString();
+    const { data } = await supabaseAdmin
+      .from("page_views").select("country, user_id")
+      .gte("created_at", since).not("country", "is", null).limit(50000);
+    const map = new Map<string, { views: number; users: Set<string> }>();
+    (data ?? []).forEach((v) => {
+      if (!v.country) return;
+      const cur = map.get(v.country) ?? { views: 0, users: new Set() };
+      cur.views++; cur.users.add(v.user_id);
+      map.set(v.country, cur);
+    });
+    return Array.from(map.entries())
+      .map(([country, s]) => ({ country, views: s.views, uniques: s.users.size }))
+      .sort((a, b) => b.views - a.views).slice(0, 30);
+  });
+

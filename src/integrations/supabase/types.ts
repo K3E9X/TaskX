@@ -50,6 +50,60 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_user_notes: {
+        Row: {
+          author_email: string | null
+          author_id: string
+          created_at: string
+          id: string
+          note: string
+          target_user_id: string
+        }
+        Insert: {
+          author_email?: string | null
+          author_id: string
+          created_at?: string
+          id?: string
+          note: string
+          target_user_id: string
+        }
+        Update: {
+          author_email?: string | null
+          author_id?: string
+          created_at?: string
+          id?: string
+          note?: string
+          target_user_id?: string
+        }
+        Relationships: []
+      }
+      blocked_ips: {
+        Row: {
+          blocked_by: string
+          blocked_by_email: string | null
+          created_at: string
+          id: string
+          ip: string
+          reason: string | null
+        }
+        Insert: {
+          blocked_by: string
+          blocked_by_email?: string | null
+          created_at?: string
+          id?: string
+          ip: string
+          reason?: string | null
+        }
+        Update: {
+          blocked_by?: string
+          blocked_by_email?: string | null
+          created_at?: string
+          id?: string
+          ip?: string
+          reason?: string | null
+        }
+        Relationships: []
+      }
       bookmarks: {
         Row: {
           category: string
@@ -274,27 +328,36 @@ export type Database = {
       }
       page_views: {
         Row: {
+          browser: string | null
+          country: string | null
           created_at: string
           id: string
           ip: string | null
+          os: string | null
           path: string
           referrer: string | null
           user_agent: string | null
           user_id: string
         }
         Insert: {
+          browser?: string | null
+          country?: string | null
           created_at?: string
           id?: string
           ip?: string | null
+          os?: string | null
           path: string
           referrer?: string | null
           user_agent?: string | null
           user_id: string
         }
         Update: {
+          browser?: string | null
+          country?: string | null
           created_at?: string
           id?: string
           ip?: string | null
+          os?: string | null
           path?: string
           referrer?: string | null
           user_agent?: string | null

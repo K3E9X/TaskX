@@ -25,16 +25,21 @@ import {
   listAllContent, deleteContent,
   listFeatureFlags, upsertFeatureFlag, deleteFeatureFlag,
   getSystemInfo,
+  listUserNotes, addUserNote, deleteUserNote,
+  listBlockedIps, blockIp, unblockIp,
+  getTopUsers, getHourlyHeatmap, getCountryStats,
 } from "@/lib/admin-console.functions";
 import { setAppRole } from "@/lib/team.functions";
 import {
   Shield, Users as UsersIcon, Activity, FileText, Flag, History, Server,
   Search, UserPlus, Ban, KeyRound, Trash2, RotateCw, ShieldCheck, ExternalLink,
+  Globe, ShieldAlert, ArrowUpDown, StickyNote, Plus,
 } from "lucide-react";
 import {
   ResponsiveContainer, AreaChart, Area, LineChart, Line,
   XAxis, YAxis, Tooltip, CartesianGrid, Legend,
 } from "recharts";
+import { Textarea } from "@/components/ui/textarea";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -84,6 +89,7 @@ function AdminPage() {
           <TabsTrigger value="logs"><History className="h-3.5 w-3.5 mr-1" />Logs</TabsTrigger>
           <TabsTrigger value="content"><FileText className="h-3.5 w-3.5 mr-1" />Content</TabsTrigger>
           <TabsTrigger value="flags"><Flag className="h-3.5 w-3.5 mr-1" />Flags</TabsTrigger>
+          <TabsTrigger value="security"><ShieldAlert className="h-3.5 w-3.5 mr-1" />Security</TabsTrigger>
           <TabsTrigger value="audit"><History className="h-3.5 w-3.5 mr-1" />Audit</TabsTrigger>
           <TabsTrigger value="system"><Server className="h-3.5 w-3.5 mr-1" />System</TabsTrigger>
         </TabsList>
@@ -94,6 +100,7 @@ function AdminPage() {
         <TabsContent value="logs" className="mt-6"><LogsTab /></TabsContent>
         <TabsContent value="content" className="mt-6"><ContentTab /></TabsContent>
         <TabsContent value="flags" className="mt-6"><FlagsTab /></TabsContent>
+        <TabsContent value="security" className="mt-6"><SecurityTab /></TabsContent>
         <TabsContent value="audit" className="mt-6"><AuditTab /></TabsContent>
         <TabsContent value="system" className="mt-6"><SystemTab /></TabsContent>
       </Tabs>
@@ -152,6 +159,8 @@ function UsersTab() {
   });
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<"all" | "admin" | "member" | "banned" | "active7d">("all");
+  const [sortKey, setSortKey] = useState<"email" | "created_at" | "last_sign_in_at" | "app_role">("created_at");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
   const filtered = users.filter((u) => {
     if (q && !u.email.toLowerCase().includes(q.toLowerCase()) &&
@@ -165,7 +174,21 @@ function UsersTab() {
       if (d > 7) return false;
     }
     return true;
+  }).sort((a, b) => {
+    const av = (a[sortKey] ?? "") as string;
+    const bv = (b[sortKey] ?? "") as string;
+    return (av < bv ? -1 : av > bv ? 1 : 0) * (sortDir === "asc" ? 1 : -1);
   });
+
+  const toggleSort = (k: typeof sortKey) => {
+    if (sortKey === k) setSortDir(sortDir === "asc" ? "desc" : "asc");
+    else { setSortKey(k); setSortDir("desc"); }
+  };
+  const SortHead = ({ k, label }: { k: typeof sortKey; label: string }) => (
+    <button onClick={() => toggleSort(k)} className="inline-flex items-center gap-1 hover:text-foreground">
+      {label}<ArrowUpDown className="h-3 w-3 opacity-50" />
+    </button>
+  );
 
   const refresh = () => qc.invalidateQueries({ queryKey: ["admin", "users"] });
   const mut = <T,>(fn: () => Promise<T>, msg: string) =>
@@ -190,6 +213,7 @@ function UsersTab() {
           </SelectContent>
         </Select>
         <InviteDialog onInvite={(email, role) => mut(() => invite({ data: { email, role } }), "Invitation envoyée")} />
+        <ExportCsvButton rows={filtered} filename="users.csv" />
         <Button variant="outline" size="sm" onClick={refresh}><RotateCw className="h-3.5 w-3.5" /></Button>
       </div>
 
@@ -198,12 +222,12 @@ function UsersTab() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Email</TableHead>
+                <TableHead><SortHead k="email" label="Email" /></TableHead>
                 <TableHead>Nom</TableHead>
-                <TableHead>Rôle</TableHead>
+                <TableHead><SortHead k="app_role" label="Rôle" /></TableHead>
                 <TableHead>Provider</TableHead>
-                <TableHead>Inscription</TableHead>
-                <TableHead>Dernière connexion</TableHead>
+                <TableHead><SortHead k="created_at" label="Inscription" /></TableHead>
+                <TableHead><SortHead k="last_sign_in_at" label="Dernière connexion" /></TableHead>
                 <TableHead>IP</TableHead>
                 <TableHead>Statut</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -313,10 +337,10 @@ function UserDetailsButton({ userId, email }: { userId: string; email: string })
       <DialogTrigger asChild>
         <Button size="sm" variant="ghost" title="Détails"><ExternalLink className="h-3.5 w-3.5" /></Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
         <DialogHeader><DialogTitle className="text-sm">{email}</DialogTitle></DialogHeader>
         {!data ? <p className="text-xs text-muted-foreground">Chargement…</p> : (
-          <div className="space-y-3">
+          <div className="space-y-4">
             <div>
               <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Contenu</div>
               <div className="grid grid-cols-3 gap-2">
@@ -328,6 +352,7 @@ function UserDetailsButton({ userId, email }: { userId: string; email: string })
                 ))}
               </div>
             </div>
+            <UserNotesSection userId={userId} />
             <div>
               <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1">50 dernières visites</div>
               <div className="max-h-64 overflow-y-auto text-xs space-y-0.5">
@@ -344,6 +369,53 @@ function UserDetailsButton({ userId, email }: { userId: string; email: string })
         )}
       </DialogContent>
     </Dialog>
+  );
+}
+
+function UserNotesSection({ userId }: { userId: string }) {
+  const qc = useQueryClient();
+  const listFn = useServerFn(listUserNotes);
+  const addFn = useServerFn(addUserNote);
+  const delFn = useServerFn(deleteUserNote);
+  const { data: notes = [] } = useQuery({
+    queryKey: ["admin", "userNotes", userId],
+    queryFn: () => listFn({ data: { userId } }),
+    retry: false,
+  });
+  const [note, setNote] = useState("");
+  const refresh = () => qc.invalidateQueries({ queryKey: ["admin", "userNotes", userId] });
+  return (
+    <div>
+      <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1 flex items-center gap-1">
+        <StickyNote className="h-3 w-3" /> Notes admin internes
+      </div>
+      <div className="space-y-1 mb-2 max-h-40 overflow-y-auto">
+        {notes.map((n) => (
+          <div key={n.id} className="rounded bg-muted/40 p-2 text-xs flex gap-2">
+            <div className="flex-1">
+              <p className="whitespace-pre-wrap">{n.note}</p>
+              <p className="text-[10px] text-muted-foreground mt-1">
+                {n.author_email ?? "?"} · {new Date(n.created_at).toLocaleString("fr-FR")}
+              </p>
+            </div>
+            <Button size="sm" variant="ghost" className="h-6 w-6 p-0"
+              onClick={() => delFn({ data: { id: n.id } }).then(() => { toast.success("Note supprimée"); refresh(); })}>
+              <Trash2 className="h-3 w-3 text-red-500" />
+            </Button>
+          </div>
+        ))}
+        {notes.length === 0 && <p className="text-xs text-muted-foreground italic">Aucune note.</p>}
+      </div>
+      <div className="flex gap-2">
+        <Textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder="Nouvelle note interne…"
+          className="text-xs min-h-[60px]" />
+        <Button size="sm" disabled={!note.trim()} onClick={() =>
+          addFn({ data: { userId, note } }).then(() => { toast.success("Note ajoutée"); setNote(""); refresh(); })
+            .catch((e) => toast.error(String(e)))}>
+          <Plus className="h-3 w-3" />
+        </Button>
+      </div>
+    </div>
   );
 }
 
@@ -423,6 +495,88 @@ function SessionsTab() {
             </TableBody>
           </Table>
         </div>
+      </div>
+
+      <HeatmapAndTopUsers />
+      <CountryStats />
+    </div>
+  );
+}
+
+function HeatmapAndTopUsers() {
+  const heatFn = useServerFn(getHourlyHeatmap);
+  const topFn = useServerFn(getTopUsers);
+  const { data: grid } = useQuery({ queryKey: ["admin", "heatmap"], queryFn: () => heatFn(), retry: false });
+  const { data: top = [] } = useQuery({ queryKey: ["admin", "topUsers"], queryFn: () => topFn(), retry: false });
+  const max = grid ? Math.max(...grid.flat(), 1) : 1;
+  const days = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
+  return (
+    <div className="grid lg:grid-cols-2 gap-4">
+      <div className="rounded-lg border bg-card p-4">
+        <div className="text-xs uppercase tracking-wider text-muted-foreground mb-3">
+          Heatmap activité (30j) — heure × jour
+        </div>
+        {grid && (
+          <div className="overflow-x-auto">
+            <div className="inline-block">
+              <div className="flex gap-px ml-8">
+                {Array.from({ length: 24 }).map((_, h) => (
+                  <div key={h} className="w-4 text-[8px] text-center text-muted-foreground">{h}</div>
+                ))}
+              </div>
+              {grid.map((row, d) => (
+                <div key={d} className="flex gap-px items-center mt-px">
+                  <div className="w-8 text-[10px] text-muted-foreground pr-1">{days[d]}</div>
+                  {row.map((v, h) => (
+                    <div key={h} className="w-4 h-4 rounded-sm" title={`${days[d]} ${h}h — ${v} vues`}
+                      style={{ backgroundColor: v === 0 ? "hsl(var(--muted))" : `hsl(217 91% ${Math.max(20, 60 - (v / max) * 40)}%)` }} />
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+      <div className="rounded-lg border bg-card">
+        <div className="px-4 py-3 border-b text-xs uppercase tracking-wider text-muted-foreground">
+          Top 20 utilisateurs (30j)
+        </div>
+        <Table>
+          <TableHeader>
+            <TableRow><TableHead>Email</TableHead><TableHead className="text-right">Vues</TableHead><TableHead>Dernière</TableHead></TableRow>
+          </TableHeader>
+          <TableBody>
+            {top.map((u) => (
+              <TableRow key={u.userId}>
+                <TableCell className="font-mono text-xs truncate max-w-xs">{u.email}</TableCell>
+                <TableCell className="text-right text-xs tabular-nums">{u.views}</TableCell>
+                <TableCell className="text-xs text-muted-foreground">{new Date(u.lastSeen).toLocaleDateString("fr-FR")}</TableCell>
+              </TableRow>
+            ))}
+            {top.length === 0 && <TableRow><TableCell colSpan={3} className="text-xs text-muted-foreground text-center py-6">Aucune donnée.</TableCell></TableRow>}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+}
+
+function CountryStats() {
+  const fn = useServerFn(getCountryStats);
+  const { data = [] } = useQuery({ queryKey: ["admin", "countries"], queryFn: () => fn(), retry: false });
+  if (data.length === 0) return null;
+  return (
+    <div className="rounded-lg border bg-card">
+      <div className="px-4 py-3 border-b text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+        <Globe className="h-3.5 w-3.5" /> Visites par pays (30j)
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-2 p-4">
+        {data.map((c) => (
+          <div key={c.country} className="rounded border bg-card p-2 text-center">
+            <div className="text-base font-semibold">{c.country}</div>
+            <div className="text-[10px] text-muted-foreground">{c.views} vues · {c.uniques} uniques</div>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -694,3 +848,61 @@ function ExportCsvButton<T extends Record<string, unknown>>({ rows, filename }: 
     }}>CSV</Button>
   );
 }
+
+// ═══════════════════ SECURITY ═══════════════════
+function SecurityTab() {
+  const qc = useQueryClient();
+  const listFn = useServerFn(listBlockedIps);
+  const blockFn = useServerFn(blockIp);
+  const unblockFn = useServerFn(unblockIp);
+  const { data = [] } = useQuery({ queryKey: ["admin", "blockedIps"], queryFn: () => listFn(), retry: false });
+  const [ip, setIp] = useState("");
+  const [reason, setReason] = useState("");
+  const refresh = () => qc.invalidateQueries({ queryKey: ["admin", "blockedIps"] });
+  return (
+    <div className="space-y-4">
+      <div className="rounded-lg border bg-card p-4 space-y-2">
+        <div className="text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+          <ShieldAlert className="h-3.5 w-3.5" /> Bloquer une IP
+        </div>
+        <div className="flex gap-2">
+          <Input value={ip} onChange={(e) => setIp(e.target.value)} placeholder="ex: 1.2.3.4" className="h-9 font-mono" />
+          <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="raison (optionnel)" className="h-9" />
+          <Button disabled={!ip.trim()} onClick={() =>
+            blockFn({ data: { ip, reason: reason || undefined } })
+              .then(() => { toast.success("IP bloquée"); setIp(""); setReason(""); refresh(); })
+              .catch((e) => toast.error(String(e)))}>Bloquer</Button>
+        </div>
+        <p className="text-[11px] text-muted-foreground">
+          Les requêtes provenant d'une IP bloquée seront rejetées lors du tracking des visites.
+        </p>
+      </div>
+
+      <div className="rounded-lg border bg-card overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow><TableHead>IP</TableHead><TableHead>Raison</TableHead><TableHead>Bloquée par</TableHead><TableHead>Date</TableHead><TableHead className="text-right">Action</TableHead></TableRow>
+          </TableHeader>
+          <TableBody>
+            {data.map((b) => (
+              <TableRow key={b.id}>
+                <TableCell className="font-mono text-xs">{b.ip}</TableCell>
+                <TableCell className="text-xs text-muted-foreground">{b.reason ?? "—"}</TableCell>
+                <TableCell className="text-xs font-mono">{b.blocked_by_email ?? "—"}</TableCell>
+                <TableCell className="text-xs text-muted-foreground">{new Date(b.created_at).toLocaleString("fr-FR")}</TableCell>
+                <TableCell className="text-right">
+                  <Button size="sm" variant="ghost"
+                    onClick={() => unblockFn({ data: { id: b.id } }).then(() => { toast.success("IP débloquée"); refresh(); })}>
+                    <Trash2 className="h-3.5 w-3.5 text-red-500" />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+            {data.length === 0 && <TableRow><TableCell colSpan={5} className="text-xs text-muted-foreground text-center py-6">Aucune IP bloquée.</TableCell></TableRow>}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+}
+
