@@ -31,17 +31,17 @@ import { useI18n, LangToggle, type TKey } from "@/lib/i18n";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "TaskX — The cockpit for cybersecurity teams" },
+      { title: "TaskX — The daily workspace for cybersecurity pros" },
       {
         name: "description",
         content:
-          "TaskX unifies CTI watch, CVE tracking, architecture diagrams, security projects, runbooks and RBAC in one fast workspace for CISOs, SOC and GRC teams.",
+          "TaskX is the personal daily workspace for cyber pros — pentesters, architects, SOC, forensic, CISOs. Watch, CVEs, notes, runbooks, todos, feeds and X timeline in one place. Not a SIEM.",
       },
-      { property: "og:title", content: "TaskX — The cockpit for cybersecurity teams" },
+      { property: "og:title", content: "TaskX — The daily workspace for cybersecurity pros" },
       {
         property: "og:description",
         content:
-          "CTI watch, CVE tracking, architecture diagrams, runbooks and RBAC in one fast workspace.",
+          "Personal daily workspace for cyber pros. Watch, CVEs, notes, runbooks, todos, RSS and X — not a SIEM.",
       },
       { property: "og:url", content: "https://taskxx.lovable.app/" },
       { property: "og:type", content: "website" },
@@ -58,7 +58,7 @@ export const Route = createFileRoute("/")({
           name: "TaskX",
           url: "https://taskxx.lovable.app/",
           description:
-            "Cockpit for cybersecurity teams: CTI watch, CVE tracking, architecture diagrams, runbooks and RBAC.",
+            "Personal daily workspace for cybersecurity pros: CVE watch, notes, runbooks, todos, RSS feeds and X timeline.",
         }),
       },
       {

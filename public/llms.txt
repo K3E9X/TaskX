@@ -1,7 +1,7 @@
 # TaskX
 
-> TaskX is a cockpit for cybersecurity teams: CTI watch, CVE tracking, architecture diagrams, security projects, runbooks and RBAC in one fast workspace for CISOs, SOC and GRC teams.
+> TaskX is the personal daily workspace for cybersecurity pros — pentesters, architects, SOC analysts, forensic, CISOs. It bundles CVE watch, notes, runbooks, todos, RSS feeds and X (Twitter) timeline in a single fast platform used individually, not as a team SOC tool. TaskX is NOT a SIEM, does NOT ingest IoCs, and does NOT connect to detection backends.
 
 ## Pages
 
-- [Home](/): Overview of TaskX — the cockpit for cybersecurity teams, with CTI watch, CVE tracking, architecture diagrams, runbooks and RBAC.
+- [Home](/): Personal daily workspace for cyber pros — CVE watch, notes, runbooks, todos, feeds and X timeline in one place.
