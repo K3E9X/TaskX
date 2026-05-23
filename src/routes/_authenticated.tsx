@@ -12,6 +12,12 @@ import {
 import { TaskXMark } from "@/components/brand/TaskXLogo";
 
 export const Route = createFileRoute("/_authenticated")({
+  head: () => ({
+    meta: [
+      // Private/authenticated app — keep out of search engines and social previews.
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   component: AuthenticatedLayout,
 });
 
