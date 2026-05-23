@@ -1,5 +1,6 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { motion } from "motion/react";
+import { useEffect } from "react";
 import {
   Area,
   AreaChart,
@@ -25,10 +26,6 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/")({
-  beforeLoad: async () => {
-    const { data } = await supabase.auth.getSession();
-    if (data.session) throw redirect({ to: "/dashboard" });
-  },
   head: () => ({
     meta: [
       { title: "TaskX — Cockpit sécurité pour architectes" },
@@ -59,6 +56,13 @@ const chartC = Array.from({ length: 18 }, (_, i) => ({
 }));
 
 function LandingPage() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) navigate({ to: "/dashboard" });
+    });
+  }, [navigate]);
+
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       <BackgroundFX />
