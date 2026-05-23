@@ -13,7 +13,8 @@ import {
 import { format, isPast, parseISO, isToday, startOfDay, endOfDay, subDays } from "date-fns";
 import { SendDigestButton } from "@/components/SendDigestButton";
 import { MorningBrief } from "@/components/MorningBrief";
-import { Maximize2, Minimize2, X, Plus, RotateCcw } from "lucide-react";
+import { Maximize2, Minimize2, X, Plus, RotateCcw, Sparkles } from "lucide-react";
+import { NOTE_TEMPLATES, type TemplateRole } from "@/lib/note-templates";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
