@@ -31,17 +31,17 @@ import { useI18n, LangToggle, type TKey } from "@/lib/i18n";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "TaskX, your everyday workspace" },
+      { title: "TaskX — The cockpit for cybersecurity teams" },
       {
         name: "description",
         content:
-          "TaskX unifies tasks, notes, projects, routines, meetings and watch feeds in a fast, minimal workspace for teams and individuals.",
+          "TaskX unifies CTI watch, CVE tracking, architecture diagrams, security projects, runbooks and RBAC in one fast workspace for CISOs, SOC and GRC teams.",
       },
-      { property: "og:title", content: "TaskX, your everyday workspace" },
+      { property: "og:title", content: "TaskX — The cockpit for cybersecurity teams" },
       {
         property: "og:description",
         content:
-          "Tasks, notes, projects, routines, meetings and watch feeds in one minimal workspace.",
+          "CTI watch, CVE tracking, architecture diagrams, runbooks and RBAC in one fast workspace.",
       },
     ],
   }),
