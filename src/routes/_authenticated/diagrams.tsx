@@ -32,7 +32,7 @@ const TEMPLATES: Record<DType, string> = {
   other: "graph TD\n  A --> B",
 };
 
-mermaid.initialize({ startOnLoad: false, theme: "dark", securityLevel: "loose" });
+mermaid.initialize({ startOnLoad: false, theme: "dark", securityLevel: "strict" });
 
 function DiagramsPage() {
   const { t } = useI18n();

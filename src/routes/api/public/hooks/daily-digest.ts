@@ -132,17 +132,29 @@ async function getConnectedOutlookEmail(): Promise<string> {
   return email;
 }
 
+function checkApiKey(request: Request): Response | null {
+  const expected = process.env.SUPABASE_PUBLISHABLE_KEY;
+  const provided =
+    request.headers.get("apikey") ||
+    request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
+  if (!expected || !provided || provided !== expected) {
+    return new Response(JSON.stringify({ ok: false, error: "Forbidden" }), {
+      status: 403,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+  return null;
+}
+
 export const Route = createFileRoute("/api/public/hooks/daily-digest")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        let userIdFilter: string | null = null;
-        try {
-          const body = (await request.json()) as { user_id?: string };
-          if (body.user_id) userIdFilter = body.user_id;
-        } catch {
-          // empty body OK
-        }
+        const denied = checkApiKey(request);
+        if (denied) return denied;
+
+        // Body intentionally ignored — caller cannot target specific users.
+        try { await request.json(); } catch { /* empty body OK */ }
 
         let recipient: string;
         try {
@@ -154,10 +166,9 @@ export const Route = createFileRoute("/api/public/hooks/daily-digest")({
           );
         }
 
-        // Fetch profiles
-        let profilesQuery = supabaseAdmin.from("profiles").select("id, display_name");
-        if (userIdFilter) profilesQuery = profilesQuery.eq("id", userIdFilter);
-        const { data: profiles, error: profErr } = await profilesQuery;
+        const { data: profiles, error: profErr } = await supabaseAdmin
+          .from("profiles")
+          .select("id, display_name");
         if (profErr) {
           return new Response(JSON.stringify({ ok: false, error: profErr.message }), { status: 500 });
         }
