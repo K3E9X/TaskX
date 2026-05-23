@@ -496,6 +496,88 @@ function SessionsTab() {
           </Table>
         </div>
       </div>
+
+      <HeatmapAndTopUsers />
+      <CountryStats />
+    </div>
+  );
+}
+
+function HeatmapAndTopUsers() {
+  const heatFn = useServerFn(getHourlyHeatmap);
+  const topFn = useServerFn(getTopUsers);
+  const { data: grid } = useQuery({ queryKey: ["admin", "heatmap"], queryFn: () => heatFn(), retry: false });
+  const { data: top = [] } = useQuery({ queryKey: ["admin", "topUsers"], queryFn: () => topFn(), retry: false });
+  const max = grid ? Math.max(...grid.flat(), 1) : 1;
+  const days = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
+  return (
+    <div className="grid lg:grid-cols-2 gap-4">
+      <div className="rounded-lg border bg-card p-4">
+        <div className="text-xs uppercase tracking-wider text-muted-foreground mb-3">
+          Heatmap activité (30j) — heure × jour
+        </div>
+        {grid && (
+          <div className="overflow-x-auto">
+            <div className="inline-block">
+              <div className="flex gap-px ml-8">
+                {Array.from({ length: 24 }).map((_, h) => (
+                  <div key={h} className="w-4 text-[8px] text-center text-muted-foreground">{h}</div>
+                ))}
+              </div>
+              {grid.map((row, d) => (
+                <div key={d} className="flex gap-px items-center mt-px">
+                  <div className="w-8 text-[10px] text-muted-foreground pr-1">{days[d]}</div>
+                  {row.map((v, h) => (
+                    <div key={h} className="w-4 h-4 rounded-sm" title={`${days[d]} ${h}h — ${v} vues`}
+                      style={{ backgroundColor: v === 0 ? "hsl(var(--muted))" : `hsl(217 91% ${Math.max(20, 60 - (v / max) * 40)}%)` }} />
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+      <div className="rounded-lg border bg-card">
+        <div className="px-4 py-3 border-b text-xs uppercase tracking-wider text-muted-foreground">
+          Top 20 utilisateurs (30j)
+        </div>
+        <Table>
+          <TableHeader>
+            <TableRow><TableHead>Email</TableHead><TableHead className="text-right">Vues</TableHead><TableHead>Dernière</TableHead></TableRow>
+          </TableHeader>
+          <TableBody>
+            {top.map((u) => (
+              <TableRow key={u.userId}>
+                <TableCell className="font-mono text-xs truncate max-w-xs">{u.email}</TableCell>
+                <TableCell className="text-right text-xs tabular-nums">{u.views}</TableCell>
+                <TableCell className="text-xs text-muted-foreground">{new Date(u.lastSeen).toLocaleDateString("fr-FR")}</TableCell>
+              </TableRow>
+            ))}
+            {top.length === 0 && <TableRow><TableCell colSpan={3} className="text-xs text-muted-foreground text-center py-6">Aucune donnée.</TableCell></TableRow>}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+}
+
+function CountryStats() {
+  const fn = useServerFn(getCountryStats);
+  const { data = [] } = useQuery({ queryKey: ["admin", "countries"], queryFn: () => fn(), retry: false });
+  if (data.length === 0) return null;
+  return (
+    <div className="rounded-lg border bg-card">
+      <div className="px-4 py-3 border-b text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+        <Globe className="h-3.5 w-3.5" /> Visites par pays (30j)
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-2 p-4">
+        {data.map((c) => (
+          <div key={c.country} className="rounded border bg-card p-2 text-center">
+            <div className="text-base font-semibold">{c.country}</div>
+            <div className="text-[10px] text-muted-foreground">{c.views} vues · {c.uniques} uniques</div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
