@@ -158,7 +158,7 @@ function Hero({ t }: { t: T }) {
         <h1 className="mt-6 text-5xl md:text-7xl font-semibold tracking-tight leading-[1.02]">
           {t("land.hero.t1")}
           <br />
-          <span className="bg-gradient-to-r from-primary via-foreground to-primary bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-[oklch(0.74_0.18_295)] via-[oklch(0.82_0.14_240)] to-[oklch(0.78_0.15_200)] bg-clip-text text-transparent">
             {t("land.hero.t2")}
           </span>
         </h1>
