@@ -42,6 +42,15 @@ function NotesPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [mode, setMode] = useState<"edit" | "preview">("edit");
   const [search, setSearch] = useState("");
+  const [tplOpen, setTplOpen] = useState(false);
+
+  const { data: profile } = useQuery({
+    queryKey: ["profile-role"],
+    queryFn: async () => {
+      const { data } = await supabase.from("profiles").select("team_role").maybeSingle();
+      return data;
+    },
+  });
 
   const { data: notes = [], isLoading } = useQuery({
     queryKey: ["notes"],
