@@ -11,7 +11,16 @@ import { Plus, Trash2, ChevronDown, ChevronRight, Users, Calendar } from "lucide
 import { format, parseISO } from "date-fns";
 
 export const Route = createFileRoute("/_authenticated/meetings")({
-  head: () => ({ meta: [{ title: "Meetings — TaskX" }] }),
+  head: () => ({
+    meta: [
+      { title: "Meetings — TaskX" },
+      { name: "description", content: "Meeting notes and action items in TaskX: prep agendas, capture decisions and track follow-ups for your security team." },
+      { property: "og:title", content: "Meetings — TaskX" },
+      { property: "og:description", content: "Meeting notes and action items in TaskX: prep agendas, capture decisions and track follow-ups for your security team." },
+      { property: "og:url", content: "https://taskxx.lovable.app/meetings" },
+    ],
+    links: [{ rel: "canonical", href: "https://taskxx.lovable.app/meetings" }],
+  }),
   component: MeetingsPage,
 });
 

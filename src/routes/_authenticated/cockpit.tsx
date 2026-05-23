@@ -9,7 +9,16 @@ import {
 import { isPast, parseISO, isToday, startOfDay, endOfDay, format } from "date-fns";
 
 export const Route = createFileRoute("/_authenticated/cockpit")({
-  head: () => ({ meta: [{ title: "Cockpit — TaskX" }] }),
+  head: () => ({
+    meta: [
+      { title: "Cockpit — TaskX" },
+      { name: "description", content: "Your TaskX cockpit: daily brief, overdue tasks, CVE alerts, meetings and routines in one focused security overview." },
+      { property: "og:title", content: "Cockpit — TaskX" },
+      { property: "og:description", content: "Your TaskX cockpit: daily brief, overdue tasks, CVE alerts, meetings and routines in one focused security overview." },
+      { property: "og:url", content: "https://taskxx.lovable.app/cockpit" },
+    ],
+    links: [{ rel: "canonical", href: "https://taskxx.lovable.app/cockpit" }],
+  }),
   component: CockpitPage,
 });
 

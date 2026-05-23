@@ -16,7 +16,16 @@ import { Trash2, Plus } from "lucide-react";
 import { format, isPast, parseISO } from "date-fns";
 
 export const Route = createFileRoute("/_authenticated/todos")({
-  head: () => ({ meta: [{ title: "Todos — TaskX" }] }),
+  head: () => ({
+    meta: [
+      { title: "Todos — TaskX" },
+      { name: "description", content: "To-dos and tasks in TaskX: priorities, due dates, projects and statuses for every item in your security backlog." },
+      { property: "og:title", content: "Todos — TaskX" },
+      { property: "og:description", content: "To-dos and tasks in TaskX: priorities, due dates, projects and statuses for every item in your security backlog." },
+      { property: "og:url", content: "https://taskxx.lovable.app/todos" },
+    ],
+    links: [{ rel: "canonical", href: "https://taskxx.lovable.app/todos" }],
+  }),
   component: TodosPage,
 });
 

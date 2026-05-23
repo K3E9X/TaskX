@@ -13,7 +13,16 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 export const Route = createFileRoute("/_authenticated/notes")({
-  head: () => ({ meta: [{ title: "Notes — TaskX" }] }),
+  head: () => ({
+    meta: [
+      { title: "Notes — TaskX" },
+      { name: "description", content: "Markdown notes in TaskX: capture research, runbooks and investigation findings with full-text search and tags." },
+      { property: "og:title", content: "Notes — TaskX" },
+      { property: "og:description", content: "Markdown notes in TaskX: capture research, runbooks and investigation findings with full-text search and tags." },
+      { property: "og:url", content: "https://taskxx.lovable.app/notes" },
+    ],
+    links: [{ rel: "canonical", href: "https://taskxx.lovable.app/notes" }],
+  }),
   component: NotesPage,
 });
 

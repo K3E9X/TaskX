@@ -12,7 +12,16 @@ import {
 } from "recharts";
 
 export const Route = createFileRoute("/_authenticated/admin")({
-  head: () => ({ meta: [{ title: "Admin — TaskX" }] }),
+  head: () => ({
+    meta: [
+      { title: "Admin — TaskX" },
+      { name: "description", content: "Admin panel for TaskX: manage users, roles, RBAC permissions and platform settings for your cybersecurity workspace." },
+      { property: "og:title", content: "Admin — TaskX" },
+      { property: "og:description", content: "Admin panel for TaskX: manage users, roles, RBAC permissions and platform settings for your cybersecurity workspace." },
+      { property: "og:url", content: "https://taskxx.lovable.app/admin" },
+    ],
+    links: [{ rel: "canonical", href: "https://taskxx.lovable.app/admin" }],
+  }),
   component: AdminPage,
 });
 

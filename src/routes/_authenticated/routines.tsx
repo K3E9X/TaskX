@@ -14,7 +14,16 @@ import { toast } from "sonner";
 import { Plus, Trash2 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/routines")({
-  head: () => ({ meta: [{ title: "Routines — TaskX" }] }),
+  head: () => ({
+    meta: [
+      { title: "Routines — TaskX" },
+      { name: "description", content: "Daily and weekly security routines in TaskX: build repeatable checklists and track step-by-step completion." },
+      { property: "og:title", content: "Routines — TaskX" },
+      { property: "og:description", content: "Daily and weekly security routines in TaskX: build repeatable checklists and track step-by-step completion." },
+      { property: "og:url", content: "https://taskxx.lovable.app/routines" },
+    ],
+    links: [{ rel: "canonical", href: "https://taskxx.lovable.app/routines" }],
+  }),
   component: RoutinesPage,
 });
 
