@@ -13,7 +13,8 @@ import {
 import { format, isPast, parseISO, isToday, startOfDay, endOfDay, subDays } from "date-fns";
 import { SendDigestButton } from "@/components/SendDigestButton";
 import { MorningBrief } from "@/components/MorningBrief";
-import { Maximize2, Minimize2, X, Plus, RotateCcw } from "lucide-react";
+import { Maximize2, Minimize2, X, Plus, RotateCcw, Sparkles } from "lucide-react";
+import { NOTE_TEMPLATES, type TemplateRole } from "@/lib/note-templates";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -48,7 +49,7 @@ type Size = "sm" | "md" | "lg";
 type WidgetId =
   | "kpi-overdue" | "kpi-today" | "kpi-routines" | "kpi-done"
   | "today-todos" | "overdue-todos" | "done-yesterday"
-  | "routines-today" | "recent-notes" | "tip";
+  | "routines-today" | "recent-notes" | "tip" | "suggested-templates";
 
 type LayoutItem = { id: WidgetId; size: Size; visible: boolean };
 
@@ -59,6 +60,7 @@ const DEFAULT_LAYOUT: LayoutItem[] = [
   { id: "kpi-done", size: "sm", visible: true },
   { id: "today-todos", size: "md", visible: true },
   { id: "overdue-todos", size: "md", visible: true },
+  { id: "suggested-templates", size: "md", visible: true },
   { id: "done-yesterday", size: "md", visible: true },
   { id: "routines-today", size: "md", visible: true },
   { id: "recent-notes", size: "md", visible: true },
@@ -146,10 +148,11 @@ const WIDGET_TITLE: Record<WidgetId, TKey> = {
   "routines-today": "dash.routinesToday",
   "recent-notes": "dash.recentNotes",
   "tip": "dash.tip",
+  "suggested-templates": "dash.suggestedTemplates",
 };
 
 function DashboardPage() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const [layout, setLayout] = useState<LayoutItem[]>(() => loadLayout());
 
   useEffect(() => {
@@ -237,6 +240,20 @@ function DashboardPage() {
     const done = run?.completed_steps.length ?? 0;
     return acc + (r.steps.length > 0 && done === r.steps.length ? 1 : 0);
   }, 0);
+
+  const { data: profile } = useQuery({
+    queryKey: ["dash", "profile-role"],
+    queryFn: async () => {
+      const { data } = await supabase.from("profiles").select("team_role").maybeSingle();
+      return data;
+    },
+  });
+  const role = (profile?.team_role ?? "architect") as TemplateRole;
+  const suggestedTemplates = useMemo(() => {
+    const mine = NOTE_TEMPLATES.filter((tpl) => tpl.role === role);
+    const universal = NOTE_TEMPLATES.filter((tpl) => tpl.role === "universal");
+    return [...mine, ...universal].slice(0, 4);
+  }, [role]);
 
   const renderWidget = (item: LayoutItem) => {
     const common = {
@@ -378,6 +395,32 @@ function DashboardPage() {
         return (
           <Tile key={item.id} {...common} title={t("dash.tip")}>
             <p className="text-sm text-muted-foreground py-4">{t("dash.tipSoon")}</p>
+          </Tile>
+        );
+      case "suggested-templates":
+        return (
+          <Tile key={item.id} {...common} title={t("dash.suggestedTemplates")}
+            action={<Link to="/templates" className="text-xs text-muted-foreground hover:text-foreground">{t("dash.openTemplates")} →</Link>}>
+            {suggestedTemplates.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-4">{t("common.empty")}</p>
+            ) : (
+              <ul className="divide-y divide-border -mx-1">
+                {suggestedTemplates.map((tpl) => (
+                  <li key={tpl.id}>
+                    <Link
+                      to="/templates"
+                      className="flex items-start gap-2 py-2 px-1 hover:bg-accent/40 rounded-sm transition-colors"
+                    >
+                      <Sparkles className="h-3.5 w-3.5 mt-0.5 text-primary shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm truncate">{tpl[lang].title}</div>
+                        <div className="text-[10px] text-muted-foreground capitalize">{tpl.role}</div>
+                      </div>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
           </Tile>
         );
     }
