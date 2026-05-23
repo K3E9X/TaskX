@@ -1,15 +1,18 @@
 import { createFileRoute, Outlet, Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/lib/auth";
 import { useI18n, LangToggle, type TKey } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
+import { trackPageView } from "@/lib/admin-console.functions";
 import {
   LayoutDashboard, CheckSquare, FileText, Repeat, FolderKanban,
   CalendarClock, GitBranch, Rss, Terminal, Bookmark, Users, LogOut, Gauge, Shield,
   PanelLeftClose, PanelLeftOpen, ShieldCheck,
 } from "lucide-react";
 import { TaskXMark } from "@/components/brand/TaskXLogo";
+
 
 export const Route = createFileRoute("/_authenticated")({
   head: () => ({
@@ -82,6 +85,22 @@ function AuthenticatedLayout() {
     })();
     return () => { cancelled = true; };
   }, [session, navigate]);
+
+  // Page-view tracking (lightweight, fire-and-forget)
+  const track = useServerFn(trackPageView);
+  const lastTracked = useRef<string>("");
+  useEffect(() => {
+    if (!session || lastTracked.current === pathname) return;
+    lastTracked.current = pathname;
+    track({
+      data: {
+        path: pathname,
+        user_agent: typeof navigator !== "undefined" ? navigator.userAgent.slice(0, 500) : undefined,
+        referrer: typeof document !== "undefined" ? document.referrer.slice(0, 500) : undefined,
+      },
+    }).catch(() => { /* silent */ });
+  }, [pathname, session, track]);
+
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center text-sm text-muted-foreground">{t("common.loading")}</div>;
