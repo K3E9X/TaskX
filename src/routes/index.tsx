@@ -132,7 +132,7 @@ function Nav({ t }: { t: T }) {
             <Button variant="ghost" size="sm">{t("land.nav.signin")}</Button>
           </Link>
           <Link to="/login">
-            <Button size="sm" className="gap-1.5">
+            <Button size="sm" className="gap-1.5 bg-gradient-to-r from-[oklch(0.62_0.2_290)] to-[oklch(0.7_0.16_210)] text-white hover:opacity-90 border-0">
               {t("land.nav.start")} <ArrowRight className="size-3.5" />
             </Button>
           </Link>
@@ -158,7 +158,7 @@ function Hero({ t }: { t: T }) {
         <h1 className="mt-6 text-5xl md:text-7xl font-semibold tracking-tight leading-[1.02]">
           {t("land.hero.t1")}
           <br />
-          <span className="bg-gradient-to-r from-primary via-foreground to-primary bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-[oklch(0.74_0.18_295)] via-[oklch(0.82_0.14_240)] to-[oklch(0.78_0.15_200)] bg-clip-text text-transparent">
             {t("land.hero.t2")}
           </span>
         </h1>
@@ -167,7 +167,8 @@ function Hero({ t }: { t: T }) {
         </p>
         <div className="mt-8 flex flex-wrap items-center gap-3">
           <Link to="/login">
-            <Button size="lg" className="gap-2">
+            <Button size="lg" className="gap-2 bg-gradient-to-r from-[oklch(0.62_0.2_290)] to-[oklch(0.7_0.16_210)] text-white hover:opacity-90 border-0">
+
               {t("land.cta.primary")} <ArrowRight className="size-4" />
             </Button>
           </Link>
@@ -449,7 +450,7 @@ function CTA({ t }: { t: T }) {
         <p className="mt-5 text-muted-foreground max-w-xl mx-auto">{t("land.cta.sub")}</p>
         <div className="mt-8 flex items-center justify-center gap-3">
           <Link to="/login">
-            <Button size="lg" className="gap-2">
+            <Button size="lg" className="gap-2 bg-gradient-to-r from-[oklch(0.62_0.2_290)] to-[oklch(0.7_0.16_210)] text-white hover:opacity-90 border-0">
               {t("land.cta.create")} <ArrowRight className="size-4" />
             </Button>
           </Link>
