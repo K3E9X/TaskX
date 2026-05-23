@@ -353,7 +353,35 @@ const dict = {
     "search.diagrams": "Diagrammes",
     "search.feeds": "Veille",
     "search.tips": "Tips",
+    "search.snippets": "Snippets",
     "search.empty": "Aucun résultat.",
+
+    "nav.snippets": "Snippets",
+
+    "common.close": "Fermer",
+
+    "tpl.title": "Galerie de templates",
+    "tpl.subtitle": "Commence une note avec une trame prête à remplir.",
+    "tpl.mine": "Mon métier",
+    "tpl.all": "Tous",
+    "tpl.search": "Rechercher un template…",
+    "tpl.empty": "Aucun template ne correspond.",
+    "tpl.fromTemplate": "Depuis un template",
+
+    "snip.title": "Snippets",
+    "snip.subtitle": "Tes commandes et payloads réutilisables, à un clic.",
+    "snip.new": "Nouveau snippet",
+    "snip.search": "Rechercher…",
+    "snip.empty": "Aucun snippet pour l'instant.",
+    "snip.pick": "Sélectionne un snippet ou crées-en un.",
+    "snip.language": "Langage",
+    "snip.tagsPh": "tags séparés par virgule",
+    "snip.command": "Commande",
+    "snip.copy": "Copier",
+    "snip.copied": "Copié dans le presse-papier.",
+    "snip.description": "Description",
+    "snip.descriptionPh": "À quoi sert ce snippet, options utiles, gotchas…",
+    "snip.confirmDelete": "Supprimer ce snippet ?",
   },
 
   en: {

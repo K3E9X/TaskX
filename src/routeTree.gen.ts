@@ -17,6 +17,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedTodosRouteImport } from './routes/_authenticated/todos'
 import { Route as AuthenticatedTipsRouteImport } from './routes/_authenticated/tips'
 import { Route as AuthenticatedTeamRouteImport } from './routes/_authenticated/team'
+import { Route as AuthenticatedSnippetsRouteImport } from './routes/_authenticated/snippets'
 import { Route as AuthenticatedSecurityRouteImport } from './routes/_authenticated/security'
 import { Route as AuthenticatedRoutinesRouteImport } from './routes/_authenticated/routines'
 import { Route as AuthenticatedProjectsRouteImport } from './routes/_authenticated/projects'
@@ -70,6 +71,11 @@ const AuthenticatedTipsRoute = AuthenticatedTipsRouteImport.update({
 const AuthenticatedTeamRoute = AuthenticatedTeamRouteImport.update({
   id: '/team',
   path: '/team',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedSnippetsRoute = AuthenticatedSnippetsRouteImport.update({
+  id: '/snippets',
+  path: '/snippets',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedSecurityRoute = AuthenticatedSecurityRouteImport.update({
@@ -168,6 +174,7 @@ export interface FileRoutesByFullPath {
   '/projects': typeof AuthenticatedProjectsRoute
   '/routines': typeof AuthenticatedRoutinesRoute
   '/security': typeof AuthenticatedSecurityRoute
+  '/snippets': typeof AuthenticatedSnippetsRoute
   '/team': typeof AuthenticatedTeamRoute
   '/tips': typeof AuthenticatedTipsRoute
   '/todos': typeof AuthenticatedTodosRoute
@@ -192,6 +199,7 @@ export interface FileRoutesByTo {
   '/projects': typeof AuthenticatedProjectsRoute
   '/routines': typeof AuthenticatedRoutinesRoute
   '/security': typeof AuthenticatedSecurityRoute
+  '/snippets': typeof AuthenticatedSnippetsRoute
   '/team': typeof AuthenticatedTeamRoute
   '/tips': typeof AuthenticatedTipsRoute
   '/todos': typeof AuthenticatedTodosRoute
@@ -218,6 +226,7 @@ export interface FileRoutesById {
   '/_authenticated/projects': typeof AuthenticatedProjectsRoute
   '/_authenticated/routines': typeof AuthenticatedRoutinesRoute
   '/_authenticated/security': typeof AuthenticatedSecurityRoute
+  '/_authenticated/snippets': typeof AuthenticatedSnippetsRoute
   '/_authenticated/team': typeof AuthenticatedTeamRoute
   '/_authenticated/tips': typeof AuthenticatedTipsRoute
   '/_authenticated/todos': typeof AuthenticatedTodosRoute
@@ -244,6 +253,7 @@ export interface FileRouteTypes {
     | '/projects'
     | '/routines'
     | '/security'
+    | '/snippets'
     | '/team'
     | '/tips'
     | '/todos'
@@ -268,6 +278,7 @@ export interface FileRouteTypes {
     | '/projects'
     | '/routines'
     | '/security'
+    | '/snippets'
     | '/team'
     | '/tips'
     | '/todos'
@@ -293,6 +304,7 @@ export interface FileRouteTypes {
     | '/_authenticated/projects'
     | '/_authenticated/routines'
     | '/_authenticated/security'
+    | '/_authenticated/snippets'
     | '/_authenticated/team'
     | '/_authenticated/tips'
     | '/_authenticated/todos'
@@ -369,6 +381,13 @@ declare module '@tanstack/react-router' {
       path: '/team'
       fullPath: '/team'
       preLoaderRoute: typeof AuthenticatedTeamRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/snippets': {
+      id: '/_authenticated/snippets'
+      path: '/snippets'
+      fullPath: '/snippets'
+      preLoaderRoute: typeof AuthenticatedSnippetsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/security': {
@@ -491,6 +510,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedProjectsRoute: typeof AuthenticatedProjectsRoute
   AuthenticatedRoutinesRoute: typeof AuthenticatedRoutinesRoute
   AuthenticatedSecurityRoute: typeof AuthenticatedSecurityRoute
+  AuthenticatedSnippetsRoute: typeof AuthenticatedSnippetsRoute
   AuthenticatedTeamRoute: typeof AuthenticatedTeamRoute
   AuthenticatedTipsRoute: typeof AuthenticatedTipsRoute
   AuthenticatedTodosRoute: typeof AuthenticatedTodosRoute
@@ -508,6 +528,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedProjectsRoute: AuthenticatedProjectsRoute,
   AuthenticatedRoutinesRoute: AuthenticatedRoutinesRoute,
   AuthenticatedSecurityRoute: AuthenticatedSecurityRoute,
+  AuthenticatedSnippetsRoute: AuthenticatedSnippetsRoute,
   AuthenticatedTeamRoute: AuthenticatedTeamRoute,
   AuthenticatedTipsRoute: AuthenticatedTipsRoute,
   AuthenticatedTodosRoute: AuthenticatedTodosRoute,
