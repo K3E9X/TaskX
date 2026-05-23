@@ -12,6 +12,22 @@ export const Route = createFileRoute("/login")({
   component: LoginPage,
 });
 
+function GoogleIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="#EA4335" d="M12 10.2v3.9h5.5c-.24 1.4-1.66 4.1-5.5 4.1-3.31 0-6-2.74-6-6.1s2.69-6.1 6-6.1c1.88 0 3.14.8 3.86 1.48l2.63-2.53C16.83 3.42 14.66 2.5 12 2.5 6.76 2.5 2.5 6.76 2.5 12S6.76 21.5 12 21.5c6.93 0 9.5-4.87 9.5-7.32 0-.49-.05-.86-.12-1.23H12z" />
+    </svg>
+  );
+}
+
+function AppleIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M16.365 1.43c0 1.14-.46 2.27-1.22 3.07-.81.86-2.14 1.53-3.24 1.44-.14-1.12.42-2.27 1.18-3.07.86-.92 2.3-1.6 3.28-1.44zM20.5 17.07c-.55 1.27-.82 1.84-1.53 2.96-.99 1.56-2.39 3.5-4.12 3.51-1.54.02-1.93-1-4.02-.99-2.09.01-2.52 1.01-4.06.99-1.73-.02-3.05-1.77-4.04-3.33C-.05 15.86-.34 10.95 1.68 8.31c1.43-1.88 3.69-2.98 5.81-2.98 2.16 0 3.52 1.18 5.31 1.18 1.74 0 2.8-1.18 5.3-1.18 1.89 0 3.89 1.03 5.32 2.81-4.67 2.56-3.91 9.24-2.92 8.93z" />
+    </svg>
+  );
+}
+
 function LoginPage() {
   const navigate = useNavigate();
   const { t } = useI18n();
