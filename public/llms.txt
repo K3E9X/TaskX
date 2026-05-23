@@ -1,0 +1,7 @@
+# TaskX
+
+> TaskX is a cockpit for cybersecurity teams: CTI watch, CVE tracking, architecture diagrams, security projects, runbooks and RBAC in one fast workspace for CISOs, SOC and GRC teams.
+
+## Pages
+
+- [Home](/): Overview of TaskX — the cockpit for cybersecurity teams, with CTI watch, CVE tracking, architecture diagrams, runbooks and RBAC.
