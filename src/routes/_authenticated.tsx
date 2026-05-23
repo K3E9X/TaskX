@@ -8,6 +8,7 @@ import {
   LayoutDashboard, CheckSquare, FileText, Repeat, FolderKanban,
   CalendarClock, GitBranch, Rss, Terminal, Bookmark, Users, LogOut, Gauge, Shield,
 } from "lucide-react";
+import { TaskXMark } from "@/components/brand/TaskXLogo";
 
 export const Route = createFileRoute("/_authenticated")({
   component: AuthenticatedLayout,
