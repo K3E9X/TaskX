@@ -68,6 +68,9 @@ export const setAppRole = createServerFn({ method: "POST" })
   )
   .handler(async ({ context, data }) => {
     await assertAdmin(context.userId);
+    if (data.userId === context.userId) {
+      throw new Error("Forbidden: cannot modify your own role");
+    }
     // Replace existing roles for this user with the new one
     const { error: delErr } = await supabaseAdmin
       .from("user_roles")
