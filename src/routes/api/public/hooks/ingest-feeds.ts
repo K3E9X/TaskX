@@ -240,10 +240,11 @@ export const Route = createFileRoute("/api/public/hooks/ingest-feeds")({
               .update({ last_fetched_at: new Date().toISOString() })
               .eq("id", src.id);
 
-        const summary: Array<{ source: string; count: number; error?: string }> = [];
-        for (const r of results) {
-          // Hide internal user-scoped errors; keep source name + count only.
-          summary.push(r.error ? { source: r.source, count: r.count, error: "error" } : { source: r.source, count: r.count });
+            results.push({ source: src.name, count: fresh.length });
+          } catch (e) {
+            failed++;
+            results.push({ source: src.name, count: 0, error: e instanceof Error ? e.message : String(e) });
+          }
         }
 
         return new Response(
