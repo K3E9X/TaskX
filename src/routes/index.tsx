@@ -509,9 +509,82 @@ function Footer({ t }: { t: T }) {
         <div className="flex items-center gap-6">
           <a href="#features" className="hover:text-foreground">{t("land.footer.features")}</a>
           <a href="#workspace" className="hover:text-foreground">{t("land.footer.product")}</a>
+          <a href="#contact" className="hover:text-foreground">{t("land.footer.contact")}</a>
           <Link to="/login" className="hover:text-foreground">{t("land.footer.signin")}</Link>
         </div>
       </div>
     </footer>
+  );
+}
+
+function ContactSection({ t }: { t: T }) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [sent, setSent] = useState(false);
+
+  const onSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const { error } = await supabase.from("contact_submissions").insert({
+        name, email, subject, message,
+      });
+      if (error) throw error;
+      toast.success(t("land.contact.success"));
+      setSent(true);
+      setName(""); setEmail(""); setSubject(""); setMessage("");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : t("land.contact.error"));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <section id="contact" className="border-t border-border/60">
+      <div className="mx-auto max-w-3xl px-6 py-24 md:py-32">
+        <div className="text-center">
+          <div className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-primary">
+            <Mail className="size-3.5" /> {t("land.contact.eyebrow")}
+          </div>
+          <h2 className="mt-3 text-3xl md:text-5xl font-semibold tracking-tight">
+            {t("land.contact.title")}
+          </h2>
+          <p className="mt-4 text-muted-foreground">{t("land.contact.sub")}</p>
+        </div>
+
+        <form onSubmit={onSubmit} className="mt-10 rounded-2xl border border-border/70 bg-card/60 backdrop-blur-xl p-6 md:p-8 space-y-4">
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="c-name">{t("land.contact.name")}</Label>
+              <Input id="c-name" required maxLength={120} value={name} onChange={(e) => setName(e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="c-email">{t("land.contact.email")}</Label>
+              <Input id="c-email" type="email" required maxLength={200} value={email} onChange={(e) => setEmail(e.target.value)} />
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="c-subject">{t("land.contact.subject")}</Label>
+            <Input id="c-subject" required maxLength={200} value={subject} onChange={(e) => setSubject(e.target.value)} />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="c-message">{t("land.contact.message")}</Label>
+            <Textarea id="c-message" required maxLength={4000} rows={6} value={message} onChange={(e) => setMessage(e.target.value)} />
+          </div>
+          <div className="flex items-center justify-between gap-3">
+            {sent ? (
+              <span className="text-xs text-primary">{t("land.contact.success")}</span>
+            ) : <span />}
+            <Button type="submit" disabled={loading} className="gap-2 bg-gradient-to-r from-[oklch(0.62_0.2_290)] to-[oklch(0.7_0.16_210)] text-white hover:opacity-90 border-0">
+              {loading ? t("land.contact.sending") : t("land.contact.send")} <ArrowRight className="size-4" />
+            </Button>
+          </div>
+        </form>
+      </div>
+    </section>
   );
 }
