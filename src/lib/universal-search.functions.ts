@@ -4,7 +4,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export type SearchHit = {
   id: string;
-  kind: "note" | "todo" | "bookmark" | "diagram" | "feed" | "tip";
+  kind: "note" | "todo" | "bookmark" | "diagram" | "feed" | "tip" | "snippet";
   title: string;
   subtitle?: string;
 };
@@ -18,13 +18,14 @@ export const universalSearch = createServerFn({ method: "POST" })
     const { supabase } = context;
     const like = `%${data.q.replace(/[%_]/g, "")}%`;
 
-    const [notes, todos, bookmarks, diagrams, feeds, tips] = await Promise.all([
+    const [notes, todos, bookmarks, diagrams, feeds, tips, snippets] = await Promise.all([
       supabase.from("notes").select("id,title,content").ilike("title", like).limit(5),
       supabase.from("todos").select("id,title,status").ilike("title", like).limit(5),
       supabase.from("bookmarks").select("id,title,url").ilike("title", like).limit(5),
       supabase.from("diagrams").select("id,title,description").ilike("title", like).limit(5),
       supabase.from("feed_items").select("id,title,source").ilike("title", like).limit(5),
       supabase.from("tips").select("id,title,command").ilike("title", like).limit(5),
+      supabase.from("snippets").select("id,title,language").ilike("title", like).limit(5),
     ]);
 
     const hits: SearchHit[] = [
@@ -34,6 +35,7 @@ export const universalSearch = createServerFn({ method: "POST" })
       ...(diagrams.data ?? []).map((x) => ({ id: x.id, kind: "diagram" as const, title: x.title, subtitle: x.description ?? undefined })),
       ...(feeds.data ?? []).map((x) => ({ id: x.id, kind: "feed" as const, title: x.title, subtitle: x.source })),
       ...(tips.data ?? []).map((x) => ({ id: x.id, kind: "tip" as const, title: x.title, subtitle: x.command ?? undefined })),
+      ...(snippets.data ?? []).map((x) => ({ id: x.id, kind: "snippet" as const, title: x.title, subtitle: x.language })),
     ];
 
     return { hits };
