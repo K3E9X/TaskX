@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { checkCronHookAuth } from "@/lib/cron-hook-auth";
 
 type RssItem = {
   title: string;
@@ -167,25 +168,11 @@ async function fetchSource(rawUrl: string): Promise<RssItem[]> {
   return parseRss(text);
 }
 
-function checkApiKey(request: Request): Response | null {
-  const expected = process.env.SUPABASE_PUBLISHABLE_KEY;
-  const provided =
-    request.headers.get("apikey") ||
-    request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
-  if (!expected || !provided || provided !== expected) {
-    return new Response(JSON.stringify({ ok: false, error: "Forbidden" }), {
-      status: 403,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-  return null;
-}
-
 export const Route = createFileRoute("/api/public/hooks/ingest-feeds")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const denied = checkApiKey(request);
+        const denied = await checkCronHookAuth(request);
         if (denied) return denied;
 
         const { data: sources, error: srcErr } = await supabaseAdmin
@@ -253,15 +240,14 @@ export const Route = createFileRoute("/api/public/hooks/ingest-feeds")({
               .update({ last_fetched_at: new Date().toISOString() })
               .eq("id", src.id);
 
-            results.push({ source: src.name, count: fresh.length });
-          } catch (e) {
-            failed++;
-            results.push({ source: src.name, count: 0, error: e instanceof Error ? e.message : String(e) });
-          }
+        const summary: Array<{ source: string; count: number; error?: string }> = [];
+        for (const r of results) {
+          // Hide internal user-scoped errors; keep source name + count only.
+          summary.push(r.error ? { source: r.source, count: r.count, error: "error" } : { source: r.source, count: r.count });
         }
 
         return new Response(
-          JSON.stringify({ ok: true, sources: sources?.length ?? 0, inserted, failed, results }),
+          JSON.stringify({ ok: true, sources: sources?.length ?? 0, inserted, failed }),
           { headers: { "Content-Type": "application/json" } }
         );
       },
