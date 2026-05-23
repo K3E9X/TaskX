@@ -9,7 +9,7 @@ import { trackPageView } from "@/lib/admin-console.functions";
 import {
   LayoutDashboard, CheckSquare, FileText, Repeat, FolderKanban,
   CalendarClock, GitBranch, Rss, Terminal, Bookmark, Users, LogOut, Gauge, Shield,
-  PanelLeftClose, PanelLeftOpen, ShieldCheck,
+  PanelLeftClose, PanelLeftOpen, ShieldCheck, Code2,
 } from "lucide-react";
 import { TaskXMark } from "@/components/brand/TaskXLogo";
 import { CommandPalette } from "@/components/admin/CommandPalette";
@@ -36,6 +36,7 @@ const NAV: { to: string; key: TKey; icon: typeof LayoutDashboard }[] = [
   { to: "/cockpit", key: "nav.cockpit", icon: Gauge },
   { to: "/todos", key: "nav.todos", icon: CheckSquare },
   { to: "/notes", key: "nav.notes", icon: FileText },
+  { to: "/snippets", key: "nav.snippets", icon: Code2 },
   { to: "/routines", key: "nav.routines", icon: Repeat },
   { to: "/projects", key: "nav.projects", icon: FolderKanban },
   { to: "/meetings", key: "nav.meetings", icon: CalendarClock },

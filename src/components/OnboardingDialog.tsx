@@ -50,10 +50,11 @@ export function OnboardingDialog() {
     if (!session?.user.id) return;
     setSaving(true);
     try {
+      const { PRESET_BY_ROLE } = await import("@/lib/note-templates");
       await supabase.from("profiles").update({
         onboarded: true,
-        // Only update team_role if it's a known DB enum value
         team_role: ROLE_DB_MAP[role] as never,
+        dashboard_widgets: PRESET_BY_ROLE[role] ?? PRESET_BY_ROLE.other,
       }).eq("id", session.user.id);
       toast.success(t("onb.done"));
       setOpen(false);

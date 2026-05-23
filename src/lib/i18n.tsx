@@ -353,7 +353,35 @@ const dict = {
     "search.diagrams": "Diagrammes",
     "search.feeds": "Veille",
     "search.tips": "Tips",
+    "search.snippets": "Snippets",
     "search.empty": "Aucun résultat.",
+
+    "nav.snippets": "Snippets",
+
+    "common.close": "Fermer",
+
+    "tpl.title": "Galerie de templates",
+    "tpl.subtitle": "Commence une note avec une trame prête à remplir.",
+    "tpl.mine": "Mon métier",
+    "tpl.all": "Tous",
+    "tpl.search": "Rechercher un template…",
+    "tpl.empty": "Aucun template ne correspond.",
+    "tpl.fromTemplate": "Depuis un template",
+
+    "snip.title": "Snippets",
+    "snip.subtitle": "Tes commandes et payloads réutilisables, à un clic.",
+    "snip.new": "Nouveau snippet",
+    "snip.search": "Rechercher…",
+    "snip.empty": "Aucun snippet pour l'instant.",
+    "snip.pick": "Sélectionne un snippet ou crées-en un.",
+    "snip.language": "Langage",
+    "snip.tagsPh": "tags séparés par virgule",
+    "snip.command": "Commande",
+    "snip.copy": "Copier",
+    "snip.copied": "Copié dans le presse-papier.",
+    "snip.description": "Description",
+    "snip.descriptionPh": "À quoi sert ce snippet, options utiles, gotchas…",
+    "snip.confirmDelete": "Supprimer ce snippet ?",
   },
 
   en: {
@@ -706,7 +734,35 @@ const dict = {
     "search.diagrams": "Diagrams",
     "search.feeds": "Watch",
     "search.tips": "Tips",
+    "search.snippets": "Snippets",
     "search.empty": "No results.",
+
+    "nav.snippets": "Snippets",
+
+    "common.close": "Close",
+
+    "tpl.title": "Template gallery",
+    "tpl.subtitle": "Start a note from a ready-to-fill template.",
+    "tpl.mine": "My role",
+    "tpl.all": "All",
+    "tpl.search": "Search a template…",
+    "tpl.empty": "No template matches.",
+    "tpl.fromTemplate": "From template",
+
+    "snip.title": "Snippets",
+    "snip.subtitle": "Your reusable commands and payloads, one click away.",
+    "snip.new": "New snippet",
+    "snip.search": "Search…",
+    "snip.empty": "No snippet yet.",
+    "snip.pick": "Pick a snippet or create one.",
+    "snip.language": "Language",
+    "snip.tagsPh": "comma-separated tags",
+    "snip.command": "Command",
+    "snip.copy": "Copy",
+    "snip.copied": "Copied to clipboard.",
+    "snip.description": "Description",
+    "snip.descriptionPh": "What this snippet does, useful flags, gotchas…",
+    "snip.confirmDelete": "Delete this snippet?",
   },
 } as const satisfies Record<Lang, Record<string, string>>;
 

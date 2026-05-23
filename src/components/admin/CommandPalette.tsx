@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/command";
 import {
   LayoutDashboard, CheckSquare, FileText, Repeat, FolderKanban, CalendarClock,
-  GitBranch, Rss, Terminal, Bookmark, Users, Shield, Gauge, ShieldCheck, LogOut,
+  GitBranch, Rss, Terminal, Bookmark, Users, Shield, Gauge, ShieldCheck, LogOut, Code2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { universalSearch } from "@/lib/universal-search.functions";
@@ -18,7 +18,7 @@ type Item = { label: string; to?: string; icon: typeof LayoutDashboard; action?:
 
 const KIND_ROUTE: Record<string, string> = {
   note: "/notes", todo: "/todos", bookmark: "/bookmarks",
-  diagram: "/diagrams", feed: "/feeds", tip: "/tips",
+  diagram: "/diagrams", feed: "/feeds", tip: "/tips", snippet: "/snippets",
 };
 
 export function CommandPalette() {
@@ -64,6 +64,7 @@ export function CommandPalette() {
     { group: "Navigation", label: "Feeds", to: "/feeds", icon: Rss },
     { group: "Navigation", label: "Tips", to: "/tips", icon: Terminal },
     { group: "Navigation", label: "Bookmarks", to: "/bookmarks", icon: Bookmark },
+    { group: "Navigation", label: "Snippets", to: "/snippets", icon: Code2 },
     { group: "Navigation", label: "Équipe", to: "/team", icon: Users },
     { group: "Navigation", label: "Sécurité", to: "/security", icon: ShieldCheck },
     { group: "Admin", label: "Console admin", to: "/admin", icon: Shield },
@@ -86,6 +87,7 @@ export function CommandPalette() {
     { kind: "diagram", key: "search.diagrams", icon: GitBranch },
     { kind: "feed", key: "search.feeds", icon: Rss },
     { kind: "tip", key: "search.tips", icon: Terminal },
+    { kind: "snippet", key: "search.snippets", icon: Code2 },
   ];
 
   const groups = Array.from(new Set(items.map((i) => i.group)));
