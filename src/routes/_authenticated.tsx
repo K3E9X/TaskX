@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   LayoutDashboard, CheckSquare, FileText, Repeat, FolderKanban,
   CalendarClock, GitBranch, Rss, Terminal, Bookmark, Users, LogOut, Gauge, Shield,
-  PanelLeftClose, PanelLeftOpen,
+  PanelLeftClose, PanelLeftOpen, ShieldCheck,
 } from "lucide-react";
 import { TaskXMark } from "@/components/brand/TaskXLogo";
 
@@ -28,6 +28,7 @@ const NAV: { to: string; key: TKey; icon: typeof LayoutDashboard }[] = [
   { to: "/tips", key: "nav.tips", icon: Terminal },
   { to: "/bookmarks", key: "nav.bookmarks", icon: Bookmark },
   { to: "/team", key: "nav.team", icon: Users },
+  { to: "/security", key: "nav.security", icon: ShieldCheck },
 ];
 
 const SIDEBAR_KEY = "taskx.sidebar.collapsed";
@@ -61,6 +62,20 @@ function AuthenticatedLayout() {
   useEffect(() => {
     if (!loading && !session) navigate({ to: "/login" });
   }, [loading, session, navigate]);
+
+  // MFA gate: if user has a verified TOTP factor but current AAL < required, force challenge.
+  useEffect(() => {
+    if (!session) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+      if (cancelled) return;
+      if (data && data.currentLevel !== data.nextLevel) {
+        navigate({ to: "/mfa-challenge" });
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [session, navigate]);
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center text-sm text-muted-foreground">{t("common.loading")}</div>;
