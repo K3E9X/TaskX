@@ -14,6 +14,9 @@ import {
 import { TaskXMark } from "@/components/brand/TaskXLogo";
 import { CommandPalette } from "@/components/admin/CommandPalette";
 import { AnnouncementBanner } from "@/components/admin/AnnouncementBanner";
+import { QuickCaptureDialog, useQuickCapture } from "@/components/QuickCaptureDialog";
+import { StreakBadge } from "@/components/StreakBadge";
+import { OnboardingDialog } from "@/components/OnboardingDialog";
 
 
 
