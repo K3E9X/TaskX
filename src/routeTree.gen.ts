@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as MfaChallengeRouteImport } from './routes/mfa-challenge'
@@ -45,6 +46,11 @@ import { Route as ApiPublicHooksIngestFeedsRouteImport } from './routes/api/publ
 import { Route as ApiPublicHooksDailyDigestRouteImport } from './routes/api/public/hooks/daily-digest'
 import { Route as ApiPublicHooksDailyDigestStatusRouteImport } from './routes/api/public/hooks/daily-digest.status'
 
+const UnsubscribeRoute = UnsubscribeRouteImport.update({
+  id: '/unsubscribe',
+  path: '/unsubscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -234,6 +240,7 @@ export interface FileRoutesByFullPath {
   '/mfa-challenge': typeof MfaChallengeRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/bookmarks': typeof AuthenticatedBookmarksRoute
   '/cockpit': typeof AuthenticatedCockpitRoute
@@ -270,6 +277,7 @@ export interface FileRoutesByTo {
   '/mfa-challenge': typeof MfaChallengeRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/bookmarks': typeof AuthenticatedBookmarksRoute
   '/cockpit': typeof AuthenticatedCockpitRoute
@@ -308,6 +316,7 @@ export interface FileRoutesById {
   '/mfa-challenge': typeof MfaChallengeRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/bookmarks': typeof AuthenticatedBookmarksRoute
   '/_authenticated/cockpit': typeof AuthenticatedCockpitRoute
@@ -346,6 +355,7 @@ export interface FileRouteTypes {
     | '/mfa-challenge'
     | '/reset-password'
     | '/sitemap.xml'
+    | '/unsubscribe'
     | '/admin'
     | '/bookmarks'
     | '/cockpit'
@@ -382,6 +392,7 @@ export interface FileRouteTypes {
     | '/mfa-challenge'
     | '/reset-password'
     | '/sitemap.xml'
+    | '/unsubscribe'
     | '/admin'
     | '/bookmarks'
     | '/cockpit'
@@ -419,6 +430,7 @@ export interface FileRouteTypes {
     | '/mfa-challenge'
     | '/reset-password'
     | '/sitemap.xml'
+    | '/unsubscribe'
     | '/_authenticated/admin'
     | '/_authenticated/bookmarks'
     | '/_authenticated/cockpit'
@@ -457,6 +469,7 @@ export interface RootRouteChildren {
   MfaChallengeRoute: typeof MfaChallengeRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  UnsubscribeRoute: typeof UnsubscribeRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   ApiPublicContactRoute: typeof ApiPublicContactRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
@@ -472,6 +485,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/unsubscribe': {
+      id: '/unsubscribe'
+      path: '/unsubscribe'
+      fullPath: '/unsubscribe'
+      preLoaderRoute: typeof UnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -784,6 +804,7 @@ const rootRouteChildren: RootRouteChildren = {
   MfaChallengeRoute: MfaChallengeRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  UnsubscribeRoute: UnsubscribeRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   ApiPublicContactRoute: ApiPublicContactRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
@@ -799,3 +820,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
