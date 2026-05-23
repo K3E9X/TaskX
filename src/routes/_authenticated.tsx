@@ -8,6 +8,7 @@ import {
   LayoutDashboard, CheckSquare, FileText, Repeat, FolderKanban,
   CalendarClock, GitBranch, Rss, Terminal, Bookmark, Users, LogOut, Gauge, Shield,
 } from "lucide-react";
+import { TaskXMark } from "@/components/brand/TaskXLogo";
 
 export const Route = createFileRoute("/_authenticated")({
   component: AuthenticatedLayout,
@@ -57,9 +58,15 @@ function AuthenticatedLayout() {
   return (
     <div className="min-h-screen flex bg-background">
       <aside className={`fixed inset-y-0 left-0 z-40 w-60 border-r bg-sidebar text-sidebar-foreground transform transition-transform md:static md:translate-x-0 ${open ? "translate-x-0" : "-translate-x-full"}`}>
-        <div className="h-14 flex flex-col justify-center px-4 border-b">
-          <span className="text-sm font-semibold tracking-tight leading-none">TaskX</span>
-          <span className="mt-1 text-[10px] text-muted-foreground leading-none">{t("app.tagline")}</span>
+        <div className="h-14 flex items-center gap-2 px-4 border-b">
+          <TaskXMark size={26} />
+          <div className="flex flex-col leading-none">
+            <span className="text-sm font-semibold tracking-tight flex items-baseline">
+              <span>Task</span>
+              <span className="ml-[1px] bg-gradient-to-br from-[oklch(0.74_0.18_295)] to-[oklch(0.78_0.15_200)] bg-clip-text text-transparent font-bold">X</span>
+            </span>
+            <span className="mt-1 text-[10px] text-muted-foreground">{t("app.tagline")}</span>
+          </div>
         </div>
         <nav className="p-2 space-y-0.5 text-sm">
           {NAV.map((item) => {
