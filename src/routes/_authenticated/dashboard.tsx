@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { format, isPast, parseISO, isToday, startOfDay, endOfDay, subDays } from "date-fns";
 import { SendDigestButton } from "@/components/SendDigestButton";
-import { Maximize2, Minimize2, X, Plus, RotateCcw, MoreHorizontal } from "lucide-react";
+import { Maximize2, Minimize2, X, Plus, RotateCcw } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   component: DashboardPage,
