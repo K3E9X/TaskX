@@ -200,7 +200,9 @@ function AuthenticatedLayout() {
             </button>
             <div className="text-xs text-muted-foreground hidden md:block">{pathname}</div>
           </div>
-          <LangToggle />
+            <StreakBadge />
+            <LangToggle />
+          </div>
         </header>
         <AnnouncementBanner />
         <main className="flex-1 overflow-auto">
@@ -208,11 +210,17 @@ function AuthenticatedLayout() {
         </main>
       </div>
       <CommandPalette />
-
+      <QuickCaptureMount />
+      <OnboardingDialog />
 
       {open && <div onClick={() => setOpen(false)} className="fixed inset-0 bg-black/30 z-30 md:hidden" />}
     </div>
   );
+}
+
+function QuickCaptureMount() {
+  const { open, setOpen } = useQuickCapture();
+  return <QuickCaptureDialog open={open} onOpenChange={setOpen} />;
 }
 
 function UserChip({ email, onSignOut }: { email: string; onSignOut: () => void }) {
