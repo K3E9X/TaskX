@@ -204,6 +204,7 @@ function UsersTab() {
                 <TableHead>Provider</TableHead>
                 <TableHead>Inscription</TableHead>
                 <TableHead>Dernière connexion</TableHead>
+                <TableHead>IP</TableHead>
                 <TableHead>Statut</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
