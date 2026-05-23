@@ -47,11 +47,11 @@ function LoginPage() {
     }
   };
 
-  const onGoogle = async () => {
+  const onOAuth = async (provider: "google" | "apple") => {
     setLoading(true);
-    const res = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
+    const res = await lovable.auth.signInWithOAuth(provider, { redirect_uri: window.location.origin });
     if (res.error) {
-      toast.error(res.error.message || t("auth.googleError"));
+      toast.error(res.error.message || t(provider === "google" ? "auth.googleError" : "auth.appleError"));
       setLoading(false);
       return;
     }
@@ -102,9 +102,16 @@ function LoginPage() {
             <div className="h-px flex-1 bg-border" /> {t("auth.or")} <div className="h-px flex-1 bg-border" />
           </div>
 
-          <Button type="button" variant="outline" disabled={loading} onClick={onGoogle} className="w-full">
-            {t("auth.google")}
-          </Button>
+          <div className="space-y-2">
+            <Button type="button" variant="outline" disabled={loading} onClick={() => onOAuth("google")} className="w-full gap-2">
+              <GoogleIcon className="size-4" />
+              {t("auth.google")}
+            </Button>
+            <Button type="button" variant="outline" disabled={loading} onClick={() => onOAuth("apple")} className="w-full gap-2">
+              <AppleIcon className="size-4" />
+              {t("auth.apple")}
+            </Button>
+          </div>
         </div>
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
