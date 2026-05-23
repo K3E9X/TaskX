@@ -28,13 +28,16 @@ import {
   listUserNotes, addUserNote, deleteUserNote,
   listBlockedIps, blockIp, unblockIp,
   getTopUsers, getHourlyHeatmap, getCountryStats,
+  listAnnouncements, createAnnouncement, toggleAnnouncement, deleteAnnouncement,
+  getLiveSessions, getSecurityAlerts,
 } from "@/lib/admin-console.functions";
 import { setAppRole } from "@/lib/team.functions";
 import {
   Shield, Users as UsersIcon, Activity, FileText, Flag, History, Server,
   Search, UserPlus, Ban, KeyRound, Trash2, RotateCw, ShieldCheck, ExternalLink,
-  Globe, ShieldAlert, ArrowUpDown, StickyNote, Plus,
+  Globe, ShieldAlert, ArrowUpDown, StickyNote, Plus, Megaphone, Zap, AlertTriangle,
 } from "lucide-react";
+
 import {
   ResponsiveContainer, AreaChart, Area, LineChart, Line,
   XAxis, YAxis, Tooltip, CartesianGrid, Legend,
