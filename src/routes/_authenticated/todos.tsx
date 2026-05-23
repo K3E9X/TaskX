@@ -94,16 +94,27 @@ function TodosPage() {
     onError: (e) => toast.error(e.message),
   });
 
-  const filtered = todos
-    .filter((x) => filter === "all" || x.status === filter)
-    .sort((a, b) => {
-      if (a.status === "done" && b.status !== "done") return 1;
-      if (b.status === "done" && a.status !== "done") return -1;
-      return PRIO_ORDER[a.priority] - PRIO_ORDER[b.priority];
-    });
+  const sortFn = (a: Todo, b: Todo) => PRIO_ORDER[a.priority] - PRIO_ORDER[b.priority];
+  const byStatus: Record<Status, Todo[]> = {
+    todo: todos.filter((x) => x.status === "todo").sort(sortFn),
+    doing: todos.filter((x) => x.status === "doing").sort(sortFn),
+    done: todos.filter((x) => x.status === "done").sort(sortFn),
+  };
+  const filtered = todos.filter((x) => filter !== "all" && x.status === filter).sort(sortFn);
+
+  const rowHandlers = (todo: Todo) => ({
+    onToggle: () =>
+      update.mutate({
+        id: todo.id,
+        patch: { status: todo.status === "done" ? "todo" : "done" },
+      }),
+    onStatus: (status: Status) => update.mutate({ id: todo.id, patch: { status } }),
+    onPriority: (priority: Priority) => update.mutate({ id: todo.id, patch: { priority } }),
+    onDelete: () => remove.mutate(todo.id),
+  });
 
   return (
-    <div className="mx-auto max-w-4xl px-4 md:px-8 py-8">
+    <div className="mx-auto max-w-6xl px-4 md:px-8 py-8">
       <div className="mb-6 flex items-baseline justify-between">
         <h1 className="text-2xl font-semibold tracking-tight">{t("todos.title")}</h1>
         <div className="text-xs text-muted-foreground">{todos.length}</div>
@@ -125,27 +136,48 @@ function TodosPage() {
         ))}
       </div>
 
-      <div className="mt-3 divide-y divide-border border rounded-lg bg-card">
-        {isLoading && <div className="p-4 text-sm text-muted-foreground">{t("common.loading")}</div>}
-        {!isLoading && filtered.length === 0 && (
-          <div className="p-6 text-center text-sm text-muted-foreground">{t("common.empty")}</div>
-        )}
-        {filtered.map((todo) => (
-          <TodoRow
-            key={todo.id}
-            todo={todo}
-            onToggle={() =>
-              update.mutate({
-                id: todo.id,
-                patch: { status: todo.status === "done" ? "todo" : "done" },
-              })
-            }
-            onStatus={(status) => update.mutate({ id: todo.id, patch: { status } })}
-            onPriority={(priority) => update.mutate({ id: todo.id, patch: { priority } })}
-            onDelete={() => remove.mutate(todo.id)}
-          />
-        ))}
-      </div>
+      {isLoading && (
+        <div className="mt-3 rounded-lg border bg-card p-4 text-sm text-muted-foreground">{t("common.loading")}</div>
+      )}
+
+      {!isLoading && filter === "all" && (
+        <div className="mt-3 grid gap-4 md:grid-cols-3">
+          {(["todo", "doing", "done"] as Status[]).map((col) => (
+            <div key={col} className="rounded-lg border bg-card flex flex-col min-h-[200px]">
+              <div className="flex items-center justify-between px-4 py-2.5 border-b">
+                <div className="flex items-center gap-2">
+                  <span className={`size-2 rounded-full ${
+                    col === "todo" ? "bg-muted-foreground/60" :
+                    col === "doing" ? "bg-primary" : "bg-emerald-500"
+                  }`} />
+                  <h3 className="text-xs font-medium uppercase tracking-wider">{t(`todos.status.${col}` as TKey)}</h3>
+                </div>
+                <span className="text-[10px] text-muted-foreground tabular-nums">{byStatus[col].length}</span>
+              </div>
+              <div className="flex-1 divide-y divide-border">
+                {byStatus[col].length === 0 ? (
+                  <div className="p-4 text-center text-xs text-muted-foreground">{t("common.empty")}</div>
+                ) : (
+                  byStatus[col].map((todo) => (
+                    <TodoRow key={todo.id} todo={todo} {...rowHandlers(todo)} />
+                  ))
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {!isLoading && filter !== "all" && (
+        <div className="mt-3 divide-y divide-border border rounded-lg bg-card">
+          {filtered.length === 0 && (
+            <div className="p-6 text-center text-sm text-muted-foreground">{t("common.empty")}</div>
+          )}
+          {filtered.map((todo) => (
+            <TodoRow key={todo.id} todo={todo} {...rowHandlers(todo)} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
