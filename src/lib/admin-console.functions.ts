@@ -460,11 +460,20 @@ export const trackPageView = createServerFn({ method: "POST" })
     }).parse(d),
   )
   .handler(async ({ context, data }) => {
+    const { getRequestIP, getRequestHeader } = await import("@tanstack/react-start/server");
+    let ip: string | null = null;
+    try {
+      ip = getRequestIP({ xForwardedFor: true })
+        ?? getRequestHeader("cf-connecting-ip")
+        ?? getRequestHeader("x-real-ip")
+        ?? null;
+    } catch { ip = null; }
     const { error } = await supabaseAdmin.from("page_views").insert({
       user_id: context.userId,
       path: data.path,
       referrer: data.referrer ?? null,
       user_agent: data.user_agent ?? null,
+      ip,
     });
     if (error) throw new Error(error.message);
     return { ok: true };
