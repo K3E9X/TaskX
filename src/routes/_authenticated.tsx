@@ -86,6 +86,22 @@ function AuthenticatedLayout() {
     return () => { cancelled = true; };
   }, [session, navigate]);
 
+  // Page-view tracking (lightweight, fire-and-forget)
+  const track = useServerFn(trackPageView);
+  const lastTracked = useRef<string>("");
+  useEffect(() => {
+    if (!session || lastTracked.current === pathname) return;
+    lastTracked.current = pathname;
+    track({
+      data: {
+        path: pathname,
+        user_agent: typeof navigator !== "undefined" ? navigator.userAgent.slice(0, 500) : undefined,
+        referrer: typeof document !== "undefined" ? document.referrer.slice(0, 500) : undefined,
+      },
+    }).catch(() => { /* silent */ });
+  }, [pathname, session, track]);
+
+
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center text-sm text-muted-foreground">{t("common.loading")}</div>;
   }
