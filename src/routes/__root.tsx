@@ -51,6 +51,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "TaskX — Plateforme architecte sécurité" },
       { name: "description", content: "TaskX : productivité et veille pour équipes sécurité." },
+      { property: "og:site_name", content: "TaskX" },
+      { property: "og:type", content: "website" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
