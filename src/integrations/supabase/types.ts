@@ -631,6 +631,45 @@ export type Database = {
         }
         Relationships: []
       }
+      snippets: {
+        Row: {
+          command: string
+          created_at: string
+          description: string | null
+          favorite: boolean
+          id: string
+          language: string
+          tags: string[]
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          command?: string
+          created_at?: string
+          description?: string | null
+          favorite?: boolean
+          id?: string
+          language?: string
+          tags?: string[]
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          command?: string
+          created_at?: string
+          description?: string | null
+          favorite?: boolean
+          id?: string
+          language?: string
+          tags?: string[]
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       tips: {
         Row: {
           category: string

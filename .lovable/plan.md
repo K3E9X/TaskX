@@ -1,80 +1,65 @@
-# Plan — Top 5 features daily UX
 
-Objectif : créer l'habitude d'ouvrir TaskX chaque matin, avec friction zéro et sentiment de progression. Tout reste **workspace personnel**, aucune feature SOC/équipe.
+# Plan — Options par métier (batch 1)
 
----
+Les 5 features daily sont en place. On attaque maintenant le **per-rôle**, mais en **un seul angle transverse** qui sert immédiatement les 5 profils (pentester / architect / soc / forensic / ciso), plutôt que d'éparpiller 15 mini-features. On itérera ensuite.
 
-## 1. Morning Brief (briefing quotidien IA)
+## Ce qu'on livre dans ce batch
 
-**But** : à l'ouverture, un encart en haut du `/dashboard` qui résume la journée.
+### 1. Bibliothèque de templates de notes (scoped par métier)
 
-- Nouveau composant `MorningBrief.tsx` affiché en tête du dashboard
-- Server function `generateMorningBrief` (`src/lib/morning-brief.functions.ts`) :
-  - Récupère via `requireSupabaseAuth` : todos du jour + en retard, meetings du jour, top 5 feed_items non lus `severity >= high` des dernières 24h, streak en cours
-  - Appelle Lovable AI (`google/gemini-2.5-flash`) avec un prompt FR/EN qui produit 3-5 bullets actionnables ("Voici ta journée")
-  - Retourne `{ summary, stats: { todos, meetings, criticalCves, streak } }`
-- Cache local 4h (TanStack Query `staleTime`) pour éviter les regenerations
-- Bouton "Régénérer" + "Continue where you left off" (dernière note/diagramme édité via `updated_at desc limit 1`)
+Une note "vierge" est inutile à 8h du matin. On ajoute une **galerie de templates** déclenchée depuis `/notes` (bouton "Nouveau depuis template") et depuis Quick Capture (`N` → option "template").
 
-## 2. Quick Capture (friction zéro)
+Templates livrés (markdown pré-rempli, FR/EN) :
 
-**But** : capturer une todo, note ou bookmark depuis n'importe où en <1s.
+- **Pentester** : Engagement scope, Recon notes, Finding (CVSS + repro + remediation), Daily standup pentest
+- **Forensic** : Timeline d'investigation (table chrono), Hash/IOC scratchpad, Chain of custody, Write-up incident
+- **Architect** : ADR (Architecture Decision Record), Threat model STRIDE, Design review checklist
+- **SOC analyst** : Shift handover, Alert triage notes, Runbook quick-ref
+- **CISO** : Comité sécurité (agenda + décisions), Risk register entry, Board update mensuel
+- **Universal** : Meeting notes, Daily journal, Reading notes
 
-- Hook global `useQuickCapture` qui écoute `T`, `N`, `B` (hors input/textarea) → ouvre un mini-dialog
-- Composant `QuickCaptureDialog.tsx` : input unique, parse intelligemment :
-  - `#tag` → tag automatique
-  - `!high` / `!low` → priorité (todos)
-  - `@tomorrow`, `@friday` → due_at (todos)
-  - URL détectée → bascule auto en bookmark
-- Insert direct dans Supabase puis `toast.success` + lien "Ouvrir"
-- Monté dans `_authenticated.tsx` à côté de `CommandPalette`
+Les templates sont **filtrés par défaut** sur le métier de l'utilisateur (`profiles.team_role`) avec un toggle "All roles".
 
-## 3. Onboarding métier + personnalisation
+### 2. Snippet manager (pentester first, utile à tous)
 
-**But** : `team_role` existe déjà, l'exploiter pour adapter l'expérience.
+Nouvelle page `/snippets` + raccourci global `S` :
+- Stockage de commandes/payloads souvent réutilisées (nmap, ffuf, sqlmap, kubectl, etc.)
+- Champs : title, command, description, tags, language (bash/powershell/sql/python)
+- Copy-to-clipboard 1 clic, recherche dans Cmd+K
+- Pré-rempli avec ~15 snippets utiles par défaut au signup (selon métier)
 
-- À la première connexion (profile `created_at` < 1 min OU `display_name` vide), modal d'onboarding 3 étapes :
-  1. Choix métier (pentester / architect / soc / forensic / ciso / other)
-  2. Choix 3-5 widgets prioritaires dashboard
-  3. Préférences feeds (cocher sources par défaut déjà créées)
-- Nouvelle colonne `profiles.dashboard_widgets text[]` (migration)
-- Le dashboard lit `dashboard_widgets` et affiche dans cet ordre ; fallback = preset par métier (mapping en dur côté front)
+### 3. Presets dashboard par métier
 
-## 4. Streak & progression
+Au lieu d'un seul `DEFAULT_LAYOUT`, on définit 5 presets (`PRESET_BY_ROLE`) :
+- **Pentester** : KPI overdue · today-todos · snippets récents · CVE critiques · notes récentes
+- **Forensic** : timeline du jour · notes récentes · todos · hash scratchpad
+- **CISO** : meetings semaine · digest CTI · todos haute prio · routines
+- **Architect** : diagrammes récents · ADR notes · todos · feeds
+- **SOC** : alert triage notes · runbooks · CVE feed · shift handover
 
-**But** : montrer que l'utilisateur avance.
-
-- Nouvelle table `daily_activity` : `user_id`, `day date`, `todos_done int`, `notes_edited int`, `feed_read int`, `unique (user_id, day)`
-- Trigger ou logique côté serverFn incrémente quand : todo passée à `done`, note updated, feed_item passé à `read`
-- Composant `StreakBadge.tsx` dans le header : flamme + nombre de jours consécutifs (calcul SQL `lag()` sur `day`)
-- Mini-graph 14 derniers jours dans le Morning Brief (sparkline)
-
-## 5. Universal Search dans Cmd+K
-
-**But** : Cmd+K trouve aussi les contenus (notes, todos, bookmarks, diagrams, runbooks, feed_items).
-
-- Étendre `CommandPalette.tsx` : quand input.length >= 2, débounce 200ms puis appel serverFn `universalSearch(query)`
-- ServerFn fait 6 requêtes parallèles (`.ilike('title', '%q%')`/`.textSearch`) limit 5 chacune
-- Affichage groupé : Navigation / Notes / Todos / Bookmarks / Diagrams / Feeds
-- Sélection → navigate vers la page concernée avec query param `?focus=<id>` que chaque page consomme pour highlight/scroll
-
----
-
-## Ordre d'implémentation (un seul gros patch)
-
-1. Migration SQL : `profiles.dashboard_widgets`, table `daily_activity`, fonction `get_streak(uuid)`
-2. ServerFns : `morning-brief.functions.ts`, `universal-search.functions.ts`, `activity.functions.ts`
-3. Composants : `MorningBrief`, `QuickCaptureDialog`, `StreakBadge`, `OnboardingDialog`
-4. Wiring : `_authenticated.tsx` (QuickCapture + StreakBadge dans header + Onboarding au mount), `dashboard.tsx` (MorningBrief en tête), `CommandPalette.tsx` (universal search)
-5. i18n FR/EN pour tous les nouveaux labels
+Appliqué automatiquement à l'`OnboardingDialog` (étape "choix métier" écrit aussi `dashboard_widgets`). L'utilisateur peut toujours customiser.
 
 ## Détails techniques
 
-- Lovable AI : appel direct via `fetch` vers `https://ai.gateway.lovable.dev/v1/chat/completions` avec `process.env.LOVABLE_API_KEY` côté serverFn
-- `daily_activity` incrémenté côté front après chaque mutation pertinente (simple, pas de trigger)
-- Streak : `select count(*) from generate_series(...) where exists ...` ou parcours JS sur 60 jours
-- Universal search : pas de FTS Postgres pour rester simple, `ilike` suffit à ce volume
+- **Templates** : pas de table SQL, fichier `src/lib/note-templates.ts` (tableau de `{ id, role, title, body, lang }`). Renderer FR/EN par i18n.
+- **Snippets** : nouvelle table `snippets` avec RLS user-scoped (`user_id`, `title`, `command text`, `description`, `language`, `tags text[]`).
+- **Migration SQL** : seulement `snippets` + seed côté front au premier accès si table vide.
+- **Universal search** : étendre `universal-search.functions.ts` pour inclure `snippets`.
+- **Onboarding** : ajouter `setRolePresetWidgets()` qui écrit `profiles.dashboard_widgets` selon le rôle choisi.
 
-## Après ces 5 points
+## Ordre d'implémentation
 
-On enchaîne sur les options par métier : templates notes pentester, timeline forensic, agenda semaine CISO, bibliothèque diagrammes architecte.
+1. Migration `snippets` (table + RLS)
+2. `src/lib/note-templates.ts` (catalogue FR/EN)
+3. `src/components/TemplateGalleryDialog.tsx` (modal de sélection)
+4. Wiring : bouton dans `/notes` + option "from template" dans `QuickCaptureDialog`
+5. `src/routes/_authenticated/snippets.tsx` (CRUD simple, liste + détail)
+6. Ajout `/snippets` à la sidebar + raccourci `S` dans le quick-capture hook
+7. `PRESET_BY_ROLE` dans `OnboardingDialog` + dashboard fallback
+8. Étendre universal search aux snippets
+9. i18n FR/EN
+
+## Après ce batch
+
+Batch 2 (à confirmer) : Pomodoro/engagement timer pour pentester, lien note↔diagramme pour architect, agenda visuel semaine pour CISO, hash/IOC validator scratchpad pour forensic.
+
