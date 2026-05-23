@@ -53,6 +53,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       // title, description, og:title, og:description, og:url, canonical.
       { property: "og:site_name", content: "TaskX" },
       { property: "og:type", content: "website" },
+      { title: "Lovable App" },
+      { property: "og:title", content: "Lovable App" },
+      { name: "twitter:title", content: "Lovable App" },
+      { name: "description", content: "TaskX is a modern, minimalist web platform for daily task management and organization." },
+      { property: "og:description", content: "TaskX is a modern, minimalist web platform for daily task management and organization." },
+      { name: "twitter:description", content: "TaskX is a modern, minimalist web platform for daily task management and organization." },
+      { name: "twitter:card", content: "summary" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
