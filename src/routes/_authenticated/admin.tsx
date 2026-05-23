@@ -87,26 +87,33 @@ function AdminPage() {
       <Tabs defaultValue="overview" className="w-full">
         <TabsList className="flex flex-wrap h-auto">
           <TabsTrigger value="overview"><Activity className="h-3.5 w-3.5 mr-1" />Overview</TabsTrigger>
+          <TabsTrigger value="live"><Zap className="h-3.5 w-3.5 mr-1" />Live</TabsTrigger>
           <TabsTrigger value="users"><UsersIcon className="h-3.5 w-3.5 mr-1" />Users</TabsTrigger>
           <TabsTrigger value="sessions"><ShieldCheck className="h-3.5 w-3.5 mr-1" />Sessions</TabsTrigger>
           <TabsTrigger value="logs"><History className="h-3.5 w-3.5 mr-1" />Logs</TabsTrigger>
           <TabsTrigger value="content"><FileText className="h-3.5 w-3.5 mr-1" />Content</TabsTrigger>
           <TabsTrigger value="flags"><Flag className="h-3.5 w-3.5 mr-1" />Flags</TabsTrigger>
+          <TabsTrigger value="announce"><Megaphone className="h-3.5 w-3.5 mr-1" />Annonces</TabsTrigger>
+          <TabsTrigger value="alerts"><AlertTriangle className="h-3.5 w-3.5 mr-1" />Alertes</TabsTrigger>
           <TabsTrigger value="security"><ShieldAlert className="h-3.5 w-3.5 mr-1" />Security</TabsTrigger>
           <TabsTrigger value="audit"><History className="h-3.5 w-3.5 mr-1" />Audit</TabsTrigger>
           <TabsTrigger value="system"><Server className="h-3.5 w-3.5 mr-1" />System</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="mt-6"><OverviewTab /></TabsContent>
+        <TabsContent value="live" className="mt-6"><LiveTab /></TabsContent>
         <TabsContent value="users" className="mt-6"><UsersTab /></TabsContent>
         <TabsContent value="sessions" className="mt-6"><SessionsTab /></TabsContent>
         <TabsContent value="logs" className="mt-6"><LogsTab /></TabsContent>
         <TabsContent value="content" className="mt-6"><ContentTab /></TabsContent>
         <TabsContent value="flags" className="mt-6"><FlagsTab /></TabsContent>
+        <TabsContent value="announce" className="mt-6"><AnnounceTab /></TabsContent>
+        <TabsContent value="alerts" className="mt-6"><AlertsTab /></TabsContent>
         <TabsContent value="security" className="mt-6"><SecurityTab /></TabsContent>
         <TabsContent value="audit" className="mt-6"><AuditTab /></TabsContent>
         <TabsContent value="system" className="mt-6"><SystemTab /></TabsContent>
       </Tabs>
+
     </div>
   );
 }
