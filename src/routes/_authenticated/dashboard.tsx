@@ -152,7 +152,7 @@ const WIDGET_TITLE: Record<WidgetId, TKey> = {
 };
 
 function DashboardPage() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const [layout, setLayout] = useState<LayoutItem[]>(() => loadLayout());
 
   useEffect(() => {
