@@ -56,6 +56,13 @@ const chartC = Array.from({ length: 18 }, (_, i) => ({
 }));
 
 function LandingPage() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) navigate({ to: "/dashboard" });
+    });
+  }, [navigate]);
+
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       <BackgroundFX />
