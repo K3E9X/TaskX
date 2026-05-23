@@ -734,7 +734,35 @@ const dict = {
     "search.diagrams": "Diagrams",
     "search.feeds": "Watch",
     "search.tips": "Tips",
+    "search.snippets": "Snippets",
     "search.empty": "No results.",
+
+    "nav.snippets": "Snippets",
+
+    "common.close": "Close",
+
+    "tpl.title": "Template gallery",
+    "tpl.subtitle": "Start a note from a ready-to-fill template.",
+    "tpl.mine": "My role",
+    "tpl.all": "All",
+    "tpl.search": "Search a template…",
+    "tpl.empty": "No template matches.",
+    "tpl.fromTemplate": "From template",
+
+    "snip.title": "Snippets",
+    "snip.subtitle": "Your reusable commands and payloads, one click away.",
+    "snip.new": "New snippet",
+    "snip.search": "Search…",
+    "snip.empty": "No snippet yet.",
+    "snip.pick": "Pick a snippet or create one.",
+    "snip.language": "Language",
+    "snip.tagsPh": "comma-separated tags",
+    "snip.command": "Command",
+    "snip.copy": "Copy",
+    "snip.copied": "Copied to clipboard.",
+    "snip.description": "Description",
+    "snip.descriptionPh": "What this snippet does, useful flags, gotchas…",
+    "snip.confirmDelete": "Delete this snippet?",
   },
 } as const satisfies Record<Lang, Record<string, string>>;
 
