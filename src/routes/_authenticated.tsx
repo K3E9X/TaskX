@@ -9,7 +9,7 @@ import { trackPageView } from "@/lib/admin-console.functions";
 import {
   LayoutDashboard, CheckSquare, FileText, Repeat, FolderKanban,
   CalendarClock, GitBranch, Rss, Terminal, Bookmark, Users, LogOut, Gauge, Shield,
-  PanelLeftClose, PanelLeftOpen, ShieldCheck,
+  PanelLeftClose, PanelLeftOpen, ShieldCheck, Code2,
 } from "lucide-react";
 import { TaskXMark } from "@/components/brand/TaskXLogo";
 import { CommandPalette } from "@/components/admin/CommandPalette";
