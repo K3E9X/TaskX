@@ -529,10 +529,15 @@ function ContactSection({ t }: { t: T }) {
     e.preventDefault();
     setLoading(true);
     try {
-      const { error } = await supabase.from("contact_submissions").insert({
-        name, email, subject, message,
+      const res = await fetch("/api/public/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, subject, message }),
       });
-      if (error) throw error;
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Failed to send");
+      }
       toast.success(t("land.contact.success"));
       setSent(true);
       setName(""); setEmail(""); setSubject(""); setMessage("");
