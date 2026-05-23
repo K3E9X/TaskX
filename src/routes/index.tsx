@@ -22,8 +22,14 @@ import {
   Rss,
   Users,
   Bot,
+  Mail,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useState, type FormEvent } from "react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { TaskXLogo, TaskXMark } from "@/components/brand/TaskXLogo";
 import { useI18n, LangToggle, type TKey } from "@/lib/i18n";
@@ -104,6 +110,7 @@ function LandingPage() {
       <CockpitShowcase t={t} />
       <MetricsBand t={t} />
       <CTA t={t} />
+      <ContactSection t={t} />
       <Footer t={t} />
     </div>
   );
@@ -152,6 +159,7 @@ function Nav({ t }: { t: T }) {
         <nav className="hidden md:flex items-center gap-7 text-sm text-muted-foreground">
           <a href="#features" className="hover:text-foreground transition">{t("land.nav.features")}</a>
           <a href="#workspace" className="hover:text-foreground transition">{t("land.nav.product")}</a>
+          <a href="#contact" className="hover:text-foreground transition">{t("land.footer.contact")}</a>
         </nav>
         <div className="flex items-center gap-2">
           <LangToggle />
