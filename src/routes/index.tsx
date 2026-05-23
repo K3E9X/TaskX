@@ -58,7 +58,7 @@ export const Route = createFileRoute("/")({
           name: "TaskX",
           url: "https://taskxx.lovable.app/",
           description:
-            "Cockpit for cybersecurity teams: CTI watch, CVE tracking, architecture diagrams, runbooks and RBAC.",
+            "Personal daily workspace for cybersecurity pros: CVE watch, notes, runbooks, todos, RSS feeds and X timeline.",
         }),
       },
       {
