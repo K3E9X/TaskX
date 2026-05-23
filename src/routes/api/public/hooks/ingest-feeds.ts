@@ -99,20 +99,72 @@ function parseNvd(json: unknown): RssItem[] {
   });
 }
 
-async function fetchSource(url: string): Promise<RssItem[]> {
-  const res = await fetch(url, {
-    headers: { "User-Agent": "Lovable-Cockpit/1.0 (+rss-ingest)", Accept: "application/json, application/rss+xml, application/xml, text/xml, */*" },
-  });
+// SSRF guard: only allow public https URLs, reject private/reserved IP ranges and non-DNS hostnames.
+function isBlockedHostname(host: string): boolean {
+  const h = host.toLowerCase();
+  if (h === "localhost" || h.endsWith(".localhost") || h.endsWith(".local") || h.endsWith(".internal")) return true;
+  // IPv6 literal — block all (most edge cases are private/loopback)
+  if (h.startsWith("[")) return true;
+  // IPv4 literal check
+  const m = h.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (m) {
+    const [a, b] = [parseInt(m[1], 10), parseInt(m[2], 10)];
+    if (a === 10) return true;
+    if (a === 127) return true;
+    if (a === 0) return true;
+    if (a === 169 && b === 254) return true; // link-local incl. cloud metadata
+    if (a === 172 && b >= 16 && b <= 31) return true;
+    if (a === 192 && b === 168) return true;
+    if (a === 100 && b >= 64 && b <= 127) return true; // CGNAT
+    if (a >= 224) return true; // multicast / reserved
+  }
+  return false;
+}
+
+function validateFeedUrl(rawUrl: string): URL {
+  let parsed: URL;
+  try {
+    parsed = new URL(rawUrl);
+  } catch {
+    throw new Error("Invalid URL");
+  }
+  if (parsed.protocol !== "https:") throw new Error("Only https:// URLs are allowed");
+  if (!parsed.hostname || isBlockedHostname(parsed.hostname)) {
+    throw new Error("Hostname not allowed");
+  }
+  if (parsed.username || parsed.password) throw new Error("Credentials in URL not allowed");
+  return parsed;
+}
+
+async function fetchSource(rawUrl: string): Promise<RssItem[]> {
+  const url = validateFeedUrl(rawUrl).toString();
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10_000);
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      headers: { "User-Agent": "Lovable-Cockpit/1.0 (+rss-ingest)", Accept: "application/json, application/rss+xml, application/xml, text/xml, */*" },
+      redirect: "error", // prevent redirect-based SSRF bypass
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timeout);
+  }
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  // Limit response size to ~2MB to mitigate blind SSRF / DoS
+  const MAX_BYTES = 2 * 1024 * 1024;
   const ct = res.headers.get("content-type") ?? "";
-  if (ct.includes("json") || url.endsWith(".json") || url.includes("nvd.nist.gov/rest")) {
-    const json = await res.json();
+  const isJson = ct.includes("json") || url.endsWith(".json") || url.includes("nvd.nist.gov/rest");
+  const buf = await res.arrayBuffer();
+  if (buf.byteLength > MAX_BYTES) throw new Error("Response too large");
+  const text = new TextDecoder().decode(buf);
+  if (isJson) {
+    const json = JSON.parse(text);
     if (url.includes("cisa.gov")) return parseCisaKev(json);
     if (url.includes("nvd.nist.gov")) return parseNvd(json);
     return [];
   }
-  const xml = await res.text();
-  return parseRss(xml);
+  return parseRss(text);
 }
 
 function checkApiKey(request: Request): Response | null {
