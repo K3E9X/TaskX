@@ -293,26 +293,62 @@ export const getAuthLogs = createServerFn({ method: "GET" })
       actor_username: string | null;
       actor_id: string | null;
     };
-    const { data, error } = await supabaseAdmin
-      .schema("auth" as never)
-      .from("audit_log_entries" as never)
-      .select("id, created_at, ip_address, payload")
+
+    // Recent page activity (with IP) — most useful & always populated
+    const { data: views, error: viewsErr } = await supabaseAdmin
+      .from("page_views")
+      .select("id, created_at, ip, user_id, path")
       .order("created_at", { ascending: false })
-      .limit(200);
-    if (error) return { entries: [] as Entry[], error: error.message };
-    const entries: Entry[] = (data ?? []).map((row: unknown) => {
-      const r = row as { id: string; created_at: string; ip_address: string | null; payload: Record<string, unknown> | null };
-      const p = r.payload ?? {};
-      return {
-        id: r.id,
-        created_at: r.created_at,
-        ip_address: r.ip_address,
-        action: (p.action as string) ?? null,
-        actor_username: (p.actor_username as string) ?? null,
-        actor_id: (p.actor_id as string) ?? null,
-      };
+      .limit(300);
+
+    // Build email map for actor_username enrichment
+    const { data: usersPage } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
+    const users = usersPage?.users ?? [];
+    const emailMap = new Map(users.map((u) => [u.id, u.email ?? null]));
+
+    const entries: Entry[] = [];
+
+    // Page views → activity entries
+    (views ?? []).forEach((v) => {
+      entries.push({
+        id: `pv-${v.id}`,
+        created_at: v.created_at,
+        ip_address: v.ip ?? null,
+        action: `visit ${v.path}`,
+        actor_username: emailMap.get(v.user_id) ?? null,
+        actor_id: v.user_id,
+      });
     });
-    return { entries, error: null as string | null };
+
+    // Auth: signups + last sign-in events from auth.users
+    users.forEach((u) => {
+      if (u.created_at) {
+        entries.push({
+          id: `signup-${u.id}`,
+          created_at: u.created_at,
+          ip_address: null,
+          action: "signup",
+          actor_username: u.email ?? null,
+          actor_id: u.id,
+        });
+      }
+      if (u.last_sign_in_at) {
+        entries.push({
+          id: `login-${u.id}-${u.last_sign_in_at}`,
+          created_at: u.last_sign_in_at,
+          ip_address: null,
+          action: "login",
+          actor_username: u.email ?? null,
+          actor_id: u.id,
+        });
+      }
+    });
+
+    entries.sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
+    return {
+      entries: entries.slice(0, 500),
+      error: viewsErr?.message ?? null,
+    };
   });
 
 
