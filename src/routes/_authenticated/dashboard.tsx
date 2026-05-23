@@ -241,6 +241,20 @@ function DashboardPage() {
     return acc + (r.steps.length > 0 && done === r.steps.length ? 1 : 0);
   }, 0);
 
+  const { data: profile } = useQuery({
+    queryKey: ["dash", "profile-role"],
+    queryFn: async () => {
+      const { data } = await supabase.from("profiles").select("team_role").maybeSingle();
+      return data;
+    },
+  });
+  const role = (profile?.team_role ?? "architect") as TemplateRole;
+  const suggestedTemplates = useMemo(() => {
+    const mine = NOTE_TEMPLATES.filter((tpl) => tpl.role === role);
+    const universal = NOTE_TEMPLATES.filter((tpl) => tpl.role === "universal");
+    return [...mine, ...universal].slice(0, 4);
+  }, [role]);
+
   const renderWidget = (item: LayoutItem) => {
     const common = {
       size: item.size,
