@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { format, isPast, parseISO, isToday, startOfDay, endOfDay, subDays } from "date-fns";
 import { SendDigestButton } from "@/components/SendDigestButton";
+import { MorningBrief } from "@/components/MorningBrief";
 import { Maximize2, Minimize2, X, Plus, RotateCcw } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -422,6 +423,10 @@ function DashboardPage() {
           </DropdownMenu>
           <SendDigestButton />
         </div>
+      </div>
+
+      <div className="mb-6">
+        <MorningBrief />
       </div>
 
       <div className="grid gap-4 md:grid-cols-4">
