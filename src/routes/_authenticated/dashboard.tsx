@@ -48,7 +48,7 @@ type Size = "sm" | "md" | "lg";
 type WidgetId =
   | "kpi-overdue" | "kpi-today" | "kpi-routines" | "kpi-done"
   | "today-todos" | "overdue-todos" | "done-yesterday"
-  | "routines-today" | "recent-notes" | "tip";
+  | "routines-today" | "recent-notes" | "tip" | "suggested-templates";
 
 type LayoutItem = { id: WidgetId; size: Size; visible: boolean };
 
@@ -59,6 +59,7 @@ const DEFAULT_LAYOUT: LayoutItem[] = [
   { id: "kpi-done", size: "sm", visible: true },
   { id: "today-todos", size: "md", visible: true },
   { id: "overdue-todos", size: "md", visible: true },
+  { id: "suggested-templates", size: "md", visible: true },
   { id: "done-yesterday", size: "md", visible: true },
   { id: "routines-today", size: "md", visible: true },
   { id: "recent-notes", size: "md", visible: true },
