@@ -273,7 +273,7 @@ const dict = {
     "land.strip.items": "Pentesters, Architectes, SOC, Forensic, CISO, GRC, DevSecOps",
     "land.features.eyebrow": "Modules",
     "land.features.title": "Tout ton quotidien cyber, dans un seul onglet.",
-    "land.features.sub": "Un workspace personnel qui regroupe veille, notes, runbooks et suivi — pas un outil d'équipe, pas un SIEM.",
+    "land.features.sub": "Un workspace personnel qui regroupe veille, notes, runbooks et suivi pour ta routine cyber.",
     "land.f.todos.t": "Tâches et priorités",
     "land.f.todos.d": "Suis tes actions du jour sans perdre le contexte.",
     "land.f.notes.t": "Notes en Markdown",
