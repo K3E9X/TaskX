@@ -176,6 +176,39 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_activity: {
+        Row: {
+          created_at: string
+          day: string
+          feed_read: number
+          id: string
+          notes_edited: number
+          todos_done: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          day?: string
+          feed_read?: number
+          id?: string
+          notes_edited?: number
+          todos_done?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          day?: string
+          feed_read?: number
+          id?: string
+          notes_edited?: number
+          todos_done?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       diagrams: {
         Row: {
           created_at: string
@@ -406,10 +439,12 @@ export type Database = {
           auto_tip_enabled: boolean
           avatar_url: string | null
           created_at: string
+          dashboard_widgets: string[]
           display_name: string
           first_name: string
           id: string
           last_name: string
+          onboarded: boolean
           team_role: Database["public"]["Enums"]["team_role"]
           updated_at: string
         }
@@ -417,10 +452,12 @@ export type Database = {
           auto_tip_enabled?: boolean
           avatar_url?: string | null
           created_at?: string
+          dashboard_widgets?: string[]
           display_name?: string
           first_name?: string
           id: string
           last_name?: string
+          onboarded?: boolean
           team_role?: Database["public"]["Enums"]["team_role"]
           updated_at?: string
         }
@@ -428,10 +465,12 @@ export type Database = {
           auto_tip_enabled?: boolean
           avatar_url?: string | null
           created_at?: string
+          dashboard_widgets?: string[]
           display_name?: string
           first_name?: string
           id?: string
           last_name?: string
+          onboarded?: boolean
           team_role?: Database["public"]["Enums"]["team_role"]
           updated_at?: string
         }
@@ -706,6 +745,7 @@ export type Database = {
           status: string
         }[]
       }
+      get_current_streak: { Args: never; Returns: number }
       get_engagement_stats: { Args: never; Returns: Json }
       has_role: {
         Args: {

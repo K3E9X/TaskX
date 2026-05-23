@@ -14,6 +14,9 @@ import {
 import { TaskXMark } from "@/components/brand/TaskXLogo";
 import { CommandPalette } from "@/components/admin/CommandPalette";
 import { AnnouncementBanner } from "@/components/admin/AnnouncementBanner";
+import { QuickCaptureDialog, useQuickCapture } from "@/components/QuickCaptureDialog";
+import { StreakBadge } from "@/components/StreakBadge";
+import { OnboardingDialog } from "@/components/OnboardingDialog";
 
 
 
@@ -197,7 +200,10 @@ function AuthenticatedLayout() {
             </button>
             <div className="text-xs text-muted-foreground hidden md:block">{pathname}</div>
           </div>
-          <LangToggle />
+          <div className="flex items-center gap-2">
+            <StreakBadge />
+            <LangToggle />
+          </div>
         </header>
         <AnnouncementBanner />
         <main className="flex-1 overflow-auto">
@@ -205,11 +211,17 @@ function AuthenticatedLayout() {
         </main>
       </div>
       <CommandPalette />
-
+      <QuickCaptureMount />
+      <OnboardingDialog />
 
       {open && <div onClick={() => setOpen(false)} className="fixed inset-0 bg-black/30 z-30 md:hidden" />}
     </div>
   );
+}
+
+function QuickCaptureMount() {
+  const { open, setOpen } = useQuickCapture();
+  return <QuickCaptureDialog open={open} onOpenChange={setOpen} />;
 }
 
 function UserChip({ email, onSignOut }: { email: string; onSignOut: () => void }) {
