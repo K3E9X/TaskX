@@ -118,7 +118,7 @@ export const Route = createFileRoute('/api/public/contact')({
           return Response.json({ error: 'Invalid email' }, { status: 400 })
         }
 
-        const supabase = createClient(supabaseUrl, supabaseServiceKey)
+        const supabase: any = createClient(supabaseUrl, supabaseServiceKey)
 
         const { error: insertError } = await supabase
           .from('contact_submissions')
