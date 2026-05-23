@@ -89,6 +89,7 @@ function AdminPage() {
           <TabsTrigger value="logs"><History className="h-3.5 w-3.5 mr-1" />Logs</TabsTrigger>
           <TabsTrigger value="content"><FileText className="h-3.5 w-3.5 mr-1" />Content</TabsTrigger>
           <TabsTrigger value="flags"><Flag className="h-3.5 w-3.5 mr-1" />Flags</TabsTrigger>
+          <TabsTrigger value="security"><ShieldAlert className="h-3.5 w-3.5 mr-1" />Security</TabsTrigger>
           <TabsTrigger value="audit"><History className="h-3.5 w-3.5 mr-1" />Audit</TabsTrigger>
           <TabsTrigger value="system"><Server className="h-3.5 w-3.5 mr-1" />System</TabsTrigger>
         </TabsList>
@@ -99,6 +100,7 @@ function AdminPage() {
         <TabsContent value="logs" className="mt-6"><LogsTab /></TabsContent>
         <TabsContent value="content" className="mt-6"><ContentTab /></TabsContent>
         <TabsContent value="flags" className="mt-6"><FlagsTab /></TabsContent>
+        <TabsContent value="security" className="mt-6"><SecurityTab /></TabsContent>
         <TabsContent value="audit" className="mt-6"><AuditTab /></TabsContent>
         <TabsContent value="system" className="mt-6"><SystemTab /></TabsContent>
       </Tabs>
