@@ -9,6 +9,17 @@ import { TaskXMark } from "@/components/brand/TaskXLogo";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/mfa-challenge")({
+  head: () => ({
+    meta: [
+      { title: "Two-factor verification — TaskX" },
+      {
+        name: "description",
+        content:
+          "Enter your authenticator code to complete two-factor verification and access your TaskX cockpit.",
+      },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   component: MfaChallengePage,
 });
 

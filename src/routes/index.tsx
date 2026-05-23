@@ -43,6 +43,33 @@ export const Route = createFileRoute("/")({
         content:
           "CTI watch, CVE tracking, architecture diagrams, runbooks and RBAC in one fast workspace.",
       },
+      { property: "og:url", content: "https://taskxx.lovable.app/" },
+      { property: "og:type", content: "website" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://taskxx.lovable.app/" },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "TaskX",
+          url: "https://taskxx.lovable.app/",
+          description:
+            "Cockpit for cybersecurity teams: CTI watch, CVE tracking, architecture diagrams, runbooks and RBAC.",
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "TaskX",
+          url: "https://taskxx.lovable.app/",
+        }),
+      },
     ],
   }),
   component: LandingPage,

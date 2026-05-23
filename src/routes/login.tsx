@@ -10,6 +10,27 @@ import { TaskXMark } from "@/components/brand/TaskXLogo";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/login")({
+  head: () => ({
+    meta: [
+      { title: "Sign in — TaskX" },
+      {
+        name: "description",
+        content:
+          "Sign in to your TaskX account to access your cybersecurity cockpit: CTI watch, CVE tracking, runbooks and team RBAC.",
+      },
+      { property: "og:title", content: "Sign in — TaskX" },
+      {
+        property: "og:description",
+        content: "Sign in to your TaskX cybersecurity cockpit.",
+      },
+      { property: "og:url", content: "https://taskxx.lovable.app/login" },
+      { property: "og:type", content: "website" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://taskxx.lovable.app/login" },
+    ],
+  }),
   component: LoginPage,
 });
 

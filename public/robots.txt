@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /login
+Disallow: /mfa-challenge
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /api/
+
+Sitemap: https://taskxx.lovable.app/sitemap.xml
