@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as MfaChallengeRouteImport } from './routes/mfa-challenge'
@@ -16,6 +17,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as AuthenticatedTodosRouteImport } from './routes/_authenticated/todos'
 import { Route as AuthenticatedTipsRouteImport } from './routes/_authenticated/tips'
 import { Route as AuthenticatedTemplatesRouteImport } from './routes/_authenticated/templates'
@@ -32,11 +34,23 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedCockpitRouteImport } from './routes/_authenticated/cockpit'
 import { Route as AuthenticatedBookmarksRouteImport } from './routes/_authenticated/bookmarks'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
+import { Route as ApiPublicContactRouteImport } from './routes/api/public/contact'
+import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
+import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
+import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
+import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
+import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as ApiPublicHooksMonthlyTipRouteImport } from './routes/api/public/hooks/monthly-tip'
 import { Route as ApiPublicHooksIngestFeedsRouteImport } from './routes/api/public/hooks/ingest-feeds'
 import { Route as ApiPublicHooksDailyDigestRouteImport } from './routes/api/public/hooks/daily-digest'
 import { Route as ApiPublicHooksDailyDigestStatusRouteImport } from './routes/api/public/hooks/daily-digest.status'
 
+const UnsubscribeRoute = UnsubscribeRouteImport.update({
+  id: '/unsubscribe',
+  path: '/unsubscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -69,6 +83,11 @@ const AuthenticatedRoute = AuthenticatedRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
+  id: '/email/unsubscribe',
+  path: '/email/unsubscribe',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedTodosRoute = AuthenticatedTodosRouteImport.update({
@@ -151,6 +170,44 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
+  id: '/lovable/email/suppression',
+  path: '/lovable/email/suppression',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicContactRoute = ApiPublicContactRouteImport.update({
+  id: '/api/public/contact',
+  path: '/api/public/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailTransactionalSendRoute =
+  LovableEmailTransactionalSendRouteImport.update({
+    id: '/lovable/email/transactional/send',
+    path: '/lovable/email/transactional/send',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const LovableEmailTransactionalPreviewRoute =
+  LovableEmailTransactionalPreviewRouteImport.update({
+    id: '/lovable/email/transactional/preview',
+    path: '/lovable/email/transactional/preview',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const LovableEmailQueueProcessRoute =
+  LovableEmailQueueProcessRouteImport.update({
+    id: '/lovable/email/queue/process',
+    path: '/lovable/email/queue/process',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
+  id: '/lovable/email/auth/webhook',
+  path: '/lovable/email/auth/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
+  id: '/lovable/email/auth/preview',
+  path: '/lovable/email/auth/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicHooksMonthlyTipRoute =
   ApiPublicHooksMonthlyTipRouteImport.update({
     id: '/api/public/hooks/monthly-tip',
@@ -183,6 +240,7 @@ export interface FileRoutesByFullPath {
   '/mfa-challenge': typeof MfaChallengeRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/bookmarks': typeof AuthenticatedBookmarksRoute
   '/cockpit': typeof AuthenticatedCockpitRoute
@@ -199,9 +257,17 @@ export interface FileRoutesByFullPath {
   '/templates': typeof AuthenticatedTemplatesRoute
   '/tips': typeof AuthenticatedTipsRoute
   '/todos': typeof AuthenticatedTodosRoute
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/api/public/contact': typeof ApiPublicContactRoute
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/api/public/hooks/daily-digest': typeof ApiPublicHooksDailyDigestRouteWithChildren
   '/api/public/hooks/ingest-feeds': typeof ApiPublicHooksIngestFeedsRoute
   '/api/public/hooks/monthly-tip': typeof ApiPublicHooksMonthlyTipRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/api/public/hooks/daily-digest/status': typeof ApiPublicHooksDailyDigestStatusRoute
 }
 export interface FileRoutesByTo {
@@ -211,6 +277,7 @@ export interface FileRoutesByTo {
   '/mfa-challenge': typeof MfaChallengeRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/bookmarks': typeof AuthenticatedBookmarksRoute
   '/cockpit': typeof AuthenticatedCockpitRoute
@@ -227,9 +294,17 @@ export interface FileRoutesByTo {
   '/templates': typeof AuthenticatedTemplatesRoute
   '/tips': typeof AuthenticatedTipsRoute
   '/todos': typeof AuthenticatedTodosRoute
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/api/public/contact': typeof ApiPublicContactRoute
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/api/public/hooks/daily-digest': typeof ApiPublicHooksDailyDigestRouteWithChildren
   '/api/public/hooks/ingest-feeds': typeof ApiPublicHooksIngestFeedsRoute
   '/api/public/hooks/monthly-tip': typeof ApiPublicHooksMonthlyTipRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/api/public/hooks/daily-digest/status': typeof ApiPublicHooksDailyDigestStatusRoute
 }
 export interface FileRoutesById {
@@ -241,6 +316,7 @@ export interface FileRoutesById {
   '/mfa-challenge': typeof MfaChallengeRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/bookmarks': typeof AuthenticatedBookmarksRoute
   '/_authenticated/cockpit': typeof AuthenticatedCockpitRoute
@@ -257,9 +333,17 @@ export interface FileRoutesById {
   '/_authenticated/templates': typeof AuthenticatedTemplatesRoute
   '/_authenticated/tips': typeof AuthenticatedTipsRoute
   '/_authenticated/todos': typeof AuthenticatedTodosRoute
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/api/public/contact': typeof ApiPublicContactRoute
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/api/public/hooks/daily-digest': typeof ApiPublicHooksDailyDigestRouteWithChildren
   '/api/public/hooks/ingest-feeds': typeof ApiPublicHooksIngestFeedsRoute
   '/api/public/hooks/monthly-tip': typeof ApiPublicHooksMonthlyTipRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/api/public/hooks/daily-digest/status': typeof ApiPublicHooksDailyDigestStatusRoute
 }
 export interface FileRouteTypes {
@@ -271,6 +355,7 @@ export interface FileRouteTypes {
     | '/mfa-challenge'
     | '/reset-password'
     | '/sitemap.xml'
+    | '/unsubscribe'
     | '/admin'
     | '/bookmarks'
     | '/cockpit'
@@ -287,9 +372,17 @@ export interface FileRouteTypes {
     | '/templates'
     | '/tips'
     | '/todos'
+    | '/email/unsubscribe'
+    | '/api/public/contact'
+    | '/lovable/email/suppression'
     | '/api/public/hooks/daily-digest'
     | '/api/public/hooks/ingest-feeds'
     | '/api/public/hooks/monthly-tip'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
+    | '/lovable/email/queue/process'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
     | '/api/public/hooks/daily-digest/status'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -299,6 +392,7 @@ export interface FileRouteTypes {
     | '/mfa-challenge'
     | '/reset-password'
     | '/sitemap.xml'
+    | '/unsubscribe'
     | '/admin'
     | '/bookmarks'
     | '/cockpit'
@@ -315,9 +409,17 @@ export interface FileRouteTypes {
     | '/templates'
     | '/tips'
     | '/todos'
+    | '/email/unsubscribe'
+    | '/api/public/contact'
+    | '/lovable/email/suppression'
     | '/api/public/hooks/daily-digest'
     | '/api/public/hooks/ingest-feeds'
     | '/api/public/hooks/monthly-tip'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
+    | '/lovable/email/queue/process'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
     | '/api/public/hooks/daily-digest/status'
   id:
     | '__root__'
@@ -328,6 +430,7 @@ export interface FileRouteTypes {
     | '/mfa-challenge'
     | '/reset-password'
     | '/sitemap.xml'
+    | '/unsubscribe'
     | '/_authenticated/admin'
     | '/_authenticated/bookmarks'
     | '/_authenticated/cockpit'
@@ -344,9 +447,17 @@ export interface FileRouteTypes {
     | '/_authenticated/templates'
     | '/_authenticated/tips'
     | '/_authenticated/todos'
+    | '/email/unsubscribe'
+    | '/api/public/contact'
+    | '/lovable/email/suppression'
     | '/api/public/hooks/daily-digest'
     | '/api/public/hooks/ingest-feeds'
     | '/api/public/hooks/monthly-tip'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
+    | '/lovable/email/queue/process'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
     | '/api/public/hooks/daily-digest/status'
   fileRoutesById: FileRoutesById
 }
@@ -358,13 +469,29 @@ export interface RootRouteChildren {
   MfaChallengeRoute: typeof MfaChallengeRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  UnsubscribeRoute: typeof UnsubscribeRoute
+  EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
+  ApiPublicContactRoute: typeof ApiPublicContactRoute
+  LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   ApiPublicHooksDailyDigestRoute: typeof ApiPublicHooksDailyDigestRouteWithChildren
   ApiPublicHooksIngestFeedsRoute: typeof ApiPublicHooksIngestFeedsRoute
   ApiPublicHooksMonthlyTipRoute: typeof ApiPublicHooksMonthlyTipRoute
+  LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
+  LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
+  LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
+  LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
+  LovableEmailTransactionalSendRoute: typeof LovableEmailTransactionalSendRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/unsubscribe': {
+      id: '/unsubscribe'
+      path: '/unsubscribe'
+      fullPath: '/unsubscribe'
+      preLoaderRoute: typeof UnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -412,6 +539,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/email/unsubscribe': {
+      id: '/email/unsubscribe'
+      path: '/email/unsubscribe'
+      fullPath: '/email/unsubscribe'
+      preLoaderRoute: typeof EmailUnsubscribeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/todos': {
@@ -526,6 +660,55 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/lovable/email/suppression': {
+      id: '/lovable/email/suppression'
+      path: '/lovable/email/suppression'
+      fullPath: '/lovable/email/suppression'
+      preLoaderRoute: typeof LovableEmailSuppressionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/contact': {
+      id: '/api/public/contact'
+      path: '/api/public/contact'
+      fullPath: '/api/public/contact'
+      preLoaderRoute: typeof ApiPublicContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/transactional/send': {
+      id: '/lovable/email/transactional/send'
+      path: '/lovable/email/transactional/send'
+      fullPath: '/lovable/email/transactional/send'
+      preLoaderRoute: typeof LovableEmailTransactionalSendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/transactional/preview': {
+      id: '/lovable/email/transactional/preview'
+      path: '/lovable/email/transactional/preview'
+      fullPath: '/lovable/email/transactional/preview'
+      preLoaderRoute: typeof LovableEmailTransactionalPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/queue/process': {
+      id: '/lovable/email/queue/process'
+      path: '/lovable/email/queue/process'
+      fullPath: '/lovable/email/queue/process'
+      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/auth/webhook': {
+      id: '/lovable/email/auth/webhook'
+      path: '/lovable/email/auth/webhook'
+      fullPath: '/lovable/email/auth/webhook'
+      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/auth/preview': {
+      id: '/lovable/email/auth/preview'
+      path: '/lovable/email/auth/preview'
+      fullPath: '/lovable/email/auth/preview'
+      preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/monthly-tip': {
       id: '/api/public/hooks/monthly-tip'
       path: '/api/public/hooks/monthly-tip'
@@ -621,9 +804,18 @@ const rootRouteChildren: RootRouteChildren = {
   MfaChallengeRoute: MfaChallengeRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  UnsubscribeRoute: UnsubscribeRoute,
+  EmailUnsubscribeRoute: EmailUnsubscribeRoute,
+  ApiPublicContactRoute: ApiPublicContactRoute,
+  LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   ApiPublicHooksDailyDigestRoute: ApiPublicHooksDailyDigestRouteWithChildren,
   ApiPublicHooksIngestFeedsRoute: ApiPublicHooksIngestFeedsRoute,
   ApiPublicHooksMonthlyTipRoute: ApiPublicHooksMonthlyTipRoute,
+  LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
+  LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
+  LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
+  LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
+  LovableEmailTransactionalSendRoute: LovableEmailTransactionalSendRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
