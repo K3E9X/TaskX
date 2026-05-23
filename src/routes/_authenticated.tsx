@@ -12,6 +12,10 @@ import {
   PanelLeftClose, PanelLeftOpen, ShieldCheck,
 } from "lucide-react";
 import { TaskXMark } from "@/components/brand/TaskXLogo";
+import { CommandPalette } from "@/components/admin/CommandPalette";
+import { AnnouncementBanner } from "@/components/admin/AnnouncementBanner";
+
+
 
 
 export const Route = createFileRoute("/_authenticated")({
