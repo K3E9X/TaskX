@@ -87,6 +87,7 @@ export function CommandPalette() {
     { kind: "diagram", key: "search.diagrams", icon: GitBranch },
     { kind: "feed", key: "search.feeds", icon: Rss },
     { kind: "tip", key: "search.tips", icon: Terminal },
+    { kind: "snippet", key: "search.snippets", icon: Code2 },
   ];
 
   const groups = Array.from(new Set(items.map((i) => i.group)));
