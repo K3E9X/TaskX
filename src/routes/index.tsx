@@ -13,32 +13,35 @@ import {
 import {
   ArrowRight,
   CheckCircle2,
-  Rss,
-  Sparkles,
-  Shield,
-  Zap,
+  CheckSquare,
+  FileText,
+  FolderKanban,
+  Repeat,
+  CalendarClock,
   GitBranch,
+  Rss,
+  Users,
   Bot,
-  LayoutDashboard,
-  Terminal,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { TaskXLogo, TaskXMark } from "@/components/brand/TaskXLogo";
+import { useI18n, LangToggle, type TKey } from "@/lib/i18n";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "TaskX — Cockpit sécurité pour architectes" },
+      { title: "TaskX, your everyday workspace" },
       {
         name: "description",
         content:
-          "TaskX réunit productivité, veille CVE/CTI et collaboration équipe sécurité dans un cockpit unique, rapide et minimaliste.",
+          "TaskX unifies tasks, notes, projects, routines, meetings and watch feeds in a fast, minimal workspace for teams and individuals.",
       },
-      { property: "og:title", content: "TaskX — Cockpit sécurité" },
+      { property: "og:title", content: "TaskX, your everyday workspace" },
       {
         property: "og:description",
         content:
-          "Productivité, veille et RBAC pour architectes sécurité. Minimaliste, rapide, collaboratif.",
+          "Tasks, notes, projects, routines, meetings and watch feeds in one minimal workspace.",
       },
     ],
   }),
@@ -57,6 +60,7 @@ const chartC = Array.from({ length: 18 }, (_, i) => ({
 
 function LandingPage() {
   const navigate = useNavigate();
+  const { t } = useI18n();
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) navigate({ to: "/dashboard" });
@@ -66,17 +70,19 @@ function LandingPage() {
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       <BackgroundFX />
-      <Nav />
-      <Hero />
-      <LogoStrip />
-      <FeatureGrid />
-      <CockpitShowcase />
-      <MetricsBand />
-      <CTA />
-      <Footer />
+      <Nav t={t} />
+      <Hero t={t} />
+      <LogoStrip t={t} />
+      <FeatureGrid t={t} />
+      <CockpitShowcase t={t} />
+      <MetricsBand t={t} />
+      <CTA t={t} />
+      <Footer t={t} />
     </div>
   );
 }
+
+type T = (k: TKey) => string;
 
 function BackgroundFX() {
   return (
@@ -109,26 +115,25 @@ function BackgroundFX() {
   );
 }
 
-function Nav() {
+function Nav({ t }: { t: T }) {
   return (
     <header className="sticky top-0 z-30 backdrop-blur-md bg-background/60 border-b border-border/60">
       <div className="mx-auto max-w-7xl px-6 h-14 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2 font-semibold tracking-tight">
-          <div className="size-6 rounded-md bg-gradient-to-br from-primary to-primary/40 shadow-[0_0_24px_-4px_oklch(0.68_0.16_270_/_0.7)]" />
-          TaskX
+        <Link to="/" className="flex items-center">
+          <TaskXLogo />
         </Link>
         <nav className="hidden md:flex items-center gap-7 text-sm text-muted-foreground">
-          <a href="#features" className="hover:text-foreground transition">Produit</a>
-          <a href="#cockpit" className="hover:text-foreground transition">Cockpit</a>
-          <a href="#metrics" className="hover:text-foreground transition">Performance</a>
+          <a href="#features" className="hover:text-foreground transition">{t("land.nav.features")}</a>
+          <a href="#workspace" className="hover:text-foreground transition">{t("land.nav.product")}</a>
         </nav>
         <div className="flex items-center gap-2">
+          <LangToggle />
           <Link to="/login">
-            <Button variant="ghost" size="sm">Se connecter</Button>
+            <Button variant="ghost" size="sm">{t("land.nav.signin")}</Button>
           </Link>
           <Link to="/login">
             <Button size="sm" className="gap-1.5">
-              Commencer <ArrowRight className="size-3.5" />
+              {t("land.nav.start")} <ArrowRight className="size-3.5" />
             </Button>
           </Link>
         </div>
@@ -137,7 +142,7 @@ function Nav() {
   );
 }
 
-function Hero() {
+function Hero({ t }: { t: T }) {
   return (
     <section className="relative mx-auto max-w-7xl px-6 pt-20 pb-28 md:pt-32 md:pb-40">
       <motion.div
@@ -147,40 +152,42 @@ function Hero() {
         className="max-w-3xl"
       >
         <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/60 px-3 py-1 text-xs text-muted-foreground">
-          <Sparkles className="size-3 text-primary" />
-          Nouveau · RBAC équipe + admin dashboard
+          <span className="size-1.5 rounded-full bg-primary" />
+          {t("land.badge")}
         </div>
         <h1 className="mt-6 text-5xl md:text-7xl font-semibold tracking-tight leading-[1.02]">
-          Le cockpit des
-          <span className="bg-gradient-to-r from-primary via-foreground to-primary bg-clip-text text-transparent"> architectes sécurité</span>
+          {t("land.hero.t1")}
+          <br />
+          <span className="bg-gradient-to-r from-primary via-foreground to-primary bg-clip-text text-transparent">
+            {t("land.hero.t2")}
+          </span>
         </h1>
         <p className="mt-6 text-lg text-muted-foreground max-w-2xl leading-relaxed">
-          Productivité, veille CVE/CTI et collaboration d'équipe — réunies dans une interface
-          rapide, minimaliste, conçue pour la vitesse de pensée.
+          {t("land.hero.sub")}
         </p>
         <div className="mt-8 flex flex-wrap items-center gap-3">
           <Link to="/login">
             <Button size="lg" className="gap-2">
-              Démarrer gratuitement <ArrowRight className="size-4" />
+              {t("land.cta.primary")} <ArrowRight className="size-4" />
             </Button>
           </Link>
-          <a href="#cockpit">
-            <Button size="lg" variant="outline">Voir le cockpit</Button>
+          <a href="#features">
+            <Button size="lg" variant="outline">{t("land.cta.secondary")}</Button>
           </a>
         </div>
-        <div className="mt-6 flex items-center gap-5 text-xs text-muted-foreground">
-          <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="size-3.5 text-primary" /> Sans carte bancaire</span>
-          <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="size-3.5 text-primary" /> RBAC natif</span>
-          <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="size-3.5 text-primary" /> Données chiffrées</span>
+        <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
+          <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="size-3.5 text-primary" /> {t("land.bullet.free")}</span>
+          <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="size-3.5 text-primary" /> {t("land.bullet.team")}</span>
+          <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="size-3.5 text-primary" /> {t("land.bullet.secure")}</span>
         </div>
       </motion.div>
 
-      <HeroPreview />
+      <HeroPreview t={t} />
     </section>
   );
 }
 
-function HeroPreview() {
+function HeroPreview({ t }: { t: T }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 40 }}
@@ -196,16 +203,16 @@ function HeroPreview() {
             <div className="size-2.5 rounded-full bg-muted-foreground/30" />
             <div className="size-2.5 rounded-full bg-muted-foreground/30" />
           </div>
-          <div className="ml-3 text-xs text-muted-foreground font-mono">taskx.io / cockpit</div>
+          <div className="ml-3 text-xs text-muted-foreground font-mono">taskx.app / dashboard</div>
         </div>
         <div className="grid grid-cols-12 gap-4 p-5">
           <div className="col-span-12 md:col-span-8 rounded-xl border border-border/60 bg-background/50 p-5">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-xs text-muted-foreground">Vélocité d'équipe</div>
+                <div className="text-xs text-muted-foreground">{t("land.preview.kpi")}</div>
                 <div className="mt-1 text-2xl font-semibold">+38.4%</div>
               </div>
-              <div className="text-xs text-primary">en temps réel</div>
+              <div className="text-xs text-primary">{t("land.preview.live")}</div>
             </div>
             <div className="h-40 mt-3">
               <ResponsiveContainer width="100%" height="100%">
@@ -228,15 +235,15 @@ function HeroPreview() {
             </div>
           </div>
           <div className="col-span-12 md:col-span-4 grid gap-4">
-            <MiniCard label="CVE critiques" value="12" trend={chartB} type="line" />
-            <MiniCard label="Tâches résolues" value="284" trend={chartC} type="bar" />
+            <MiniCard label={t("land.preview.tasks")} value="128" trend={chartB} type="line" />
+            <MiniCard label={t("land.preview.focus")} value="32" trend={chartC} type="bar" />
           </div>
           <div className="col-span-12 grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
-              { icon: Shield, label: "Veille CTI" },
-              { icon: GitBranch, label: "Diagrammes" },
-              { icon: Bot, label: "Assistant IA" },
-              { icon: Terminal, label: "Tips Sec" },
+              { icon: CheckSquare, label: t("nav.todos") },
+              { icon: FileText, label: t("nav.notes") },
+              { icon: FolderKanban, label: t("nav.projects") },
+              { icon: Rss, label: t("nav.feeds") },
             ].map((it) => (
               <div key={it.label} className="rounded-lg border border-border/60 bg-background/40 px-3 py-2.5 flex items-center gap-2 text-xs">
                 <it.icon className="size-3.5 text-primary" />
@@ -274,12 +281,12 @@ function MiniCard({
   );
 }
 
-function LogoStrip() {
-  const items = ["OWASP", "MITRE ATT&CK", "CVE", "NIST", "ISO 27001", "SOC 2"];
+function LogoStrip({ t }: { t: T }) {
+  const items = t("land.strip.items").split(", ");
   return (
     <section className="border-y border-border/60 bg-card/30">
       <div className="mx-auto max-w-7xl px-6 py-6 flex flex-wrap items-center justify-center gap-x-10 gap-y-3 text-xs uppercase tracking-widest text-muted-foreground">
-        <span className="opacity-60">Aligné avec</span>
+        <span className="opacity-60">{t("land.strip")}</span>
         {items.map((i) => (
           <span key={i} className="font-mono">{i}</span>
         ))}
@@ -288,31 +295,31 @@ function LogoStrip() {
   );
 }
 
-const FEATURES = [
-  { icon: LayoutDashboard, title: "Cockpit unifié", desc: "Todos, notes, projets, routines et meetings sur un seul écran. Zéro contexte perdu." },
-  { icon: Rss, title: "Veille temps réel", desc: "Flux CVE, CTI et RSS agrégés, dédupliqués et priorisés automatiquement." },
-  { icon: Shield, title: "RBAC natif", desc: "Rôles admin/équipe, audit et permissions fines depuis le premier utilisateur." },
-  { icon: GitBranch, title: "Diagrammes vivants", desc: "Threat models et architectures avec versionning intégré." },
-  { icon: Bot, title: "Assistant IA", desc: "Résumés CVE, génération de notes et recherche contextuelle alimentée par Lovable AI." },
-  { icon: Zap, title: "Vitesse Linear", desc: "Raccourcis clavier partout. Sub-100ms partout. Pensé pour les power users." },
-];
-
-function FeatureGrid() {
+function FeatureGrid({ t }: { t: T }) {
+  const FEATURES = [
+    { icon: CheckSquare, t: t("land.f.todos.t"), d: t("land.f.todos.d") },
+    { icon: FileText, t: t("land.f.notes.t"), d: t("land.f.notes.d") },
+    { icon: FolderKanban, t: t("land.f.projects.t"), d: t("land.f.projects.d") },
+    { icon: Repeat, t: t("land.f.routines.t"), d: t("land.f.routines.d") },
+    { icon: CalendarClock, t: t("land.f.meetings.t"), d: t("land.f.meetings.d") },
+    { icon: GitBranch, t: t("land.f.diagrams.t"), d: t("land.f.diagrams.d") },
+    { icon: Rss, t: t("land.f.feeds.t"), d: t("land.f.feeds.d") },
+    { icon: Users, t: t("land.f.team.t"), d: t("land.f.team.d") },
+    { icon: Bot, t: t("land.f.ai.t"), d: t("land.f.ai.d") },
+  ];
   return (
     <section id="features" className="mx-auto max-w-7xl px-6 py-24 md:py-32">
       <div className="max-w-2xl">
-        <div className="text-xs uppercase tracking-widest text-primary">Produit</div>
+        <div className="text-xs uppercase tracking-widest text-primary">{t("land.features.eyebrow")}</div>
         <h2 className="mt-3 text-3xl md:text-5xl font-semibold tracking-tight">
-          Tout ce dont une équipe sécurité a besoin.
+          {t("land.features.title")}
         </h2>
-        <p className="mt-4 text-muted-foreground">
-          Une suite cohérente — pas une collection d'outils. Chaque module renforce les autres.
-        </p>
+        <p className="mt-4 text-muted-foreground">{t("land.features.sub")}</p>
       </div>
       <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-border/60 rounded-2xl overflow-hidden border border-border/60">
         {FEATURES.map((f, i) => (
           <motion.div
-            key={f.title}
+            key={f.t}
             initial={{ opacity: 0, y: 12 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-60px" }}
@@ -322,8 +329,8 @@ function FeatureGrid() {
             <div className="size-9 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary group-hover:bg-primary/20 transition-colors">
               <f.icon className="size-4" />
             </div>
-            <h3 className="mt-4 font-semibold tracking-tight">{f.title}</h3>
-            <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
+            <h3 className="mt-4 font-semibold tracking-tight">{f.t}</h3>
+            <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">{f.d}</p>
           </motion.div>
         ))}
       </div>
@@ -331,26 +338,19 @@ function FeatureGrid() {
   );
 }
 
-function CockpitShowcase() {
+function CockpitShowcase({ t }: { t: T }) {
+  const bullets = [t("land.show.b1"), t("land.show.b2"), t("land.show.b3"), t("land.show.b4")];
   return (
-    <section id="cockpit" className="relative border-t border-border/60 bg-gradient-to-b from-card/40 to-background">
+    <section id="workspace" className="relative border-t border-border/60 bg-gradient-to-b from-card/40 to-background">
       <div className="mx-auto max-w-7xl px-6 py-24 md:py-32 grid md:grid-cols-2 gap-16 items-center">
         <div>
-          <div className="text-xs uppercase tracking-widest text-primary">Cockpit</div>
+          <div className="text-xs uppercase tracking-widest text-primary">{t("land.show.eyebrow")}</div>
           <h2 className="mt-3 text-3xl md:text-5xl font-semibold tracking-tight">
-            Vos signaux faibles, en clair.
+            {t("land.show.title")}
           </h2>
-          <p className="mt-4 text-muted-foreground leading-relaxed">
-            Le dashboard admin agrège chaque source — CVE, jobs cron, activité utilisateurs,
-            sévérité CTI — et révèle les tendances avant qu'elles ne deviennent des incidents.
-          </p>
+          <p className="mt-4 text-muted-foreground leading-relaxed">{t("land.show.sub")}</p>
           <ul className="mt-6 space-y-3 text-sm">
-            {[
-              "Graphes d'inscriptions et d'activité par module",
-              "Logs cron temps réel avec statut et trace",
-              "Pie chart de sévérité CVE et volume par table",
-              "Auto-refresh 60s, sans rechargement",
-            ].map((i) => (
+            {bullets.map((i) => (
               <li key={i} className="flex items-start gap-2.5">
                 <CheckCircle2 className="size-4 text-primary mt-0.5 shrink-0" />
                 <span className="text-muted-foreground">{i}</span>
@@ -369,9 +369,9 @@ function CockpitShowcase() {
           <div className="relative rounded-2xl border border-border/70 bg-card/70 backdrop-blur-xl p-5">
             <div className="grid grid-cols-3 gap-3">
               {[
-                { l: "Comptes", v: "1 248" },
-                { l: "Todos", v: "8 392" },
-                { l: "Veille 24h", v: "+412" },
+                { l: t("nav.todos"), v: "42" },
+                { l: t("nav.notes"), v: "128" },
+                { l: t("nav.projects"), v: "9" },
               ].map((k) => (
                 <div key={k.l} className="rounded-lg border border-border/60 bg-background/50 p-3">
                   <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{k.l}</div>
@@ -393,7 +393,11 @@ function CockpitShowcase() {
               </ResponsiveContainer>
             </div>
             <div className="mt-4 space-y-1.5">
-              {["ingest-feeds · 14:02 · ok", "daily-digest · 08:00 · ok", "monthly-tip · J-2 · scheduled"].map((l) => (
+              {[
+                `${t("nav.feeds")} · 14:02 · ok`,
+                `${t("nav.routines")} · 08:00 · ok`,
+                `${t("nav.meetings")} · 16:30 · scheduled`,
+              ].map((l) => (
                 <div key={l} className="flex items-center gap-2 font-mono text-[11px] text-muted-foreground">
                   <div className="size-1.5 rounded-full bg-primary" /> {l}
                 </div>
@@ -406,15 +410,15 @@ function CockpitShowcase() {
   );
 }
 
-function MetricsBand() {
+function MetricsBand({ t }: { t: T }) {
   const stats = [
-    { v: "<100ms", l: "Temps de réponse" },
-    { v: "99.9%", l: "Disponibilité" },
-    { v: "12 +", l: "Modules intégrés" },
-    { v: "0", l: "Friction" },
+    { v: "<100ms", l: t("land.metrics.speed") },
+    { v: "99.9%", l: t("land.metrics.uptime") },
+    { v: "12+", l: t("land.metrics.modules") },
+    { v: "0", l: t("land.metrics.friction") },
   ];
   return (
-    <section id="metrics" className="border-y border-border/60">
+    <section className="border-y border-border/60">
       <div className="mx-auto max-w-7xl px-6 py-16 grid grid-cols-2 md:grid-cols-4 gap-8">
         {stats.map((s) => (
           <div key={s.l} className="text-center">
@@ -427,7 +431,7 @@ function MetricsBand() {
   );
 }
 
-function CTA() {
+function CTA({ t }: { t: T }) {
   return (
     <section className="mx-auto max-w-7xl px-6 py-28 md:py-36 text-center">
       <motion.div
@@ -436,20 +440,21 @@ function CTA() {
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
       >
+        <div className="flex justify-center mb-6">
+          <TaskXMark size={48} />
+        </div>
         <h2 className="text-4xl md:text-6xl font-semibold tracking-tight max-w-3xl mx-auto">
-          Reprenez le contrôle de votre charge mentale sécurité.
+          {t("land.cta.title")}
         </h2>
-        <p className="mt-5 text-muted-foreground max-w-xl mx-auto">
-          Rejoignez les équipes qui pilotent leur veille et leurs opérations depuis TaskX.
-        </p>
+        <p className="mt-5 text-muted-foreground max-w-xl mx-auto">{t("land.cta.sub")}</p>
         <div className="mt-8 flex items-center justify-center gap-3">
           <Link to="/login">
             <Button size="lg" className="gap-2">
-              Créer mon compte <ArrowRight className="size-4" />
+              {t("land.cta.create")} <ArrowRight className="size-4" />
             </Button>
           </Link>
           <Link to="/login">
-            <Button size="lg" variant="outline">Se connecter</Button>
+            <Button size="lg" variant="outline">{t("land.nav.signin")}</Button>
           </Link>
         </div>
       </motion.div>
@@ -457,18 +462,18 @@ function CTA() {
   );
 }
 
-function Footer() {
+function Footer({ t }: { t: T }) {
   return (
     <footer className="border-t border-border/60">
       <div className="mx-auto max-w-7xl px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
         <div className="flex items-center gap-2">
-          <div className="size-4 rounded bg-gradient-to-br from-primary to-primary/40" />
-          <span>© {new Date().getFullYear()} TaskX</span>
+          <TaskXLogo size={20} />
+          <span className="ml-2">© {new Date().getFullYear()}</span>
         </div>
         <div className="flex items-center gap-6">
-          <a href="#features" className="hover:text-foreground">Produit</a>
-          <a href="#cockpit" className="hover:text-foreground">Cockpit</a>
-          <Link to="/login" className="hover:text-foreground">Connexion</Link>
+          <a href="#features" className="hover:text-foreground">{t("land.footer.features")}</a>
+          <a href="#workspace" className="hover:text-foreground">{t("land.footer.product")}</a>
+          <Link to="/login" className="hover:text-foreground">{t("land.footer.signin")}</Link>
         </div>
       </div>
     </footer>
