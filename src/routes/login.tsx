@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useI18n, LangToggle } from "@/lib/i18n";
+import { TaskXMark } from "@/components/brand/TaskXLogo";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/login")({
