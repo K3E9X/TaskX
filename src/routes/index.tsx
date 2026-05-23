@@ -450,7 +450,7 @@ function CTA({ t }: { t: T }) {
         <p className="mt-5 text-muted-foreground max-w-xl mx-auto">{t("land.cta.sub")}</p>
         <div className="mt-8 flex items-center justify-center gap-3">
           <Link to="/login">
-            <Button size="lg" className="gap-2">
+            <Button size="lg" className="gap-2 bg-gradient-to-r from-[oklch(0.62_0.2_290)] to-[oklch(0.7_0.16_210)] text-white hover:opacity-90 border-0">
               {t("land.cta.create")} <ArrowRight className="size-4" />
             </Button>
           </Link>
