@@ -64,6 +64,7 @@ export function CommandPalette() {
     { group: "Navigation", label: "Feeds", to: "/feeds", icon: Rss },
     { group: "Navigation", label: "Tips", to: "/tips", icon: Terminal },
     { group: "Navigation", label: "Bookmarks", to: "/bookmarks", icon: Bookmark },
+    { group: "Navigation", label: "Snippets", to: "/snippets", icon: Code2 },
     { group: "Navigation", label: "Équipe", to: "/team", icon: Users },
     { group: "Navigation", label: "Sécurité", to: "/security", icon: ShieldCheck },
     { group: "Admin", label: "Console admin", to: "/admin", icon: Shield },
