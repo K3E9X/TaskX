@@ -413,7 +413,7 @@ function DashboardPage() {
                     >
                       <Sparkles className="h-3.5 w-3.5 mt-0.5 text-primary shrink-0" />
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm truncate">{tpl.fr.title}</div>
+                        <div className="text-sm truncate">{tpl[lang].title}</div>
                         <div className="text-[10px] text-muted-foreground capitalize">{tpl.role}</div>
                       </div>
                     </Link>
