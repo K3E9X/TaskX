@@ -397,6 +397,32 @@ function DashboardPage() {
             <p className="text-sm text-muted-foreground py-4">{t("dash.tipSoon")}</p>
           </Tile>
         );
+      case "suggested-templates":
+        return (
+          <Tile key={item.id} {...common} title={t("dash.suggestedTemplates")}
+            action={<Link to="/templates" className="text-xs text-muted-foreground hover:text-foreground">{t("dash.openTemplates")} →</Link>}>
+            {suggestedTemplates.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-4">{t("common.empty")}</p>
+            ) : (
+              <ul className="divide-y divide-border -mx-1">
+                {suggestedTemplates.map((tpl) => (
+                  <li key={tpl.id}>
+                    <Link
+                      to="/templates"
+                      className="flex items-start gap-2 py-2 px-1 hover:bg-accent/40 rounded-sm transition-colors"
+                    >
+                      <Sparkles className="h-3.5 w-3.5 mt-0.5 text-primary shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm truncate">{tpl.fr.title}</div>
+                        <div className="text-[10px] text-muted-foreground capitalize">{tpl.role}</div>
+                      </div>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Tile>
+        );
     }
   };
 
