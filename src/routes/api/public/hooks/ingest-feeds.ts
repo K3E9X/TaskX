@@ -115,10 +115,27 @@ async function fetchSource(url: string): Promise<RssItem[]> {
   return parseRss(xml);
 }
 
+function checkApiKey(request: Request): Response | null {
+  const expected = process.env.SUPABASE_PUBLISHABLE_KEY;
+  const provided =
+    request.headers.get("apikey") ||
+    request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
+  if (!expected || !provided || provided !== expected) {
+    return new Response(JSON.stringify({ ok: false, error: "Forbidden" }), {
+      status: 403,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+  return null;
+}
+
 export const Route = createFileRoute("/api/public/hooks/ingest-feeds")({
   server: {
     handlers: {
-      POST: async () => {
+      POST: async ({ request }) => {
+        const denied = checkApiKey(request);
+        if (denied) return denied;
+
         const { data: sources, error: srcErr } = await supabaseAdmin
           .from("rss_sources")
           .select("*")
