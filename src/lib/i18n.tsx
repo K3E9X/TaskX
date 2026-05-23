@@ -567,7 +567,7 @@ const dict = {
     "land.badge": "The daily workspace for cybersecurity pros",
     "land.hero.t1": "Your cyber workspace,",
     "land.hero.t2": "all in one place.",
-    "land.hero.sub": "TaskX is the personal workspace built for every cyber role — pentester, architect, SOC analyst, forensic, CISO. Watch, CVEs, notes, runbooks, todos, feeds and your X timeline in one daily platform. Not a SIEM, no IoC connectors — just your day.",
+    "land.hero.sub": "CVE watch, notes, runbooks, todos and feeds gathered in one workspace built for your cyber role.",
     "land.cta.primary": "Start for free",
     "land.cta.secondary": "Explore modules",
     "land.bullet.free": "No credit card",
