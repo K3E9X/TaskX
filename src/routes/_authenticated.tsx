@@ -200,6 +200,7 @@ function AuthenticatedLayout() {
             </button>
             <div className="text-xs text-muted-foreground hidden md:block">{pathname}</div>
           </div>
+          <div className="flex items-center gap-2">
             <StreakBadge />
             <LangToggle />
           </div>
