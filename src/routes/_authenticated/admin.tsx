@@ -848,3 +848,61 @@ function ExportCsvButton<T extends Record<string, unknown>>({ rows, filename }: 
     }}>CSV</Button>
   );
 }
+
+// ═══════════════════ SECURITY ═══════════════════
+function SecurityTab() {
+  const qc = useQueryClient();
+  const listFn = useServerFn(listBlockedIps);
+  const blockFn = useServerFn(blockIp);
+  const unblockFn = useServerFn(unblockIp);
+  const { data = [] } = useQuery({ queryKey: ["admin", "blockedIps"], queryFn: () => listFn(), retry: false });
+  const [ip, setIp] = useState("");
+  const [reason, setReason] = useState("");
+  const refresh = () => qc.invalidateQueries({ queryKey: ["admin", "blockedIps"] });
+  return (
+    <div className="space-y-4">
+      <div className="rounded-lg border bg-card p-4 space-y-2">
+        <div className="text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+          <ShieldAlert className="h-3.5 w-3.5" /> Bloquer une IP
+        </div>
+        <div className="flex gap-2">
+          <Input value={ip} onChange={(e) => setIp(e.target.value)} placeholder="ex: 1.2.3.4" className="h-9 font-mono" />
+          <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="raison (optionnel)" className="h-9" />
+          <Button disabled={!ip.trim()} onClick={() =>
+            blockFn({ data: { ip, reason: reason || undefined } })
+              .then(() => { toast.success("IP bloquée"); setIp(""); setReason(""); refresh(); })
+              .catch((e) => toast.error(String(e)))}>Bloquer</Button>
+        </div>
+        <p className="text-[11px] text-muted-foreground">
+          Les requêtes provenant d'une IP bloquée seront rejetées lors du tracking des visites.
+        </p>
+      </div>
+
+      <div className="rounded-lg border bg-card overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow><TableHead>IP</TableHead><TableHead>Raison</TableHead><TableHead>Bloquée par</TableHead><TableHead>Date</TableHead><TableHead className="text-right">Action</TableHead></TableRow>
+          </TableHeader>
+          <TableBody>
+            {data.map((b) => (
+              <TableRow key={b.id}>
+                <TableCell className="font-mono text-xs">{b.ip}</TableCell>
+                <TableCell className="text-xs text-muted-foreground">{b.reason ?? "—"}</TableCell>
+                <TableCell className="text-xs font-mono">{b.blocked_by_email ?? "—"}</TableCell>
+                <TableCell className="text-xs text-muted-foreground">{new Date(b.created_at).toLocaleString("fr-FR")}</TableCell>
+                <TableCell className="text-right">
+                  <Button size="sm" variant="ghost"
+                    onClick={() => unblockFn({ data: { id: b.id } }).then(() => { toast.success("IP débloquée"); refresh(); })}>
+                    <Trash2 className="h-3.5 w-3.5 text-red-500" />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+            {data.length === 0 && <TableRow><TableCell colSpan={5} className="text-xs text-muted-foreground text-center py-6">Aucune IP bloquée.</TableCell></TableRow>}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+}
+
