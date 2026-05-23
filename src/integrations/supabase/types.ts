@@ -50,6 +50,42 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_announcements: {
+        Row: {
+          active: boolean
+          author_email: string | null
+          author_id: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          level: string
+          message: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          author_email?: string | null
+          author_id: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          level?: string
+          message: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          author_email?: string | null
+          author_id?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          level?: string
+          message?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       admin_user_notes: {
         Row: {
           author_email: string | null

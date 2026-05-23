@@ -716,3 +716,160 @@ export const getCountryStats = createServerFn({ method: "GET" })
       .sort((a, b) => b.views - a.views).slice(0, 30);
   });
 
+
+// ═════════════════ ANNOUNCEMENTS (broadcast banners) ═════════════════
+export const listAnnouncements = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase } = context;
+    const { data, error } = await supabase
+      .from("admin_announcements")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+export const listActiveAnnouncements = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase } = context;
+    const nowIso = new Date().toISOString();
+    const { data, error } = await supabase
+      .from("admin_announcements")
+      .select("id, message, level, expires_at")
+      .eq("active", true)
+      .or(`expires_at.is.null,expires_at.gt.${nowIso}`)
+      .order("created_at", { ascending: false })
+      .limit(5);
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+export const createAnnouncement = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { message: string; level: "info" | "warning" | "critical"; expiresInHours?: number | null }) =>
+    z.object({
+      message: z.string().min(1).max(500),
+      level: z.enum(["info", "warning", "critical"]),
+      expiresInHours: z.number().min(1).max(720).nullable().optional(),
+    }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId);
+    const email = await getActorEmail(context.userId);
+    const expires_at = data.expiresInHours
+      ? new Date(Date.now() + data.expiresInHours * 3600_000).toISOString()
+      : null;
+    const { error } = await supabaseAdmin.from("admin_announcements").insert({
+      message: data.message, level: data.level, expires_at,
+      author_id: context.userId, author_email: email,
+    });
+    if (error) throw new Error(error.message);
+    await logAction({ actorId: context.userId, actorEmail: email, action: "announcement.create", details: { level: data.level } });
+    return { ok: true };
+  });
+
+export const toggleAnnouncement = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { id: string; active: boolean }) =>
+    z.object({ id: z.string().uuid(), active: z.boolean() }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId);
+    const { error } = await supabaseAdmin
+      .from("admin_announcements").update({ active: data.active }).eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const deleteAnnouncement = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { id: string }) => z.object({ id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId);
+    const { error } = await supabaseAdmin
+      .from("admin_announcements").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// ═════════════════ LIVE SESSIONS (last 5 min activity) ═════════════════
+export const getLiveSessions = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context.userId);
+    const since = new Date(Date.now() - 5 * 60_000).toISOString();
+    const { data: views } = await supabaseAdmin
+      .from("page_views")
+      .select("user_id, path, ip, country, browser, os, created_at")
+      .gte("created_at", since)
+      .order("created_at", { ascending: false })
+      .limit(1000);
+
+    const byUser = new Map<string, { user_id: string; last_path: string; ip: string | null; country: string | null; browser: string | null; os: string | null; last_seen: string; hits: number }>();
+    (views ?? []).forEach((v) => {
+      const cur = byUser.get(v.user_id);
+      if (!cur) {
+        byUser.set(v.user_id, {
+          user_id: v.user_id, last_path: v.path, ip: v.ip, country: v.country,
+          browser: v.browser, os: v.os, last_seen: v.created_at, hits: 1,
+        });
+      } else {
+        cur.hits++;
+      }
+    });
+
+    const userIds = Array.from(byUser.keys());
+    const emailMap = new Map<string, string>();
+    if (userIds.length > 0) {
+      const { data: pages } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
+      (pages?.users ?? []).forEach((u) => { if (userIds.includes(u.id) && u.email) emailMap.set(u.id, u.email); });
+    }
+
+    return Array.from(byUser.values())
+      .map((s) => ({ ...s, email: emailMap.get(s.user_id) ?? null }))
+      .sort((a, b) => b.last_seen.localeCompare(a.last_seen));
+  });
+
+// ═════════════════ BRUTE FORCE / SECURITY ALERTS ═════════════════
+// Detects: IPs with many recent page_view inserts (proxy for activity) and users with rapid succession.
+// True failed-login detection requires auth_logs (analytics) — we expose a simple heuristic from page_views.
+export const getSecurityAlerts = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context.userId);
+    const since = new Date(Date.now() - 60 * 60_000).toISOString();
+
+    const { data: views } = await supabaseAdmin
+      .from("page_views").select("ip, user_id, created_at")
+      .gte("created_at", since).not("ip", "is", null).limit(20000);
+
+    // 1) IPs shared by multiple users (potential credential sharing / scraping)
+    const ipUsers = new Map<string, Set<string>>();
+    const ipHits = new Map<string, number>();
+    (views ?? []).forEach((v) => {
+      if (!v.ip) return;
+      if (!ipUsers.has(v.ip)) ipUsers.set(v.ip, new Set());
+      ipUsers.get(v.ip)!.add(v.user_id);
+      ipHits.set(v.ip, (ipHits.get(v.ip) ?? 0) + 1);
+    });
+
+    const sharedIps = Array.from(ipUsers.entries())
+      .filter(([, users]) => users.size >= 3)
+      .map(([ip, users]) => ({ ip, distinct_users: users.size, hits: ipHits.get(ip) ?? 0 }))
+      .sort((a, b) => b.distinct_users - a.distinct_users).slice(0, 20);
+
+    // 2) High-volume IPs (>200 hits/h)
+    const noisyIps = Array.from(ipHits.entries())
+      .filter(([, h]) => h > 200)
+      .map(([ip, hits]) => ({ ip, hits, distinct_users: ipUsers.get(ip)?.size ?? 0 }))
+      .sort((a, b) => b.hits - a.hits).slice(0, 20);
+
+    // 3) Recent suspended users from admin_actions
+    const { data: suspendActions } = await supabaseAdmin
+      .from("admin_actions").select("target_email, target_id, created_at, actor_email")
+      .eq("action", "user.suspend")
+      .gte("created_at", new Date(Date.now() - 7 * 86400_000).toISOString())
+      .order("created_at", { ascending: false }).limit(20);
+
+    return { sharedIps, noisyIps, recentSuspensions: suspendActions ?? [] };
+  });
