@@ -15,6 +15,7 @@ import { Plus, Trash2, ChevronDown, ChevronRight } from "lucide-react";
 import { format, parseISO } from "date-fns";
 
 export const Route = createFileRoute("/_authenticated/projects")({
+  head: () => ({ meta: [{ title: "Projects — TaskX" }] }),
   component: ProjectsPage,
 });
 

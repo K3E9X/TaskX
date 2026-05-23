@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { ShieldCheck, ShieldOff, Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/security")({
+  head: () => ({ meta: [{ title: "Security — TaskX" }] }),
   component: SecurityPage,
 });
 

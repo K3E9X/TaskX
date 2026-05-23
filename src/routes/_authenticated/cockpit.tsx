@@ -9,6 +9,7 @@ import {
 import { isPast, parseISO, isToday, startOfDay, endOfDay, format } from "date-fns";
 
 export const Route = createFileRoute("/_authenticated/cockpit")({
+  head: () => ({ meta: [{ title: "Cockpit — TaskX" }] }),
   component: CockpitPage,
 });
 

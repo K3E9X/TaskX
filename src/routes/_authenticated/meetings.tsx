@@ -11,6 +11,7 @@ import { Plus, Trash2, ChevronDown, ChevronRight, Users, Calendar } from "lucide
 import { format, parseISO } from "date-fns";
 
 export const Route = createFileRoute("/_authenticated/meetings")({
+  head: () => ({ meta: [{ title: "Meetings — TaskX" }] }),
   component: MeetingsPage,
 });
 

@@ -16,6 +16,7 @@ import { Trash2, Plus } from "lucide-react";
 import { format, isPast, parseISO } from "date-fns";
 
 export const Route = createFileRoute("/_authenticated/todos")({
+  head: () => ({ meta: [{ title: "Todos — TaskX" }] }),
   component: TodosPage,
 });
 

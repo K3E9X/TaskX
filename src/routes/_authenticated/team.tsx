@@ -39,6 +39,7 @@ const ROLE_COLORS: Record<TeamRole, string> = {
 };
 
 export const Route = createFileRoute("/_authenticated/team")({
+  head: () => ({ meta: [{ title: "Team — TaskX" }] }),
   component: Page,
 });
 

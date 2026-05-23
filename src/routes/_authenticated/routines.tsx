@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { Plus, Trash2 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/routines")({
+  head: () => ({ meta: [{ title: "Routines — TaskX" }] }),
   component: RoutinesPage,
 });
 
