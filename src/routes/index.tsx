@@ -167,7 +167,8 @@ function Hero({ t }: { t: T }) {
         </p>
         <div className="mt-8 flex flex-wrap items-center gap-3">
           <Link to="/login">
-            <Button size="lg" className="gap-2">
+            <Button size="lg" className="gap-2 bg-gradient-to-r from-[oklch(0.62_0.2_290)] to-[oklch(0.7_0.16_210)] text-white hover:opacity-90 border-0">
+
               {t("land.cta.primary")} <ArrowRight className="size-4" />
             </Button>
           </Link>
