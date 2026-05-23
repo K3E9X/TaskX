@@ -132,7 +132,7 @@ function Nav({ t }: { t: T }) {
             <Button variant="ghost" size="sm">{t("land.nav.signin")}</Button>
           </Link>
           <Link to="/login">
-            <Button size="sm" className="gap-1.5">
+            <Button size="sm" className="gap-1.5 bg-gradient-to-r from-[oklch(0.62_0.2_290)] to-[oklch(0.7_0.16_210)] text-white hover:opacity-90 border-0">
               {t("land.nav.start")} <ArrowRight className="size-3.5" />
             </Button>
           </Link>
