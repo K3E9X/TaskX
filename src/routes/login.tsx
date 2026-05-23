@@ -81,7 +81,11 @@ function LoginPage() {
       <div className="absolute top-4 right-4"><LangToggle /></div>
       <div className="w-full max-w-sm">
         <div className="mb-10 text-center">
-          <h1 className="text-2xl font-semibold tracking-tight">TaskX</h1>
+          <div className="flex justify-center"><TaskXMark size={44} /></div>
+          <h1 className="mt-3 text-2xl font-semibold tracking-tight flex items-baseline justify-center">
+            <span>Task</span>
+            <span className="ml-[1px] bg-gradient-to-br from-[oklch(0.74_0.18_295)] to-[oklch(0.78_0.15_200)] bg-clip-text text-transparent font-bold">X</span>
+          </h1>
           <p className="mt-2 text-sm text-muted-foreground">{t("app.tagline")}</p>
         </div>
 
