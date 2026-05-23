@@ -1,64 +1,80 @@
-# Plateforme SecOps — Plan V1
+# Plan — Top 5 features daily UX
 
-Une plateforme web privée, style Notion (clair, dense, sobre, sans emoji ni logo "vibe"), hébergée sur Lovable Cloud, multi-utilisateurs (équipe : architecte sécurité, pentester, forensic, analyste), prête à brancher sur un nom de domaine perso.
+Objectif : créer l'habitude d'ouvrir TaskX chaque matin, avec friction zéro et sentiment de progression. Tout reste **workspace personnel**, aucune feature SOC/équipe.
 
-## Sections incluses dans la V1
+---
 
-1. **Dashboard KPI** — vue d'accueil par profil : tâches en retard, risques ouverts, revues à venir, projets actifs, dernières CVE critiques, dernier "tip Linux du jour".
-2. **To-do** — tâches avec priorité, échéance, projet lié, assignation à un membre de l'équipe.
-3. **Notes** — éditeur markdown, tags, recherche plein-texte, partage équipe ou privé.
-4. **Routines** — checklists récurrentes (daily/weekly) avec suivi de complétion.
-5. **Projets Security by Design** — chaque projet a : description, statut, threat model lié, décisions (ADR), risques, revues, notes de réunion.
-6. **Meeting notes** — modèle structuré (participants, décisions, actions), rattachables à un projet.
-7. **Diagrammes** — éditeur Mermaid intégré (flow, séquence, architecture), versionnés, rattachables à un projet.
-8. **Veille**
-   - **CVE** : flux NVD filtré par mots-clés/produits.
-   - **CTI** : flux RSS configurables (MISP communities publiques, blogs CERT, vendor threat intel).
-   - **Veille X (Twitter)** : add-on où l'utilisateur connecte son compte X et suit une liste de comptes/keywords. *(nécessite des clés API X côté utilisateur ; voir section Technique)*
-8. **Tip Linux du jour** — une commande/technique poussée chaque jour (banque interne au départ, enrichie par l'équipe ; possibilité de générer via Lovable AI).
-9. **Add-ons / Quick links** — bookmarks catégorisés (Burp, MISP, OWASP, NIST, consoles cloud, Jira, etc.).
-10. **Équipe & rôles** — chaque membre a un profil typé : `architect`, `pentester`, `forensic`, `analyst`. Le dashboard et certains filtres s'adaptent au rôle.
+## 1. Morning Brief (briefing quotidien IA)
 
-## Style visuel
+**But** : à l'ouverture, un encart en haut du `/dashboard` qui résume la journée.
 
-- Inspiration Notion : fond clair off-white, typographie sans-serif neutre (Inter ou équivalent), beaucoup d'espace, séparateurs fins, accent unique discret (bleu encre ou vert sombre), pas d'ombres dramatiques, pas d'emoji, pas de gradients.
-- Layout : sidebar gauche persistante (sections + projets), zone de contenu dense en colonne, top bar minimaliste (recherche globale + profil).
-- Mode sombre disponible.
+- Nouveau composant `MorningBrief.tsx` affiché en tête du dashboard
+- Server function `generateMorningBrief` (`src/lib/morning-brief.functions.ts`) :
+  - Récupère via `requireSupabaseAuth` : todos du jour + en retard, meetings du jour, top 5 feed_items non lus `severity >= high` des dernières 24h, streak en cours
+  - Appelle Lovable AI (`google/gemini-2.5-flash`) avec un prompt FR/EN qui produit 3-5 bullets actionnables ("Voici ta journée")
+  - Retourne `{ summary, stats: { todos, meetings, criticalCves, streak } }`
+- Cache local 4h (TanStack Query `staleTime`) pour éviter les regenerations
+- Bouton "Régénérer" + "Continue where you left off" (dernière note/diagramme édité via `updated_at desc limit 1`)
 
-## Technique (section dev)
+## 2. Quick Capture (friction zéro)
 
-- **Stack** : TanStack Start + Tailwind + shadcn/ui (déjà en place), Lovable Cloud (Postgres + Auth + Storage).
-- **Auth** : email/mot de passe + Google. Table `profiles` (display_name, role enum). Table `user_roles` séparée pour RBAC (pattern recommandé).
-- **Schéma DB principal** :
-  - `profiles`, `user_roles`
-  - `todos`, `notes`, `routines`, `routine_runs`
-  - `projects`, `project_members`, `threat_models`, `risks`, `decisions`, `reviews`, `meeting_notes`, `diagrams`
-  - `bookmarks`, `daily_tips`, `tip_deliveries`
-  - `feeds` (type: cve|cti|x|rss, config jsonb), `feed_items`
-- **RLS** : activée partout. Notes/todos perso visibles par le owner ; ressources projet visibles par les `project_members` ; veille partagée à l'équipe.
-- **Veille CVE** : server route cron (`/api/public/cron/refresh-feeds`) qui poll NVD 2.0 + RSS configurés et insère dans `feed_items`. Pas de clé requise pour NVD.
-- **Veille X** : connecteur géré via add_secret par utilisateur (X API Bearer Token), server fn dédiée. Démarrer en V1 par un simple "follow keywords" ; les comptes suivis nécessitent X API v2 payante — sera précisé au moment de l'activer.
-- **Diagrammes** : `mermaid` rendu côté client, source stockée en text.
-- **Tip du jour** : table `daily_tips` (titre, commande, description, tags), sélection rotative par date ; bouton "générer un nouveau tip" via Lovable AI.
+**But** : capturer une todo, note ou bookmark depuis n'importe où en <1s.
 
-## Plan d'exécution (par lots, pour livrer vite et itérer)
+- Hook global `useQuickCapture` qui écoute `T`, `N`, `B` (hors input/textarea) → ouvre un mini-dialog
+- Composant `QuickCaptureDialog.tsx` : input unique, parse intelligemment :
+  - `#tag` → tag automatique
+  - `!high` / `!low` → priorité (todos)
+  - `@tomorrow`, `@friday` → due_at (todos)
+  - URL détectée → bascule auto en bookmark
+- Insert direct dans Supabase puis `toast.success` + lien "Ouvrir"
+- Monté dans `_authenticated.tsx` à côté de `CommandPalette`
 
-1. **Lot 1 — Fondations** : activer Lovable Cloud, auth (email + Google), tables `profiles` / `user_roles`, layout app (sidebar + topbar), page login, route `_authenticated`, page Dashboard vide.
-2. **Lot 2 — Productivité** : To-do, Notes, Routines, Bookmarks.
-3. **Lot 3 — Projets & métier** : Projets Security by Design, Meeting notes, Diagrammes Mermaid, Risques/Décisions.
-4. **Lot 4 — Veille** : CVE (NVD), RSS CTI, Tip Linux du jour, Dashboard KPI réel.
-5. **Lot 5 — X add-on & équipe** : connecteur X, gestion équipe (invitations, rôles), polish responsive.
+## 3. Onboarding métier + personnalisation
 
-Chaque lot est livré et testable avant de passer au suivant.
+**But** : `team_role` existe déjà, l'exploiter pour adapter l'expérience.
 
-## Hors V1 (à noter pour plus tard)
+- À la première connexion (profile `created_at` < 1 min OU `display_name` vide), modal d'onboarding 3 étapes :
+  1. Choix métier (pentester / architect / soc / forensic / ciso / other)
+  2. Choix 3-5 widgets prioritaires dashboard
+  3. Préférences feeds (cocher sources par défaut déjà créées)
+- Nouvelle colonne `profiles.dashboard_widgets text[]` (migration)
+- Le dashboard lit `dashboard_widgets` et affiche dans cet ordre ; fallback = preset par métier (mapping en dur côté front)
 
-- Compliance mapping (NIST/ISO), vendor assessments, incident playbooks, secrets inventory, formations/certifs, glossaire — listés dans le brainstorm précédent, à ajouter en V2 une fois la base solide.
+## 4. Streak & progression
 
-## Questions ouvertes (je peux démarrer sans, à confirmer en cours de route)
+**But** : montrer que l'utilisateur avance.
 
-- Nom du produit (sinon : "SecDesk" en placeholder).
-- Domaine perso à connecter (à faire après le premier déploiement).
-- Acceptes-tu Google sign-in en plus de l'email/mot de passe ? (recommandé)
+- Nouvelle table `daily_activity` : `user_id`, `day date`, `todos_done int`, `notes_edited int`, `feed_read int`, `unique (user_id, day)`
+- Trigger ou logique côté serverFn incrémente quand : todo passée à `done`, note updated, feed_item passé à `read`
+- Composant `StreakBadge.tsx` dans le header : flamme + nombre de jours consécutifs (calcul SQL `lag()` sur `day`)
+- Mini-graph 14 derniers jours dans le Morning Brief (sparkline)
 
-Si OK, je démarre par le **Lot 1**.
+## 5. Universal Search dans Cmd+K
+
+**But** : Cmd+K trouve aussi les contenus (notes, todos, bookmarks, diagrams, runbooks, feed_items).
+
+- Étendre `CommandPalette.tsx` : quand input.length >= 2, débounce 200ms puis appel serverFn `universalSearch(query)`
+- ServerFn fait 6 requêtes parallèles (`.ilike('title', '%q%')`/`.textSearch`) limit 5 chacune
+- Affichage groupé : Navigation / Notes / Todos / Bookmarks / Diagrams / Feeds
+- Sélection → navigate vers la page concernée avec query param `?focus=<id>` que chaque page consomme pour highlight/scroll
+
+---
+
+## Ordre d'implémentation (un seul gros patch)
+
+1. Migration SQL : `profiles.dashboard_widgets`, table `daily_activity`, fonction `get_streak(uuid)`
+2. ServerFns : `morning-brief.functions.ts`, `universal-search.functions.ts`, `activity.functions.ts`
+3. Composants : `MorningBrief`, `QuickCaptureDialog`, `StreakBadge`, `OnboardingDialog`
+4. Wiring : `_authenticated.tsx` (QuickCapture + StreakBadge dans header + Onboarding au mount), `dashboard.tsx` (MorningBrief en tête), `CommandPalette.tsx` (universal search)
+5. i18n FR/EN pour tous les nouveaux labels
+
+## Détails techniques
+
+- Lovable AI : appel direct via `fetch` vers `https://ai.gateway.lovable.dev/v1/chat/completions` avec `process.env.LOVABLE_API_KEY` côté serverFn
+- `daily_activity` incrémenté côté front après chaque mutation pertinente (simple, pas de trigger)
+- Streak : `select count(*) from generate_series(...) where exists ...` ou parcours JS sur 60 jours
+- Universal search : pas de FTS Postgres pour rester simple, `ilike` suffit à ce volume
+
+## Après ces 5 points
+
+On enchaîne sur les options par métier : templates notes pentester, timeline forensic, agenda semaine CISO, bibliothèque diagrammes architecte.
