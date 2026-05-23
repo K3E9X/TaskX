@@ -916,3 +916,222 @@ function SecurityTab() {
   );
 }
 
+
+// ═══════════════════ LIVE SESSIONS (last 5 min) ═══════════════════
+function LiveTab() {
+  const fn = useServerFn(getLiveSessions);
+  const { data = [], isLoading } = useQuery({
+    queryKey: ["admin", "live"],
+    queryFn: () => fn(),
+    refetchInterval: 10_000,
+    retry: false,
+  });
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Zap className="h-4 w-4 text-emerald-500" />
+        {data.length} utilisateur{data.length > 1 ? "s" : ""} actif{data.length > 1 ? "s" : ""} (5 dernières min) · refresh 10s
+      </div>
+      <div className="rounded-lg border overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="text-xs">User</TableHead>
+              <TableHead className="text-xs">Dernière page</TableHead>
+              <TableHead className="text-xs">IP</TableHead>
+              <TableHead className="text-xs">Pays</TableHead>
+              <TableHead className="text-xs">Device</TableHead>
+              <TableHead className="text-xs text-right">Hits</TableHead>
+              <TableHead className="text-xs">Vu</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading && <TableRow><TableCell colSpan={7} className="text-xs text-center py-6 text-muted-foreground">Chargement…</TableCell></TableRow>}
+            {!isLoading && data.length === 0 && <TableRow><TableCell colSpan={7} className="text-xs text-center py-6 text-muted-foreground">Aucune activité.</TableCell></TableRow>}
+            {data.map((s) => (
+              <TableRow key={s.user_id}>
+                <TableCell className="text-xs font-mono">{s.email ?? s.user_id.slice(0, 8)}</TableCell>
+                <TableCell className="text-xs">{s.last_path}</TableCell>
+                <TableCell className="text-xs font-mono">{s.ip ?? "—"}</TableCell>
+                <TableCell className="text-xs">{s.country ?? "—"}</TableCell>
+                <TableCell className="text-xs">{[s.browser, s.os].filter(Boolean).join(" · ") || "—"}</TableCell>
+                <TableCell className="text-xs text-right tabular-nums">{s.hits}</TableCell>
+                <TableCell className="text-xs text-muted-foreground">{new Date(s.last_seen).toLocaleTimeString()}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════ ANNOUNCEMENTS ═══════════════════
+function AnnounceTab() {
+  const qc = useQueryClient();
+  const list = useServerFn(listAnnouncements);
+  const create = useServerFn(createAnnouncement);
+  const toggle = useServerFn(toggleAnnouncement);
+  const del = useServerFn(deleteAnnouncement);
+
+  const { data = [] } = useQuery({
+    queryKey: ["admin", "announcements"], queryFn: () => list(), retry: false,
+  });
+
+  const [message, setMessage] = useState("");
+  const [level, setLevel] = useState<"info" | "warning" | "critical">("info");
+  const [hours, setHours] = useState<string>("24");
+
+  const submit = async () => {
+    if (!message.trim()) return;
+    try {
+      await create({ data: { message, level, expiresInHours: hours ? Number(hours) : null } });
+      toast.success("Annonce publiée");
+      setMessage("");
+      qc.invalidateQueries({ queryKey: ["admin", "announcements"] });
+      qc.invalidateQueries({ queryKey: ["announcements", "active"] });
+    } catch (e) { toast.error((e as Error).message); }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-lg border bg-card p-4 space-y-3">
+        <div className="text-xs uppercase tracking-wider text-muted-foreground">Nouvelle annonce</div>
+        <Textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Message à diffuser à tous les utilisateurs connectés…" rows={2} />
+        <div className="flex gap-2 items-center flex-wrap">
+          <Select value={level} onValueChange={(v) => setLevel(v as typeof level)}>
+            <SelectTrigger className="w-36 h-8 text-xs"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="info">Info</SelectItem>
+              <SelectItem value="warning">Warning</SelectItem>
+              <SelectItem value="critical">Critical</SelectItem>
+            </SelectContent>
+          </Select>
+          <Input type="number" min={1} max={720} value={hours} onChange={(e) => setHours(e.target.value)} placeholder="Heures (vide = pas d'expiration)" className="w-56 h-8 text-xs" />
+          <Button size="sm" onClick={submit}><Plus className="h-3.5 w-3.5 mr-1" />Publier</Button>
+        </div>
+      </div>
+
+      <div className="rounded-lg border overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="text-xs">Niveau</TableHead>
+              <TableHead className="text-xs">Message</TableHead>
+              <TableHead className="text-xs">Expire</TableHead>
+              <TableHead className="text-xs">Auteur</TableHead>
+              <TableHead className="text-xs">Statut</TableHead>
+              <TableHead className="text-xs text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {data.length === 0 && <TableRow><TableCell colSpan={6} className="text-xs text-center py-6 text-muted-foreground">Aucune annonce.</TableCell></TableRow>}
+            {data.map((a) => (
+              <TableRow key={a.id}>
+                <TableCell><Badge variant={a.level === "critical" ? "destructive" : a.level === "warning" ? "secondary" : "outline"}>{a.level}</Badge></TableCell>
+                <TableCell className="text-xs max-w-md truncate">{a.message}</TableCell>
+                <TableCell className="text-xs text-muted-foreground">{a.expires_at ? new Date(a.expires_at).toLocaleString() : "—"}</TableCell>
+                <TableCell className="text-xs">{a.author_email ?? "—"}</TableCell>
+                <TableCell><Badge variant={a.active ? "default" : "outline"}>{a.active ? "Actif" : "Inactif"}</Badge></TableCell>
+                <TableCell className="text-right">
+                  <Button size="sm" variant="ghost" onClick={async () => {
+                    await toggle({ data: { id: a.id, active: !a.active } });
+                    qc.invalidateQueries({ queryKey: ["admin", "announcements"] });
+                    qc.invalidateQueries({ queryKey: ["announcements", "active"] });
+                  }}>{a.active ? "Désactiver" : "Activer"}</Button>
+                  <Button size="sm" variant="ghost" onClick={async () => {
+                    if (!confirm("Supprimer ?")) return;
+                    await del({ data: { id: a.id } });
+                    qc.invalidateQueries({ queryKey: ["admin", "announcements"] });
+                    qc.invalidateQueries({ queryKey: ["announcements", "active"] });
+                  }}><Trash2 className="h-3.5 w-3.5" /></Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════ SECURITY ALERTS ═══════════════════
+function AlertsTab() {
+  const fn = useServerFn(getSecurityAlerts);
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin", "alerts"], queryFn: () => fn(), refetchInterval: 30_000, retry: false,
+  });
+  if (isLoading || !data) return <p className="text-sm text-muted-foreground">Analyse en cours…</p>;
+  return (
+    <div className="space-y-6">
+      <div className="rounded-lg border">
+        <div className="px-4 py-3 border-b text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+          <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
+          IPs partagées par plusieurs comptes (1h)
+        </div>
+        <Table>
+          <TableHeader><TableRow>
+            <TableHead className="text-xs">IP</TableHead>
+            <TableHead className="text-xs text-right">Comptes distincts</TableHead>
+            <TableHead className="text-xs text-right">Hits</TableHead>
+          </TableRow></TableHeader>
+          <TableBody>
+            {data.sharedIps.length === 0 && <TableRow><TableCell colSpan={3} className="text-xs text-center py-4 text-muted-foreground">RAS.</TableCell></TableRow>}
+            {data.sharedIps.map((r) => (
+              <TableRow key={r.ip}>
+                <TableCell className="text-xs font-mono">{r.ip}</TableCell>
+                <TableCell className="text-xs text-right tabular-nums">{r.distinct_users}</TableCell>
+                <TableCell className="text-xs text-right tabular-nums">{r.hits}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      <div className="rounded-lg border">
+        <div className="px-4 py-3 border-b text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+          <ShieldAlert className="h-3.5 w-3.5 text-destructive" />
+          IPs à fort volume ({'>'}200 hits / heure)
+        </div>
+        <Table>
+          <TableHeader><TableRow>
+            <TableHead className="text-xs">IP</TableHead>
+            <TableHead className="text-xs text-right">Hits</TableHead>
+            <TableHead className="text-xs text-right">Comptes</TableHead>
+          </TableRow></TableHeader>
+          <TableBody>
+            {data.noisyIps.length === 0 && <TableRow><TableCell colSpan={3} className="text-xs text-center py-4 text-muted-foreground">RAS.</TableCell></TableRow>}
+            {data.noisyIps.map((r) => (
+              <TableRow key={r.ip}>
+                <TableCell className="text-xs font-mono">{r.ip}</TableCell>
+                <TableCell className="text-xs text-right tabular-nums">{r.hits}</TableCell>
+                <TableCell className="text-xs text-right tabular-nums">{r.distinct_users}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      <div className="rounded-lg border">
+        <div className="px-4 py-3 border-b text-xs uppercase tracking-wider text-muted-foreground">Suspensions récentes (7j)</div>
+        <Table>
+          <TableHeader><TableRow>
+            <TableHead className="text-xs">Email</TableHead>
+            <TableHead className="text-xs">Par</TableHead>
+            <TableHead className="text-xs">Quand</TableHead>
+          </TableRow></TableHeader>
+          <TableBody>
+            {data.recentSuspensions.length === 0 && <TableRow><TableCell colSpan={3} className="text-xs text-center py-4 text-muted-foreground">Aucune.</TableCell></TableRow>}
+            {data.recentSuspensions.map((r, i) => (
+              <TableRow key={i}>
+                <TableCell className="text-xs">{r.target_email ?? "—"}</TableCell>
+                <TableCell className="text-xs">{r.actor_email ?? "—"}</TableCell>
+                <TableCell className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleString()}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+}
