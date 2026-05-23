@@ -35,13 +35,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "TaskX is the personal daily workspace for cyber pros — pentesters, architects, SOC, forensic, CISOs. Watch, CVEs, notes, runbooks, todos, feeds and X timeline in one place. Not a SIEM.",
+          "TaskX is the personal daily workspace for cybersecurity pros. CVE watch, notes, runbooks, todos and feeds in one place built for your role.",
       },
       { property: "og:title", content: "TaskX — The daily workspace for cybersecurity pros" },
       {
         property: "og:description",
         content:
-          "Personal daily workspace for cyber pros. Watch, CVEs, notes, runbooks, todos, RSS and X — not a SIEM.",
+          "Personal daily workspace for cybersecurity pros. CVE watch, notes, runbooks, todos and feeds in one place.",
       },
       { property: "og:url", content: "https://taskxx.lovable.app/" },
       { property: "og:type", content: "website" },
