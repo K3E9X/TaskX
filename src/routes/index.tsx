@@ -31,17 +31,17 @@ import { useI18n, LangToggle, type TKey } from "@/lib/i18n";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "TaskX, your everyday workspace" },
+      { title: "TaskX — The cockpit for cybersecurity teams" },
       {
         name: "description",
         content:
-          "TaskX unifies tasks, notes, projects, routines, meetings and watch feeds in a fast, minimal workspace for teams and individuals.",
+          "TaskX unifies CTI watch, CVE tracking, architecture diagrams, security projects, runbooks and RBAC in one fast workspace for CISOs, SOC and GRC teams.",
       },
-      { property: "og:title", content: "TaskX, your everyday workspace" },
+      { property: "og:title", content: "TaskX — The cockpit for cybersecurity teams" },
       {
         property: "og:description",
         content:
-          "Tasks, notes, projects, routines, meetings and watch feeds in one minimal workspace.",
+          "CTI watch, CVE tracking, architecture diagrams, runbooks and RBAC in one fast workspace.",
       },
     ],
   }),
@@ -297,14 +297,14 @@ function LogoStrip({ t }: { t: T }) {
 
 function FeatureGrid({ t }: { t: T }) {
   const FEATURES = [
+    { icon: Rss, t: t("land.f.feeds.t"), d: t("land.f.feeds.d") },
+    { icon: GitBranch, t: t("land.f.diagrams.t"), d: t("land.f.diagrams.d") },
+    { icon: Users, t: t("land.f.team.t"), d: t("land.f.team.d") },
+    { icon: FolderKanban, t: t("land.f.projects.t"), d: t("land.f.projects.d") },
     { icon: CheckSquare, t: t("land.f.todos.t"), d: t("land.f.todos.d") },
     { icon: FileText, t: t("land.f.notes.t"), d: t("land.f.notes.d") },
-    { icon: FolderKanban, t: t("land.f.projects.t"), d: t("land.f.projects.d") },
-    { icon: Repeat, t: t("land.f.routines.t"), d: t("land.f.routines.d") },
     { icon: CalendarClock, t: t("land.f.meetings.t"), d: t("land.f.meetings.d") },
-    { icon: GitBranch, t: t("land.f.diagrams.t"), d: t("land.f.diagrams.d") },
-    { icon: Rss, t: t("land.f.feeds.t"), d: t("land.f.feeds.d") },
-    { icon: Users, t: t("land.f.team.t"), d: t("land.f.team.d") },
+    { icon: Repeat, t: t("land.f.routines.t"), d: t("land.f.routines.d") },
     { icon: Bot, t: t("land.f.ai.t"), d: t("land.f.ai.d") },
   ];
   return (
