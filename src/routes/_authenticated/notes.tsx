@@ -210,7 +210,7 @@ function Editor({
             className={`px-3 py-1 ${mode === "preview" ? "bg-accent" : "text-muted-foreground"}`}
           >{t("notes.preview")}</button>
         </div>
-        <Button variant="ghost" size="icon" aria-label={t("notes.delete") ?? "Delete note"} onClick={onDelete}>
+        <Button variant="ghost" size="icon" aria-label="Delete note" onClick={onDelete}>
           <Trash2 className="h-4 w-4" aria-hidden="true" />
         </Button>
       </div>
