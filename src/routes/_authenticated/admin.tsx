@@ -337,10 +337,10 @@ function UserDetailsButton({ userId, email }: { userId: string; email: string })
       <DialogTrigger asChild>
         <Button size="sm" variant="ghost" title="Détails"><ExternalLink className="h-3.5 w-3.5" /></Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
         <DialogHeader><DialogTitle className="text-sm">{email}</DialogTitle></DialogHeader>
         {!data ? <p className="text-xs text-muted-foreground">Chargement…</p> : (
-          <div className="space-y-3">
+          <div className="space-y-4">
             <div>
               <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Contenu</div>
               <div className="grid grid-cols-3 gap-2">
@@ -352,6 +352,7 @@ function UserDetailsButton({ userId, email }: { userId: string; email: string })
                 ))}
               </div>
             </div>
+            <UserNotesSection userId={userId} />
             <div>
               <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1">50 dernières visites</div>
               <div className="max-h-64 overflow-y-auto text-xs space-y-0.5">
@@ -368,6 +369,53 @@ function UserDetailsButton({ userId, email }: { userId: string; email: string })
         )}
       </DialogContent>
     </Dialog>
+  );
+}
+
+function UserNotesSection({ userId }: { userId: string }) {
+  const qc = useQueryClient();
+  const listFn = useServerFn(listUserNotes);
+  const addFn = useServerFn(addUserNote);
+  const delFn = useServerFn(deleteUserNote);
+  const { data: notes = [] } = useQuery({
+    queryKey: ["admin", "userNotes", userId],
+    queryFn: () => listFn({ data: { userId } }),
+    retry: false,
+  });
+  const [note, setNote] = useState("");
+  const refresh = () => qc.invalidateQueries({ queryKey: ["admin", "userNotes", userId] });
+  return (
+    <div>
+      <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1 flex items-center gap-1">
+        <StickyNote className="h-3 w-3" /> Notes admin internes
+      </div>
+      <div className="space-y-1 mb-2 max-h-40 overflow-y-auto">
+        {notes.map((n) => (
+          <div key={n.id} className="rounded bg-muted/40 p-2 text-xs flex gap-2">
+            <div className="flex-1">
+              <p className="whitespace-pre-wrap">{n.note}</p>
+              <p className="text-[10px] text-muted-foreground mt-1">
+                {n.author_email ?? "?"} · {new Date(n.created_at).toLocaleString("fr-FR")}
+              </p>
+            </div>
+            <Button size="sm" variant="ghost" className="h-6 w-6 p-0"
+              onClick={() => delFn({ data: { id: n.id } }).then(() => { toast.success("Note supprimée"); refresh(); })}>
+              <Trash2 className="h-3 w-3 text-red-500" />
+            </Button>
+          </div>
+        ))}
+        {notes.length === 0 && <p className="text-xs text-muted-foreground italic">Aucune note.</p>}
+      </div>
+      <div className="flex gap-2">
+        <Textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder="Nouvelle note interne…"
+          className="text-xs min-h-[60px]" />
+        <Button size="sm" disabled={!note.trim()} onClick={() =>
+          addFn({ data: { userId, note } }).then(() => { toast.success("Note ajoutée"); setNote(""); refresh(); })
+            .catch((e) => toast.error(String(e)))}>
+          <Plus className="h-3 w-3" />
+        </Button>
+      </div>
+    </div>
   );
 }
 
