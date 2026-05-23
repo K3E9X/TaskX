@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { checkCronHookAuth } from "@/lib/cron-hook-auth";
 
 const OUTLOOK_GATEWAY = "https://connector-gateway.lovable.dev/microsoft_outlook";
 
@@ -132,25 +133,11 @@ async function getConnectedOutlookEmail(): Promise<string> {
   return email;
 }
 
-function checkApiKey(request: Request): Response | null {
-  const expected = process.env.SUPABASE_PUBLISHABLE_KEY;
-  const provided =
-    request.headers.get("apikey") ||
-    request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
-  if (!expected || !provided || provided !== expected) {
-    return new Response(JSON.stringify({ ok: false, error: "Forbidden" }), {
-      status: 403,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-  return null;
-}
-
 export const Route = createFileRoute("/api/public/hooks/daily-digest")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const denied = checkApiKey(request);
+        const denied = await checkCronHookAuth(request);
         if (denied) return denied;
 
         // Body intentionally ignored — caller cannot target specific users.
@@ -174,7 +161,7 @@ export const Route = createFileRoute("/api/public/hooks/daily-digest")({
         }
 
         const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-        const results: Array<{ user_id: string; sent: boolean; error?: string; todos: number; cves: number }> = [];
+        const results: Array<{ sent: boolean; error?: string; todos: number; cves: number }> = [];
 
         for (const p of profiles ?? []) {
           try {
@@ -200,17 +187,16 @@ export const Route = createFileRoute("/api/public/hooks/daily-digest")({
             const cveList = (cves ?? []) as FeedItem[];
 
             if (todoList.length === 0 && cveList.length === 0) {
-              results.push({ user_id: p.id, sent: false, todos: 0, cves: 0, error: "nothing to send" });
+              results.push({ sent: false, todos: 0, cves: 0, error: "nothing to send" });
               continue;
             }
 
             const html = buildHtml(p.display_name || "toi", todoList, cveList);
             const subject = `🛡️ Digest · ${todoList.length} todo${todoList.length > 1 ? "s" : ""} · ${cveList.length} alerte${cveList.length > 1 ? "s" : ""}`;
             await sendOutlookMail(recipient, subject, html);
-            results.push({ user_id: p.id, sent: true, todos: todoList.length, cves: cveList.length });
+            results.push({ sent: true, todos: todoList.length, cves: cveList.length });
           } catch (e) {
             results.push({
-              user_id: p.id,
               sent: false,
               todos: 0,
               cves: 0,
@@ -219,8 +205,9 @@ export const Route = createFileRoute("/api/public/hooks/daily-digest")({
           }
         }
 
+        const sent = results.filter((r) => r.sent).length;
         return new Response(
-          JSON.stringify({ ok: true, recipient, results }),
+          JSON.stringify({ ok: true, processed: results.length, sent }),
           { headers: { "Content-Type": "application/json" } }
         );
       },

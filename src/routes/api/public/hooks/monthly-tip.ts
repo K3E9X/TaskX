@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { checkCronHookAuth } from "@/lib/cron-hook-auth";
 
 type GeneratedTip = {
   title: string;
@@ -63,25 +64,11 @@ Réponds via l'appel d'outil save_tip.`;
   return JSON.parse(call.function.arguments) as GeneratedTip;
 }
 
-function checkApiKey(request: Request): Response | null {
-  const expected = process.env.SUPABASE_PUBLISHABLE_KEY;
-  const provided =
-    request.headers.get("apikey") ||
-    request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
-  if (!expected || !provided || provided !== expected) {
-    return new Response(JSON.stringify({ ok: false, error: "Forbidden" }), {
-      status: 403,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-  return null;
-}
-
 export const Route = createFileRoute("/api/public/hooks/monthly-tip")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const denied = checkApiKey(request);
+        const denied = await checkCronHookAuth(request);
         if (denied) return denied;
 
         // 1. Generate one tip
@@ -123,7 +110,7 @@ export const Route = createFileRoute("/api/public/hooks/monthly-tip")({
         }
 
         return new Response(
-          JSON.stringify({ ok: true, tip, users: rows.length, inserted }),
+          JSON.stringify({ ok: true, users: rows.length, inserted }),
           { headers: { "Content-Type": "application/json" } }
         );
       },
