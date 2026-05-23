@@ -147,6 +147,7 @@ const WIDGET_TITLE: Record<WidgetId, TKey> = {
   "routines-today": "dash.routinesToday",
   "recent-notes": "dash.recentNotes",
   "tip": "dash.tip",
+  "suggested-templates": "dash.suggestedTemplates",
 };
 
 function DashboardPage() {
