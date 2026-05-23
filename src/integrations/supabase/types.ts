@@ -53,7 +53,6 @@ export type Database = {
       admin_announcements: {
         Row: {
           active: boolean
-          author_email: string | null
           author_id: string
           created_at: string
           expires_at: string | null
@@ -64,7 +63,6 @@ export type Database = {
         }
         Insert: {
           active?: boolean
-          author_email?: string | null
           author_id: string
           created_at?: string
           expires_at?: string | null
@@ -75,7 +73,6 @@ export type Database = {
         }
         Update: {
           active?: boolean
-          author_email?: string | null
           author_id?: string
           created_at?: string
           expires_at?: string | null

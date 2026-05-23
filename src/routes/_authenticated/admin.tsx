@@ -1031,7 +1031,7 @@ function AnnounceTab() {
                 <TableCell><Badge variant={a.level === "critical" ? "destructive" : a.level === "warning" ? "secondary" : "outline"}>{a.level}</Badge></TableCell>
                 <TableCell className="text-xs max-w-md truncate">{a.message}</TableCell>
                 <TableCell className="text-xs text-muted-foreground">{a.expires_at ? new Date(a.expires_at).toLocaleString() : "—"}</TableCell>
-                <TableCell className="text-xs">{a.author_email ?? "—"}</TableCell>
+                <TableCell className="text-xs">—</TableCell>
                 <TableCell><Badge variant={a.active ? "default" : "outline"}>{a.active ? "Actif" : "Inactif"}</Badge></TableCell>
                 <TableCell className="text-right">
                   <Button size="sm" variant="ghost" onClick={async () => {
