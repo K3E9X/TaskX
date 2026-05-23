@@ -917,6 +917,7 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      get_cron_hook_secret: { Args: never; Returns: string }
       get_cron_recent_runs: {
         Args: never
         Returns: {
