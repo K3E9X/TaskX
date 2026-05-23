@@ -159,6 +159,8 @@ function UsersTab() {
   });
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<"all" | "admin" | "member" | "banned" | "active7d">("all");
+  const [sortKey, setSortKey] = useState<"email" | "created_at" | "last_sign_in_at" | "app_role">("created_at");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
   const filtered = users.filter((u) => {
     if (q && !u.email.toLowerCase().includes(q.toLowerCase()) &&
@@ -172,7 +174,21 @@ function UsersTab() {
       if (d > 7) return false;
     }
     return true;
+  }).sort((a, b) => {
+    const av = (a[sortKey] ?? "") as string;
+    const bv = (b[sortKey] ?? "") as string;
+    return (av < bv ? -1 : av > bv ? 1 : 0) * (sortDir === "asc" ? 1 : -1);
   });
+
+  const toggleSort = (k: typeof sortKey) => {
+    if (sortKey === k) setSortDir(sortDir === "asc" ? "desc" : "asc");
+    else { setSortKey(k); setSortDir("desc"); }
+  };
+  const SortHead = ({ k, label }: { k: typeof sortKey; label: string }) => (
+    <button onClick={() => toggleSort(k)} className="inline-flex items-center gap-1 hover:text-foreground">
+      {label}<ArrowUpDown className="h-3 w-3 opacity-50" />
+    </button>
+  );
 
   const refresh = () => qc.invalidateQueries({ queryKey: ["admin", "users"] });
   const mut = <T,>(fn: () => Promise<T>, msg: string) =>
