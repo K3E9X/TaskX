@@ -213,6 +213,7 @@ function UsersTab() {
           </SelectContent>
         </Select>
         <InviteDialog onInvite={(email, role) => mut(() => invite({ data: { email, role } }), "Invitation envoyée")} />
+        <ExportCsvButton rows={filtered} filename="users.csv" />
         <Button variant="outline" size="sm" onClick={refresh}><RotateCw className="h-3.5 w-3.5" /></Button>
       </div>
 
@@ -221,12 +222,12 @@ function UsersTab() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Email</TableHead>
+                <TableHead><SortHead k="email" label="Email" /></TableHead>
                 <TableHead>Nom</TableHead>
-                <TableHead>Rôle</TableHead>
+                <TableHead><SortHead k="app_role" label="Rôle" /></TableHead>
                 <TableHead>Provider</TableHead>
-                <TableHead>Inscription</TableHead>
-                <TableHead>Dernière connexion</TableHead>
+                <TableHead><SortHead k="created_at" label="Inscription" /></TableHead>
+                <TableHead><SortHead k="last_sign_in_at" label="Dernière connexion" /></TableHead>
                 <TableHead>IP</TableHead>
                 <TableHead>Statut</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
