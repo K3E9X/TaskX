@@ -602,7 +602,7 @@ const dict = {
     "land.f.ai.d": "Summarize, rephrase, classify — a copilot for your cyber day.",
     "land.show.eyebrow": "Workspace",
     "land.show.title": "Built for your role, not your SOC.",
-    "land.show.sub": "CVE watch, notes, runbooks, todos, RSS feeds and X timeline — everything you open each morning, on one fast, personal screen.",
+    "land.show.sub": "CVE watch, notes, runbooks, todos and RSS feeds on one fast screen built for your day.",
     "land.show.b1": "Personalized CVE & CTI watch",
     "land.show.b2": "Searchable notes, runbooks and bookmarks",
     "land.show.b3": "Todos, routines and progress tracking",
