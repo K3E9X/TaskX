@@ -51,7 +51,7 @@ function SecurityPage() {
     try {
       // Clean any leftover unverified factor first
       const { data: list } = await supabase.auth.mfa.listFactors();
-      const stale = (list?.totp ?? []).find((f) => f.status === "unverified");
+      const stale = (list?.totp ?? []).find((f) => (f.status as string) === "unverified");
       if (stale) await supabase.auth.mfa.unenroll({ factorId: stale.id });
 
       const { data, error } = await supabase.auth.mfa.enroll({ factorType: "totp" });

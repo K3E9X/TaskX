@@ -9,12 +9,14 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as MfaChallengeRouteImport } from './routes/mfa-challenge'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedTodosRouteImport } from './routes/_authenticated/todos'
 import { Route as AuthenticatedTipsRouteImport } from './routes/_authenticated/tips'
 import { Route as AuthenticatedTeamRouteImport } from './routes/_authenticated/team'
+import { Route as AuthenticatedSecurityRouteImport } from './routes/_authenticated/security'
 import { Route as AuthenticatedRoutinesRouteImport } from './routes/_authenticated/routines'
 import { Route as AuthenticatedProjectsRouteImport } from './routes/_authenticated/projects'
 import { Route as AuthenticatedNotesRouteImport } from './routes/_authenticated/notes'
@@ -30,6 +32,11 @@ import { Route as ApiPublicHooksIngestFeedsRouteImport } from './routes/api/publ
 import { Route as ApiPublicHooksDailyDigestRouteImport } from './routes/api/public/hooks/daily-digest'
 import { Route as ApiPublicHooksDailyDigestStatusRouteImport } from './routes/api/public/hooks/daily-digest.status'
 
+const MfaChallengeRoute = MfaChallengeRouteImport.update({
+  id: '/mfa-challenge',
+  path: '/mfa-challenge',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -57,6 +64,11 @@ const AuthenticatedTipsRoute = AuthenticatedTipsRouteImport.update({
 const AuthenticatedTeamRoute = AuthenticatedTeamRouteImport.update({
   id: '/team',
   path: '/team',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedSecurityRoute = AuthenticatedSecurityRouteImport.update({
+  id: '/security',
+  path: '/security',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedRoutinesRoute = AuthenticatedRoutinesRouteImport.update({
@@ -137,6 +149,7 @@ const ApiPublicHooksDailyDigestStatusRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/mfa-challenge': typeof MfaChallengeRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/bookmarks': typeof AuthenticatedBookmarksRoute
   '/cockpit': typeof AuthenticatedCockpitRoute
@@ -147,6 +160,7 @@ export interface FileRoutesByFullPath {
   '/notes': typeof AuthenticatedNotesRoute
   '/projects': typeof AuthenticatedProjectsRoute
   '/routines': typeof AuthenticatedRoutinesRoute
+  '/security': typeof AuthenticatedSecurityRoute
   '/team': typeof AuthenticatedTeamRoute
   '/tips': typeof AuthenticatedTipsRoute
   '/todos': typeof AuthenticatedTodosRoute
@@ -158,6 +172,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/mfa-challenge': typeof MfaChallengeRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/bookmarks': typeof AuthenticatedBookmarksRoute
   '/cockpit': typeof AuthenticatedCockpitRoute
@@ -168,6 +183,7 @@ export interface FileRoutesByTo {
   '/notes': typeof AuthenticatedNotesRoute
   '/projects': typeof AuthenticatedProjectsRoute
   '/routines': typeof AuthenticatedRoutinesRoute
+  '/security': typeof AuthenticatedSecurityRoute
   '/team': typeof AuthenticatedTeamRoute
   '/tips': typeof AuthenticatedTipsRoute
   '/todos': typeof AuthenticatedTodosRoute
@@ -181,6 +197,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
+  '/mfa-challenge': typeof MfaChallengeRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/bookmarks': typeof AuthenticatedBookmarksRoute
   '/_authenticated/cockpit': typeof AuthenticatedCockpitRoute
@@ -191,6 +208,7 @@ export interface FileRoutesById {
   '/_authenticated/notes': typeof AuthenticatedNotesRoute
   '/_authenticated/projects': typeof AuthenticatedProjectsRoute
   '/_authenticated/routines': typeof AuthenticatedRoutinesRoute
+  '/_authenticated/security': typeof AuthenticatedSecurityRoute
   '/_authenticated/team': typeof AuthenticatedTeamRoute
   '/_authenticated/tips': typeof AuthenticatedTipsRoute
   '/_authenticated/todos': typeof AuthenticatedTodosRoute
@@ -204,6 +222,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/mfa-challenge'
     | '/admin'
     | '/bookmarks'
     | '/cockpit'
@@ -214,6 +233,7 @@ export interface FileRouteTypes {
     | '/notes'
     | '/projects'
     | '/routines'
+    | '/security'
     | '/team'
     | '/tips'
     | '/todos'
@@ -225,6 +245,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
+    | '/mfa-challenge'
     | '/admin'
     | '/bookmarks'
     | '/cockpit'
@@ -235,6 +256,7 @@ export interface FileRouteTypes {
     | '/notes'
     | '/projects'
     | '/routines'
+    | '/security'
     | '/team'
     | '/tips'
     | '/todos'
@@ -247,6 +269,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/login'
+    | '/mfa-challenge'
     | '/_authenticated/admin'
     | '/_authenticated/bookmarks'
     | '/_authenticated/cockpit'
@@ -257,6 +280,7 @@ export interface FileRouteTypes {
     | '/_authenticated/notes'
     | '/_authenticated/projects'
     | '/_authenticated/routines'
+    | '/_authenticated/security'
     | '/_authenticated/team'
     | '/_authenticated/tips'
     | '/_authenticated/todos'
@@ -270,6 +294,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   LoginRoute: typeof LoginRoute
+  MfaChallengeRoute: typeof MfaChallengeRoute
   ApiPublicHooksDailyDigestRoute: typeof ApiPublicHooksDailyDigestRouteWithChildren
   ApiPublicHooksIngestFeedsRoute: typeof ApiPublicHooksIngestFeedsRoute
   ApiPublicHooksMonthlyTipRoute: typeof ApiPublicHooksMonthlyTipRoute
@@ -277,6 +302,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/mfa-challenge': {
+      id: '/mfa-challenge'
+      path: '/mfa-challenge'
+      fullPath: '/mfa-challenge'
+      preLoaderRoute: typeof MfaChallengeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -317,6 +349,13 @@ declare module '@tanstack/react-router' {
       path: '/team'
       fullPath: '/team'
       preLoaderRoute: typeof AuthenticatedTeamRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/security': {
+      id: '/_authenticated/security'
+      path: '/security'
+      fullPath: '/security'
+      preLoaderRoute: typeof AuthenticatedSecurityRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/routines': {
@@ -431,6 +470,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedNotesRoute: typeof AuthenticatedNotesRoute
   AuthenticatedProjectsRoute: typeof AuthenticatedProjectsRoute
   AuthenticatedRoutinesRoute: typeof AuthenticatedRoutinesRoute
+  AuthenticatedSecurityRoute: typeof AuthenticatedSecurityRoute
   AuthenticatedTeamRoute: typeof AuthenticatedTeamRoute
   AuthenticatedTipsRoute: typeof AuthenticatedTipsRoute
   AuthenticatedTodosRoute: typeof AuthenticatedTodosRoute
@@ -447,6 +487,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedNotesRoute: AuthenticatedNotesRoute,
   AuthenticatedProjectsRoute: AuthenticatedProjectsRoute,
   AuthenticatedRoutinesRoute: AuthenticatedRoutinesRoute,
+  AuthenticatedSecurityRoute: AuthenticatedSecurityRoute,
   AuthenticatedTeamRoute: AuthenticatedTeamRoute,
   AuthenticatedTipsRoute: AuthenticatedTipsRoute,
   AuthenticatedTodosRoute: AuthenticatedTodosRoute,
@@ -474,6 +515,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   LoginRoute: LoginRoute,
+  MfaChallengeRoute: MfaChallengeRoute,
   ApiPublicHooksDailyDigestRoute: ApiPublicHooksDailyDigestRouteWithChildren,
   ApiPublicHooksIngestFeedsRoute: ApiPublicHooksIngestFeedsRoute,
   ApiPublicHooksMonthlyTipRoute: ApiPublicHooksMonthlyTipRoute,
