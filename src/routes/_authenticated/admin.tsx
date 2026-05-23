@@ -204,6 +204,7 @@ function UsersTab() {
                 <TableHead>Provider</TableHead>
                 <TableHead>Inscription</TableHead>
                 <TableHead>Dernière connexion</TableHead>
+                <TableHead>IP</TableHead>
                 <TableHead>Statut</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -226,6 +227,7 @@ function UsersTab() {
                   <TableCell><Badge variant="outline" className="text-[10px] h-5">{u.provider}</Badge></TableCell>
                   <TableCell className="text-xs text-muted-foreground">{new Date(u.created_at).toLocaleDateString("fr-FR")}</TableCell>
                   <TableCell className="text-xs text-muted-foreground">{u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleString("fr-FR") : "—"}</TableCell>
+                  <TableCell className="font-mono text-[11px]" title={u.last_ip_at ? `vu le ${new Date(u.last_ip_at).toLocaleString("fr-FR")}` : ""}>{u.last_ip ?? "—"}</TableCell>
                   <TableCell>
                     {u.is_banned ? <Badge variant="outline" className="text-[10px] h-5 border-red-500/40 text-red-500">suspendu</Badge>
                       : !u.email_confirmed_at ? <Badge variant="outline" className="text-[10px] h-5 border-amber-500/40 text-amber-500">non vérifié</Badge>

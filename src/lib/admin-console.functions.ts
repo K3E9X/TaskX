@@ -58,11 +58,28 @@ export const listUsersDetailed = createServerFn({ method: "GET" })
       if (r.role === "admin" || !cur) roleMap.set(r.user_id, r.role as "admin" | "member");
     });
 
+    // Dernière IP connue par user (via page_views)
+    const userIds = users.map((u) => u.id);
+    const ipMap = new Map<string, { ip: string | null; at: string }>();
+    if (userIds.length > 0) {
+      const { data: views } = await supabaseAdmin
+        .from("page_views")
+        .select("user_id, ip, created_at")
+        .in("user_id", userIds)
+        .not("ip", "is", null)
+        .order("created_at", { ascending: false })
+        .limit(5000);
+      (views ?? []).forEach((v) => {
+        if (!ipMap.has(v.user_id)) ipMap.set(v.user_id, { ip: v.ip, at: v.created_at });
+      });
+    }
+
     return users.map((u) => {
       const p = profMap.get(u.id);
       const provider =
         (u.app_metadata as { provider?: string } | undefined)?.provider ?? "email";
       const banned = (u as unknown as { banned_until?: string | null }).banned_until ?? null;
+      const lastIp = ipMap.get(u.id);
       return {
         id: u.id,
         email: u.email ?? "",
@@ -79,6 +96,8 @@ export const listUsersDetailed = createServerFn({ method: "GET" })
           | "architect" | "pentester" | "forensic" | "analyst",
         avatar_url: p?.avatar_url ?? null,
         app_role: roleMap.get(u.id) ?? "member",
+        last_ip: lastIp?.ip ?? null,
+        last_ip_at: lastIp?.at ?? null,
       };
     });
   });
@@ -460,11 +479,20 @@ export const trackPageView = createServerFn({ method: "POST" })
     }).parse(d),
   )
   .handler(async ({ context, data }) => {
+    const { getRequestIP, getRequestHeader } = await import("@tanstack/react-start/server");
+    let ip: string | null = null;
+    try {
+      ip = getRequestIP({ xForwardedFor: true })
+        ?? getRequestHeader("cf-connecting-ip")
+        ?? getRequestHeader("x-real-ip")
+        ?? null;
+    } catch { ip = null; }
     const { error } = await supabaseAdmin.from("page_views").insert({
       user_id: context.userId,
       path: data.path,
       referrer: data.referrer ?? null,
       user_agent: data.user_agent ?? null,
+      ip,
     });
     if (error) throw new Error(error.message);
     return { ok: true };
