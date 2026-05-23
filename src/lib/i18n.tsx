@@ -294,7 +294,7 @@ const dict = {
     "land.f.ai.d": "Résume, reformule, classe — un copilote pour ton quotidien cyber.",
     "land.show.eyebrow": "Workspace",
     "land.show.title": "Pensé pour ton métier, pas pour ton SOC.",
-    "land.show.sub": "Veille CVE, notes, runbooks, todos, feeds RSS et fil X — tout ce que tu ouvres chaque matin, regroupé sur un écran rapide et personnel.",
+    "land.show.sub": "Veille CVE, notes, runbooks, todos et feeds RSS sur un écran rapide pensé pour ton quotidien.",
     "land.show.b1": "Veille CVE & CTI personnalisée",
     "land.show.b2": "Notes, runbooks et bookmarks recherchables",
     "land.show.b3": "Todos, routines et suivi de progression",
