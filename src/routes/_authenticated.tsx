@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   LayoutDashboard, CheckSquare, FileText, Repeat, FolderKanban,
   CalendarClock, GitBranch, Rss, Terminal, Bookmark, Users, LogOut, Gauge, Shield,
+  PanelLeftClose, PanelLeftOpen,
 } from "lucide-react";
 import { TaskXMark } from "@/components/brand/TaskXLogo";
 
@@ -29,12 +30,23 @@ const NAV: { to: string; key: TKey; icon: typeof LayoutDashboard }[] = [
   { to: "/team", key: "nav.team", icon: Users },
 ];
 
+const SIDEBAR_KEY = "taskx.sidebar.collapsed";
+
 function AuthenticatedLayout() {
   const { session, loading, signOut } = useAuth();
   const { t } = useI18n();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [open, setOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem(SIDEBAR_KEY) === "1";
+  });
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(SIDEBAR_KEY, collapsed ? "1" : "0");
+    }
+  }, [collapsed]);
 
   const { data: isAdmin } = useQuery({
     queryKey: ["sidebar-isAdmin", session?.user.id],
@@ -55,20 +67,26 @@ function AuthenticatedLayout() {
   }
   if (!session) return null;
 
+  const sideW = collapsed ? "w-14" : "w-60";
+
   return (
     <div className="min-h-screen flex bg-background">
-      <aside className={`fixed inset-y-0 left-0 z-40 w-60 border-r bg-sidebar text-sidebar-foreground transform transition-transform md:static md:translate-x-0 ${open ? "translate-x-0" : "-translate-x-full"}`}>
-        <div className="h-14 flex items-center gap-2 px-4 border-b">
+      <aside
+        className={`fixed inset-y-0 left-0 z-40 ${sideW} border-r bg-sidebar text-sidebar-foreground transform transition-[width,transform] duration-200 md:static md:translate-x-0 ${open ? "translate-x-0 w-60" : "-translate-x-full"}`}
+      >
+        <div className={`h-14 flex items-center border-b ${collapsed ? "justify-center px-0" : "gap-2 px-4"}`}>
           <TaskXMark size={26} />
-          <div className="flex flex-col leading-none">
-            <span className="text-sm font-semibold tracking-tight flex items-baseline">
-              <span>Task</span>
-              <span className="ml-[1px] bg-gradient-to-br from-[oklch(0.74_0.18_295)] to-[oklch(0.78_0.15_200)] bg-clip-text text-transparent font-bold">X</span>
-            </span>
-            <span className="mt-1 text-[10px] text-muted-foreground">{t("app.tagline")}</span>
-          </div>
+          {!collapsed && (
+            <div className="flex flex-col leading-none min-w-0">
+              <span className="text-sm font-semibold tracking-tight flex items-baseline">
+                <span>Task</span>
+                <span className="ml-[1px] bg-gradient-to-br from-[oklch(0.74_0.18_295)] to-[oklch(0.78_0.15_200)] bg-clip-text text-transparent font-bold">X</span>
+              </span>
+              <span className="mt-1 text-[10px] text-muted-foreground truncate">{t("app.tagline")}</span>
+            </div>
+          )}
         </div>
-        <nav className="p-2 space-y-0.5 text-sm">
+        <nav className={`p-2 space-y-0.5 text-sm`}>
           {NAV.map((item) => {
             const active = pathname === item.to || pathname.startsWith(item.to + "/");
             const Icon = item.icon;
@@ -77,12 +95,13 @@ function AuthenticatedLayout() {
                 key={item.to}
                 to={item.to}
                 onClick={() => setOpen(false)}
-                className={`flex items-center gap-2.5 rounded-md px-2.5 py-1.5 transition-colors ${
+                title={collapsed ? t(item.key) : undefined}
+                className={`flex items-center gap-2.5 rounded-md ${collapsed ? "justify-center px-0 py-2" : "px-2.5 py-1.5"} transition-colors ${
                   active ? "bg-sidebar-accent text-sidebar-accent-foreground" : "hover:bg-sidebar-accent/60 text-muted-foreground"
                 }`}
               >
-                <Icon className="h-4 w-4" />
-                <span>{t(item.key)}</span>
+                <Icon className="h-4 w-4 shrink-0" />
+                {!collapsed && <span className="truncate">{t(item.key)}</span>}
               </Link>
             );
           })}
@@ -90,26 +109,47 @@ function AuthenticatedLayout() {
             <Link
               to="/admin"
               onClick={() => setOpen(false)}
-              className={`flex items-center gap-2.5 rounded-md px-2.5 py-1.5 transition-colors ${
+              title={collapsed ? "Admin" : undefined}
+              className={`flex items-center gap-2.5 rounded-md ${collapsed ? "justify-center px-0 py-2" : "px-2.5 py-1.5"} transition-colors ${
                 pathname === "/admin" || pathname.startsWith("/admin/")
                   ? "bg-sidebar-accent text-sidebar-accent-foreground"
                   : "hover:bg-sidebar-accent/60 text-amber-500/90"
               }`}
             >
-              <Shield className="h-4 w-4" />
-              <span>Admin</span>
+              <Shield className="h-4 w-4 shrink-0" />
+              {!collapsed && <span>Admin</span>}
             </Link>
           )}
         </nav>
-        <div className="absolute bottom-0 left-0 right-0 border-t p-3">
-          <UserChip email={session.user.email ?? ""} onSignOut={async () => { await signOut(); navigate({ to: "/login" }); }} />
+        <div className={`absolute bottom-0 left-0 right-0 border-t ${collapsed ? "p-2" : "p-3"}`}>
+          {collapsed ? (
+            <button
+              onClick={async () => { await signOut(); navigate({ to: "/login" }); }}
+              title={t("common.signout")}
+              className="w-full h-8 flex items-center justify-center rounded-md hover:bg-sidebar-accent/60 text-muted-foreground"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
+          ) : (
+            <UserChip email={session.user.email ?? ""} onSignOut={async () => { await signOut(); navigate({ to: "/login" }); }} />
+          )}
         </div>
       </aside>
 
-      <div className="flex-1 flex flex-col md:ml-0 min-w-0">
-        <header className="h-14 border-b flex items-center justify-between px-4 md:px-6">
-          <button onClick={() => setOpen(!open)} className="md:hidden text-sm">{t("common.menu")}</button>
-          <div className="text-xs text-muted-foreground hidden md:block">{pathname}</div>
+      <div className="flex-1 flex flex-col min-w-0">
+        <header className="h-14 border-b flex items-center justify-between px-4 md:px-6 gap-2">
+          <div className="flex items-center gap-2">
+            <button onClick={() => setOpen(!open)} className="md:hidden text-sm">{t("common.menu")}</button>
+            <button
+              onClick={() => setCollapsed((c) => !c)}
+              className="hidden md:inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-accent/50"
+              title={collapsed ? t("common.expand") : t("common.collapse")}
+              aria-label={collapsed ? t("common.expand") : t("common.collapse")}
+            >
+              {collapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+            </button>
+            <div className="text-xs text-muted-foreground hidden md:block">{pathname}</div>
+          </div>
           <LangToggle />
         </header>
         <main className="flex-1 overflow-auto">
