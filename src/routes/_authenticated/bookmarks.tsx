@@ -21,6 +21,7 @@ type Bookmark = {
 };
 
 export const Route = createFileRoute("/_authenticated/bookmarks")({
+  head: () => ({ meta: [{ title: "Bookmarks — TaskX" }] }),
   component: BookmarksPage,
 });
 

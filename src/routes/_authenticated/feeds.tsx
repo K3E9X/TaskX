@@ -32,6 +32,7 @@ type FeedItem = {
 };
 
 export const Route = createFileRoute("/_authenticated/feeds")({
+  head: () => ({ meta: [{ title: "Feeds — TaskX" }] }),
   component: FeedsPage,
 });
 

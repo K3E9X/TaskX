@@ -13,6 +13,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 export const Route = createFileRoute("/_authenticated/notes")({
+  head: () => ({ meta: [{ title: "Notes — TaskX" }] }),
   component: NotesPage,
 });
 

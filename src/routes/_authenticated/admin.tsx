@@ -12,6 +12,7 @@ import {
 } from "recharts";
 
 export const Route = createFileRoute("/_authenticated/admin")({
+  head: () => ({ meta: [{ title: "Admin — TaskX" }] }),
   component: AdminPage,
 });
 

@@ -14,6 +14,7 @@ import { Plus, Trash2 } from "lucide-react";
 import mermaid from "mermaid";
 
 export const Route = createFileRoute("/_authenticated/diagrams")({
+  head: () => ({ meta: [{ title: "Diagrams — TaskX" }] }),
   component: DiagramsPage,
 });
 

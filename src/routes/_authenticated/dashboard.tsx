@@ -15,6 +15,7 @@ import { SendDigestButton } from "@/components/SendDigestButton";
 import { Maximize2, Minimize2, X, Plus, RotateCcw } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
+  head: () => ({ meta: [{ title: "Dashboard — TaskX" }] }),
   component: DashboardPage,
 });
 

@@ -21,6 +21,7 @@ type Tip = {
 };
 
 export const Route = createFileRoute("/_authenticated/tips")({
+  head: () => ({ meta: [{ title: "Tips — TaskX" }] }),
   component: TipsPage,
 });
 
