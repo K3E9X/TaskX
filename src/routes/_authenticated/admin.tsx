@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { supabase } from "@/integrations/supabase/client";
 import { getAdminStats } from "@/lib/admin.functions";
 import { Badge } from "@/components/ui/badge";
 import { Shield, Users, CheckSquare, FileText, Bookmark, FolderKanban, CalendarClock, GitBranch, Terminal, Rss, Repeat, Activity } from "lucide-react";
@@ -44,28 +43,14 @@ const SEV_COLORS: Record<string, string> = {
 function AdminPage() {
   const stats = useServerFn(getAdminStats);
 
-  const { data: me } = useQuery({
-    queryKey: ["me"],
-    queryFn: async () => (await supabase.auth.getUser()).data.user,
-  });
-
-  const { data: isAdmin } = useQuery({
-    queryKey: ["myAppRole", me?.id],
-    enabled: !!me?.id,
-    queryFn: async () => {
-      const { data } = await supabase.from("user_roles").select("role").eq("user_id", me!.id);
-      return (data ?? []).some((r) => r.role === "admin");
-    },
-  });
-
   const { data, isLoading, error } = useQuery({
     queryKey: ["adminStats"],
-    enabled: !!isAdmin,
     queryFn: () => stats(),
     refetchInterval: 60_000,
+    retry: false,
   });
 
-  if (isAdmin === false) {
+  if (error && (error as Error).message.toLowerCase().includes("forbidden")) {
     return (
       <div className="mx-auto max-w-3xl px-4 md:px-8 py-12">
         <div className="rounded-lg border bg-card p-8 text-center">
