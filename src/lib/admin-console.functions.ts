@@ -18,22 +18,30 @@ async function getActorEmail(userId: string): Promise<string | null> {
 
 async function logAction(params: {
   actorId: string;
-  actorEmail: string | null;
+  actorEmail?: string | null; // accepted for back-compat, no longer stored
   action: string;
   targetType?: string;
   targetId?: string;
-  targetEmail?: string;
+  targetEmail?: string; // accepted for back-compat, no longer stored
   details?: Record<string, unknown>;
 }) {
   await supabaseAdmin.from("admin_actions").insert({
     actor_id: params.actorId,
-    actor_email: params.actorEmail,
     action: params.action,
     target_type: params.targetType ?? null,
     target_id: params.targetId ?? null,
-    target_email: params.targetEmail ?? null,
     details: (params.details ?? {}) as never,
   });
+}
+
+// Resolve uid -> email server-side. Returns a Map populated for the requested ids.
+async function emailMapFor(userIds: (string | null | undefined)[]): Promise<Map<string, string>> {
+  const map = new Map<string, string>();
+  const unique = Array.from(new Set(userIds.filter((x): x is string => !!x)));
+  if (unique.length === 0) return map;
+  const { data } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
+  (data?.users ?? []).forEach((u) => { if (u.email) map.set(u.id, u.email); });
+  return map;
 }
 
 
@@ -362,7 +370,16 @@ export const getAdminActionLogs = createServerFn({ method: "GET" })
       .order("created_at", { ascending: false })
       .limit(200);
     if (error) throw new Error(error.message);
-    return data ?? [];
+    const rows = data ?? [];
+    const emails = await emailMapFor([
+      ...rows.map((r) => r.actor_id),
+      ...rows.map((r) => r.target_id),
+    ]);
+    return rows.map((r) => ({
+      ...r,
+      actor_email: emails.get(r.actor_id) ?? null,
+      target_email: r.target_id ? (emails.get(r.target_id) ?? null) : null,
+    }));
   });
 
 // ═════════════════ CONTENT MODERATION ═════════════════
@@ -572,7 +589,8 @@ export const listUserNotes = createServerFn({ method: "GET" })
       .from("admin_user_notes").select("*")
       .eq("target_user_id", data.userId).order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
-    return rows ?? [];
+    const emails = await emailMapFor((rows ?? []).map((r) => r.author_id));
+    return (rows ?? []).map((r) => ({ ...r, author_email: emails.get(r.author_id) ?? null }));
   });
 
 export const addUserNote = createServerFn({ method: "POST" })
@@ -585,7 +603,7 @@ export const addUserNote = createServerFn({ method: "POST" })
     const authorEmail = await getActorEmail(context.userId);
     const { error } = await supabaseAdmin.from("admin_user_notes").insert({
       target_user_id: data.userId, author_id: context.userId,
-      author_email: authorEmail, note: data.note,
+      note: data.note,
     });
     if (error) throw new Error(error.message);
     await logAction({
@@ -613,7 +631,8 @@ export const listBlockedIps = createServerFn({ method: "GET" })
     const { data, error } = await supabaseAdmin
       .from("blocked_ips").select("*").order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
-    return data ?? [];
+    const emails = await emailMapFor((data ?? []).map((r) => r.blocked_by));
+    return (data ?? []).map((r) => ({ ...r, blocked_by_email: emails.get(r.blocked_by) ?? null }));
   });
 
 export const blockIp = createServerFn({ method: "POST" })
@@ -626,7 +645,7 @@ export const blockIp = createServerFn({ method: "POST" })
     const email = await getActorEmail(context.userId);
     const { error } = await supabaseAdmin.from("blocked_ips").insert({
       ip: data.ip.trim(), reason: data.reason ?? null,
-      blocked_by: context.userId, blocked_by_email: email,
+      blocked_by: context.userId,
     });
     if (error) throw new Error(error.message);
     await logAction({
@@ -866,10 +885,20 @@ export const getSecurityAlerts = createServerFn({ method: "GET" })
 
     // 3) Recent suspended users from admin_actions
     const { data: suspendActions } = await supabaseAdmin
-      .from("admin_actions").select("target_email, target_id, created_at, actor_email")
+      .from("admin_actions").select("target_id, actor_id, created_at")
       .eq("action", "user.suspend")
       .gte("created_at", new Date(Date.now() - 7 * 86400_000).toISOString())
       .order("created_at", { ascending: false }).limit(20);
+    const susp = suspendActions ?? [];
+    const suspEmails = await emailMapFor([
+      ...susp.map((r) => r.actor_id),
+      ...susp.map((r) => r.target_id),
+    ]);
+    const recentSuspensions = susp.map((r) => ({
+      created_at: r.created_at,
+      target_email: r.target_id ? (suspEmails.get(r.target_id) ?? null) : null,
+      actor_email: suspEmails.get(r.actor_id) ?? null,
+    }));
 
-    return { sharedIps, noisyIps, recentSuspensions: suspendActions ?? [] };
+    return { sharedIps, noisyIps, recentSuspensions };
   });
