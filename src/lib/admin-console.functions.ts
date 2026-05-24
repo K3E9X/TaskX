@@ -885,10 +885,20 @@ export const getSecurityAlerts = createServerFn({ method: "GET" })
 
     // 3) Recent suspended users from admin_actions
     const { data: suspendActions } = await supabaseAdmin
-      .from("admin_actions").select("target_email, target_id, created_at, actor_email")
+      .from("admin_actions").select("target_id, actor_id, created_at")
       .eq("action", "user.suspend")
       .gte("created_at", new Date(Date.now() - 7 * 86400_000).toISOString())
       .order("created_at", { ascending: false }).limit(20);
+    const susp = suspendActions ?? [];
+    const suspEmails = await emailMapFor([
+      ...susp.map((r) => r.actor_id),
+      ...susp.map((r) => r.target_id),
+    ]);
+    const recentSuspensions = susp.map((r) => ({
+      created_at: r.created_at,
+      target_email: r.target_id ? (suspEmails.get(r.target_id) ?? null) : null,
+      actor_email: suspEmails.get(r.actor_id) ?? null,
+    }));
 
-    return { sharedIps, noisyIps, recentSuspensions: suspendActions ?? [] };
+    return { sharedIps, noisyIps, recentSuspensions };
   });
