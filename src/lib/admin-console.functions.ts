@@ -636,7 +636,7 @@ export const blockIp = createServerFn({ method: "POST" })
     const email = await getActorEmail(context.userId);
     const { error } = await supabaseAdmin.from("blocked_ips").insert({
       ip: data.ip.trim(), reason: data.reason ?? null,
-      blocked_by: context.userId, blocked_by_email: email,
+      blocked_by: context.userId,
     });
     if (error) throw new Error(error.message);
     await logAction({
