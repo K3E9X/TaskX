@@ -547,7 +547,6 @@ export type Database = {
       }
       profiles: {
         Row: {
-          auto_tip_enabled: boolean
           avatar_url: string | null
           created_at: string
           dashboard_widgets: string[]
@@ -560,7 +559,6 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          auto_tip_enabled?: boolean
           avatar_url?: string | null
           created_at?: string
           dashboard_widgets?: string[]
@@ -573,7 +571,6 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          auto_tip_enabled?: boolean
           avatar_url?: string | null
           created_at?: string
           dashboard_widgets?: string[]
@@ -805,45 +802,6 @@ export type Database = {
         }
         Relationships: []
       }
-      tips: {
-        Row: {
-          category: string
-          command: string | null
-          created_at: string
-          explanation: string | null
-          favorite: boolean
-          id: string
-          tags: string[]
-          title: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          category?: string
-          command?: string | null
-          created_at?: string
-          explanation?: string | null
-          favorite?: boolean
-          id?: string
-          tags?: string[]
-          title: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          category?: string
-          command?: string | null
-          created_at?: string
-          explanation?: string | null
-          favorite?: boolean
-          id?: string
-          tags?: string[]
-          title?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       todos: {
         Row: {
           created_at: string
@@ -883,6 +841,48 @@ export type Database = {
         }
         Relationships: []
       }
+      usage_tips: {
+        Row: {
+          body: string
+          created_at: string
+          icon: string | null
+          id: string
+          link: string | null
+          module: string
+          published: boolean
+          published_at: string
+          shortcut: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body?: string
+          created_at?: string
+          icon?: string | null
+          id?: string
+          link?: string | null
+          module?: string
+          published?: boolean
+          published_at?: string
+          shortcut?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          icon?: string | null
+          id?: string
+          link?: string | null
+          module?: string
+          published?: boolean
+          published_at?: string
+          shortcut?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -903,6 +903,32 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_tip_views: {
+        Row: {
+          tip_id: string
+          user_id: string
+          viewed_at: string
+        }
+        Insert: {
+          tip_id: string
+          user_id: string
+          viewed_at?: string
+        }
+        Update: {
+          tip_id?: string
+          user_id?: string
+          viewed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_tip_views_tip_id_fkey"
+            columns: ["tip_id"]
+            isOneToOne: false
+            referencedRelation: "usage_tips"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
