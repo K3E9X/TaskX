@@ -370,7 +370,16 @@ export const getAdminActionLogs = createServerFn({ method: "GET" })
       .order("created_at", { ascending: false })
       .limit(200);
     if (error) throw new Error(error.message);
-    return data ?? [];
+    const rows = data ?? [];
+    const emails = await emailMapFor([
+      ...rows.map((r) => r.actor_id),
+      ...rows.map((r) => r.target_id),
+    ]);
+    return rows.map((r) => ({
+      ...r,
+      actor_email: emails.get(r.actor_id) ?? null,
+      target_email: r.target_id ? (emails.get(r.target_id) ?? null) : null,
+    }));
   });
 
 // ═════════════════ CONTENT MODERATION ═════════════════
