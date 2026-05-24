@@ -24,7 +24,7 @@ export const universalSearch = createServerFn({ method: "POST" })
       supabase.from("bookmarks").select("id,title,url").ilike("title", like).limit(5),
       supabase.from("diagrams").select("id,title,description").ilike("title", like).limit(5),
       supabase.from("feed_items").select("id,title,source").ilike("title", like).limit(5),
-      supabase.from("tips").select("id,title,command").ilike("title", like).limit(5),
+      supabase.from("usage_tips").select("id,title,module").eq("published", true).ilike("title", like).limit(5),
       supabase.from("snippets").select("id,title,language").ilike("title", like).limit(5),
     ]);
 
@@ -34,7 +34,7 @@ export const universalSearch = createServerFn({ method: "POST" })
       ...(bookmarks.data ?? []).map((x) => ({ id: x.id, kind: "bookmark" as const, title: x.title, subtitle: x.url })),
       ...(diagrams.data ?? []).map((x) => ({ id: x.id, kind: "diagram" as const, title: x.title, subtitle: x.description ?? undefined })),
       ...(feeds.data ?? []).map((x) => ({ id: x.id, kind: "feed" as const, title: x.title, subtitle: x.source })),
-      ...(tips.data ?? []).map((x) => ({ id: x.id, kind: "tip" as const, title: x.title, subtitle: x.command ?? undefined })),
+      ...(tips.data ?? []).map((x) => ({ id: x.id, kind: "tip" as const, title: x.title, subtitle: x.module })),
       ...(snippets.data ?? []).map((x) => ({ id: x.id, kind: "snippet" as const, title: x.title, subtitle: x.language })),
     ];
 
