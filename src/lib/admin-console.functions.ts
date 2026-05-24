@@ -622,7 +622,8 @@ export const listBlockedIps = createServerFn({ method: "GET" })
     const { data, error } = await supabaseAdmin
       .from("blocked_ips").select("*").order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
-    return data ?? [];
+    const emails = await emailMapFor((data ?? []).map((r) => r.blocked_by));
+    return (data ?? []).map((r) => ({ ...r, blocked_by_email: emails.get(r.blocked_by) ?? null }));
   });
 
 export const blockIp = createServerFn({ method: "POST" })
