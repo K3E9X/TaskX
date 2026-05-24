@@ -580,7 +580,8 @@ export const listUserNotes = createServerFn({ method: "GET" })
       .from("admin_user_notes").select("*")
       .eq("target_user_id", data.userId).order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
-    return rows ?? [];
+    const emails = await emailMapFor((rows ?? []).map((r) => r.author_id));
+    return (rows ?? []).map((r) => ({ ...r, author_email: emails.get(r.author_id) ?? null }));
   });
 
 export const addUserNote = createServerFn({ method: "POST" })
