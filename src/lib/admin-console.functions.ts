@@ -18,22 +18,30 @@ async function getActorEmail(userId: string): Promise<string | null> {
 
 async function logAction(params: {
   actorId: string;
-  actorEmail: string | null;
+  actorEmail?: string | null; // accepted for back-compat, no longer stored
   action: string;
   targetType?: string;
   targetId?: string;
-  targetEmail?: string;
+  targetEmail?: string; // accepted for back-compat, no longer stored
   details?: Record<string, unknown>;
 }) {
   await supabaseAdmin.from("admin_actions").insert({
     actor_id: params.actorId,
-    actor_email: params.actorEmail,
     action: params.action,
     target_type: params.targetType ?? null,
     target_id: params.targetId ?? null,
-    target_email: params.targetEmail ?? null,
     details: (params.details ?? {}) as never,
   });
+}
+
+// Resolve uid -> email server-side. Returns a Map populated for the requested ids.
+async function emailMapFor(userIds: (string | null | undefined)[]): Promise<Map<string, string>> {
+  const map = new Map<string, string>();
+  const unique = Array.from(new Set(userIds.filter((x): x is string => !!x)));
+  if (unique.length === 0) return map;
+  const { data } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
+  (data?.users ?? []).forEach((u) => { if (u.email) map.set(u.id, u.email); });
+  return map;
 }
 
 
