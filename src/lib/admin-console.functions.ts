@@ -594,7 +594,7 @@ export const addUserNote = createServerFn({ method: "POST" })
     const authorEmail = await getActorEmail(context.userId);
     const { error } = await supabaseAdmin.from("admin_user_notes").insert({
       target_user_id: data.userId, author_id: context.userId,
-      author_email: authorEmail, note: data.note,
+      note: data.note,
     });
     if (error) throw new Error(error.message);
     await logAction({
