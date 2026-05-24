@@ -222,7 +222,7 @@ export const getUserDetails = createServerFn({ method: "GET" })
     await assertAdmin(context.userId);
     const tables = [
       "todos", "notes", "bookmarks", "projects", "meetings",
-      "diagrams", "tips", "feed_items", "routines",
+      "diagrams", "snippets", "feed_items", "routines",
     ] as const;
     const counts: Record<string, number> = {};
     await Promise.all(tables.map(async (t) => {

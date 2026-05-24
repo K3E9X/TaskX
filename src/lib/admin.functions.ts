@@ -17,7 +17,7 @@ export const getAdminStats = createServerFn({ method: "GET" })
     // ---- Totals (head:true → count only) ----
     const tables = [
       "profiles", "todos", "notes", "bookmarks", "projects",
-      "meetings", "diagrams", "tips", "feed_items", "routines",
+      "meetings", "diagrams", "snippets", "feed_items", "routines", "usage_tips",
     ] as const;
     const totals: Record<string, number> = {};
     await Promise.all(tables.map(async (t) => {

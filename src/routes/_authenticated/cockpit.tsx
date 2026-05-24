@@ -139,11 +139,12 @@ function CockpitPage() {
   });
 
   const { data: tips = [] } = useQuery({
-    queryKey: ["cockpit", "tips"],
+    queryKey: ["cockpit", "usage_tips"],
     queryFn: async () => {
       const { data } = await supabase
-        .from("tips").select("id,title,favorite")
-        .order("favorite", { ascending: false }).order("updated_at", { ascending: false }).limit(20);
+        .from("usage_tips").select("id,title")
+        .eq("published", true)
+        .order("published_at", { ascending: false }).limit(20);
       return data ?? [];
     },
   });
@@ -280,7 +281,7 @@ function CockpitPage() {
         <Tile
           to="/tips" icon={Terminal} label={t("cockpit.tip")}
           value={tips.length}
-          sub={tips.find((x) => x.favorite)?.title ?? tips[0]?.title ?? t("cockpit.empty")}
+          sub={tips[0]?.title ?? t("cockpit.empty")}
         />
         <Tile
           to="/bookmarks" icon={Bookmark} label={t("cockpit.bookmarks")}
