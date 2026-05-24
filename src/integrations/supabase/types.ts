@@ -17,34 +17,28 @@ export type Database = {
       admin_actions: {
         Row: {
           action: string
-          actor_email: string | null
           actor_id: string
           created_at: string
           details: Json
           id: string
-          target_email: string | null
           target_id: string | null
           target_type: string | null
         }
         Insert: {
           action: string
-          actor_email?: string | null
           actor_id: string
           created_at?: string
           details?: Json
           id?: string
-          target_email?: string | null
           target_id?: string | null
           target_type?: string | null
         }
         Update: {
           action?: string
-          actor_email?: string | null
           actor_id?: string
           created_at?: string
           details?: Json
           id?: string
-          target_email?: string | null
           target_id?: string | null
           target_type?: string | null
         }
@@ -85,7 +79,6 @@ export type Database = {
       }
       admin_user_notes: {
         Row: {
-          author_email: string | null
           author_id: string
           created_at: string
           id: string
@@ -93,7 +86,6 @@ export type Database = {
           target_user_id: string
         }
         Insert: {
-          author_email?: string | null
           author_id: string
           created_at?: string
           id?: string
@@ -101,7 +93,6 @@ export type Database = {
           target_user_id: string
         }
         Update: {
-          author_email?: string | null
           author_id?: string
           created_at?: string
           id?: string
@@ -113,7 +104,6 @@ export type Database = {
       blocked_ips: {
         Row: {
           blocked_by: string
-          blocked_by_email: string | null
           created_at: string
           id: string
           ip: string
@@ -121,7 +111,6 @@ export type Database = {
         }
         Insert: {
           blocked_by: string
-          blocked_by_email?: string | null
           created_at?: string
           id?: string
           ip: string
@@ -129,7 +118,6 @@ export type Database = {
         }
         Update: {
           blocked_by?: string
-          blocked_by_email?: string | null
           created_at?: string
           id?: string
           ip?: string
