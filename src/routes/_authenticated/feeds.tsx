@@ -109,12 +109,11 @@ function FeedsPage() {
     return true;
   });
 
+  const refreshFn = useServerFn(refreshMyFeeds);
   const refresh = async () => {
     setRefreshing(true);
     try {
-      const res = await fetch("/api/public/hooks/ingest-feeds", { method: "POST" });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json?.error ?? "Failed");
+      const json = await refreshFn();
       toast.success(`${t("feeds.refreshDone")} (+${json.inserted ?? 0})`);
       qc.invalidateQueries({ queryKey: ["feed_items"] });
       qc.invalidateQueries({ queryKey: ["rss_sources"] });
