@@ -10,6 +10,22 @@ type RssItem = {
   published_at: string;
 };
 
+const FEED_PAGE_SIZE = 30;
+
+function toIsoDate(raw: string | null | undefined): string {
+  if (!raw) return new Date().toISOString();
+  const date = new Date(raw);
+  return Number.isNaN(date.getTime()) ? new Date().toISOString() : date.toISOString();
+}
+
+function newestFirst(items: RssItem[]): RssItem[] {
+  return [...items].sort((a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime());
+}
+
+function nvdDate(value: Date): string {
+  return value.toISOString().replace(/\.\d{3}Z$/, ".000");
+}
+
 // --- Tiny XML/RSS parser (regex-based, sufficient for RSS/Atom feeds) ---
 function decodeEntities(s: string): string {
   return s
@@ -60,7 +76,7 @@ function parseRss(xml: string): RssItem[] {
       pick(block, "updated") ||
       pick(block, "dc:date");
     const guid = pick(block, "guid") || pick(block, "id") || url;
-    const published_at = dateRaw ? new Date(dateRaw).toISOString() : new Date().toISOString();
+    const published_at = toIsoDate(dateRaw);
     items.push({
       title: title.slice(0, 500),
       url: url ?? null,
@@ -69,25 +85,25 @@ function parseRss(xml: string): RssItem[] {
       published_at,
     });
   }
-  return items;
+  return newestFirst(items).slice(0, FEED_PAGE_SIZE);
 }
 
 // --- CISA KEV JSON ---
 function parseCisaKev(json: unknown): RssItem[] {
   const data = json as { vulnerabilities?: Array<{ cveID: string; vulnerabilityName: string; shortDescription: string; dateAdded: string }> };
-  return (data.vulnerabilities ?? []).slice(0, 30).map((v) => ({
+  return newestFirst((data.vulnerabilities ?? []).map((v) => ({
     title: `${v.cveID} — ${v.vulnerabilityName}`,
     url: `https://nvd.nist.gov/vuln/detail/${v.cveID}`,
     summary: v.shortDescription,
     external_id: v.cveID,
-    published_at: new Date(v.dateAdded).toISOString(),
-  }));
+    published_at: toIsoDate(v.dateAdded),
+  }))).slice(0, FEED_PAGE_SIZE);
 }
 
 // --- NVD JSON ---
 function parseNvd(json: unknown): RssItem[] {
   const data = json as { vulnerabilities?: Array<{ cve: { id: string; descriptions: Array<{ lang: string; value: string }>; published: string } }> };
-  return (data.vulnerabilities ?? []).slice(0, 30).map((entry) => {
+  return newestFirst((data.vulnerabilities ?? []).map((entry) => {
     const cve = entry.cve;
     const en = cve.descriptions.find((d) => d.lang === "en") ?? cve.descriptions[0];
     return {
@@ -95,9 +111,9 @@ function parseNvd(json: unknown): RssItem[] {
       url: `https://nvd.nist.gov/vuln/detail/${cve.id}`,
       summary: en?.value?.slice(0, 1000) ?? null,
       external_id: cve.id,
-      published_at: new Date(cve.published).toISOString(),
+      published_at: toIsoDate(cve.published),
     };
-  });
+  })).slice(0, FEED_PAGE_SIZE);
 }
 
 // SSRF guard: only allow public https URLs, reject private/reserved IP ranges and non-DNS hostnames.
@@ -138,7 +154,16 @@ function validateFeedUrl(rawUrl: string): URL {
 }
 
 async function fetchSource(rawUrl: string): Promise<RssItem[]> {
-  const url = validateFeedUrl(rawUrl).toString();
+  const parsed = validateFeedUrl(rawUrl);
+  const isNvd = parsed.hostname === "services.nvd.nist.gov" && parsed.pathname.includes("/rest/json/cves/2.0");
+  if (isNvd && !parsed.searchParams.has("pubStartDate") && !parsed.searchParams.has("lastModStartDate")) {
+    const end = new Date();
+    const start = new Date(end.getTime() - 7 * 24 * 60 * 60 * 1000);
+    parsed.searchParams.set("pubStartDate", nvdDate(start));
+    parsed.searchParams.set("pubEndDate", nvdDate(end));
+    parsed.searchParams.set("resultsPerPage", String(FEED_PAGE_SIZE));
+  }
+  const url = parsed.toString();
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 10_000);
   let res: Response;
