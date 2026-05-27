@@ -26,6 +26,41 @@ function nvdDate(value: Date): string {
   return value.toISOString().replace(/\.\d{3}Z$/, ".000");
 }
 
+async function fetchText(url: string): Promise<{ text: string; contentType: string }> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10_000);
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      headers: { "User-Agent": "Lovable-Cockpit/1.0 (+rss-ingest)", Accept: "application/json, application/rss+xml, application/xml, text/xml, */*" },
+      redirect: "error", // prevent redirect-based SSRF bypass
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timeout);
+  }
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  // Limit response size to ~2MB to mitigate blind SSRF / DoS
+  const MAX_BYTES = 2 * 1024 * 1024;
+  const buf = await res.arrayBuffer();
+  if (buf.byteLength > MAX_BYTES) throw new Error("Response too large");
+  return { text: new TextDecoder().decode(buf), contentType: res.headers.get("content-type") ?? "" };
+}
+
+async function fetchNvdRecent(parsed: URL): Promise<RssItem[]> {
+  const end = new Date();
+  const start = new Date(end.getTime() - 7 * 24 * 60 * 60 * 1000);
+  parsed.searchParams.set("pubStartDate", nvdDate(start));
+  parsed.searchParams.set("pubEndDate", nvdDate(end));
+  parsed.searchParams.set("resultsPerPage", "1");
+  parsed.searchParams.delete("startIndex");
+  const first = JSON.parse((await fetchText(parsed.toString())).text) as { totalResults?: number };
+  const total = Math.max(0, first.totalResults ?? 0);
+  parsed.searchParams.set("resultsPerPage", String(FEED_PAGE_SIZE));
+  parsed.searchParams.set("startIndex", String(Math.max(0, total - FEED_PAGE_SIZE)));
+  return parseNvd(JSON.parse((await fetchText(parsed.toString())).text));
+}
+
 // --- Tiny XML/RSS parser (regex-based, sufficient for RSS/Atom feeds) ---
 function decodeEntities(s: string): string {
   return s
@@ -157,33 +192,11 @@ async function fetchSource(rawUrl: string): Promise<RssItem[]> {
   const parsed = validateFeedUrl(rawUrl);
   const isNvd = parsed.hostname === "services.nvd.nist.gov" && parsed.pathname.includes("/rest/json/cves/2.0");
   if (isNvd && !parsed.searchParams.has("pubStartDate") && !parsed.searchParams.has("lastModStartDate")) {
-    const end = new Date();
-    const start = new Date(end.getTime() - 7 * 24 * 60 * 60 * 1000);
-    parsed.searchParams.set("pubStartDate", nvdDate(start));
-    parsed.searchParams.set("pubEndDate", nvdDate(end));
-    parsed.searchParams.set("resultsPerPage", String(FEED_PAGE_SIZE));
+    return fetchNvdRecent(parsed);
   }
   const url = parsed.toString();
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 10_000);
-  let res: Response;
-  try {
-    res = await fetch(url, {
-      headers: { "User-Agent": "Lovable-Cockpit/1.0 (+rss-ingest)", Accept: "application/json, application/rss+xml, application/xml, text/xml, */*" },
-      redirect: "error", // prevent redirect-based SSRF bypass
-      signal: controller.signal,
-    });
-  } finally {
-    clearTimeout(timeout);
-  }
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  // Limit response size to ~2MB to mitigate blind SSRF / DoS
-  const MAX_BYTES = 2 * 1024 * 1024;
-  const ct = res.headers.get("content-type") ?? "";
+  const { text, contentType: ct } = await fetchText(url);
   const isJson = ct.includes("json") || url.endsWith(".json") || url.includes("nvd.nist.gov/rest");
-  const buf = await res.arrayBuffer();
-  if (buf.byteLength > MAX_BYTES) throw new Error("Response too large");
-  const text = new TextDecoder().decode(buf);
   if (isJson) {
     const json = JSON.parse(text);
     if (url.includes("cisa.gov")) return parseCisaKev(json);
