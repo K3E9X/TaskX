@@ -1,15 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { motion } from "motion/react";
-import { useEffect } from "react";
-import {
-  Area,
-  AreaChart,
-  ResponsiveContainer,
-  Bar,
-  BarChart,
-  Line,
-  LineChart,
-} from "recharts";
+import { useEffect, useState, type FormEvent } from "react";
 import {
   ArrowRight,
   CheckCircle2,
@@ -23,12 +14,21 @@ import {
   Users,
   Bot,
   Mail,
+  ShieldAlert,
+  Sparkles,
+  Lock,
+  Crosshair,
+  Eye,
+  Building2,
+  Briefcase,
+  Plus,
+  Minus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useState, type FormEvent } from "react";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { TaskXLogo, TaskXMark } from "@/components/brand/TaskXLogo";
@@ -37,24 +37,22 @@ import { useI18n, LangToggle, type TKey } from "@/lib/i18n";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "TaskX — The daily workspace for cybersecurity pros" },
+      { title: "TaskX — Le workspace quotidien des pros cyber (CVE, notes, runbooks)" },
       {
         name: "description",
         content:
-          "TaskX is the personal daily workspace for cybersecurity pros. CVE watch, notes, runbooks, todos and feeds in one place built for your role.",
+          "TaskX est le workspace personnel des pros cyber : veille CVE auto, notes, runbooks, todos et fil X — préconfiguré dès l'inscription. Gratuit, sans CB.",
       },
-      { property: "og:title", content: "TaskX — The daily workspace for cybersecurity pros" },
+      { property: "og:title", content: "TaskX — Le workspace quotidien des pros cyber" },
       {
         property: "og:description",
         content:
-          "Personal daily workspace for cybersecurity pros. CVE watch, notes, runbooks, todos and feeds in one place.",
+          "Veille CVE auto, notes, runbooks, todos et fil X. Préconfiguré dès l'inscription. Gratuit, sans CB.",
       },
-      { property: "og:url", content: "https://taskxx.lovable.app/" },
+      { property: "og:url", content: "https://taskx.tech/" },
       { property: "og:type", content: "website" },
     ],
-    links: [
-      { rel: "canonical", href: "https://taskxx.lovable.app/" },
-    ],
+    links: [{ rel: "canonical", href: "https://taskx.tech/" }],
     scripts: [
       {
         type: "application/ld+json",
@@ -62,9 +60,9 @@ export const Route = createFileRoute("/")({
           "@context": "https://schema.org",
           "@type": "Organization",
           name: "TaskX",
-          url: "https://taskxx.lovable.app/",
+          url: "https://taskx.tech/",
           description:
-            "Personal daily workspace for cybersecurity pros: CVE watch, notes, runbooks, todos, RSS feeds and X timeline.",
+            "Workspace quotidien personnel pour les pros cyber : veille CVE, notes, runbooks, todos, RSS et fil X.",
         }),
       },
       {
@@ -73,23 +71,13 @@ export const Route = createFileRoute("/")({
           "@context": "https://schema.org",
           "@type": "WebSite",
           name: "TaskX",
-          url: "https://taskxx.lovable.app/",
+          url: "https://taskx.tech/",
         }),
       },
     ],
   }),
   component: LandingPage,
 });
-
-const chartA = Array.from({ length: 24 }, (_, i) => ({
-  v: 40 + Math.sin(i / 2.4) * 18 + Math.random() * 8 + i * 1.2,
-}));
-const chartB = Array.from({ length: 14 }, (_, i) => ({
-  v: 20 + Math.cos(i / 1.8) * 12 + Math.random() * 6,
-}));
-const chartC = Array.from({ length: 18 }, (_, i) => ({
-  v: 10 + (i % 5) * 8 + Math.random() * 14,
-}));
 
 function LandingPage() {
   const navigate = useNavigate();
@@ -105,10 +93,12 @@ function LandingPage() {
       <BackgroundFX />
       <Nav t={t} />
       <Hero t={t} />
-      <LogoStrip t={t} />
+      <PersonasSection t={t} />
       <FeatureGrid t={t} />
       <CockpitShowcase t={t} />
+      <PricingSection t={t} />
       <MetricsBand t={t} />
+      <FaqSection t={t} />
       <CTA t={t} />
       <ContactSection t={t} />
       <Footer t={t} />
@@ -157,9 +147,10 @@ function Nav({ t }: { t: T }) {
           <TaskXLogo />
         </Link>
         <nav className="hidden md:flex items-center gap-7 text-sm text-muted-foreground">
+          <a href="#personas" className="hover:text-foreground transition">{t("land.personas.eyebrow")}</a>
           <a href="#features" className="hover:text-foreground transition">{t("land.nav.features")}</a>
-          <a href="#workspace" className="hover:text-foreground transition">{t("land.nav.product")}</a>
-          <a href="#contact" className="hover:text-foreground transition">{t("land.footer.contact")}</a>
+          <a href="#pricing" className="hover:text-foreground transition">{t("land.nav.pricing")}</a>
+          <a href="#faq" className="hover:text-foreground transition">{t("land.faq.eyebrow")}</a>
         </nav>
         <div className="flex items-center gap-2">
           <LangToggle />
@@ -179,7 +170,7 @@ function Nav({ t }: { t: T }) {
 
 function Hero({ t }: { t: T }) {
   return (
-    <section className="relative mx-auto max-w-7xl px-6 pt-20 pb-28 md:pt-32 md:pb-40">
+    <section className="relative mx-auto max-w-7xl px-6 pt-20 pb-24 md:pt-32 md:pb-32">
       <motion.div
         initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
@@ -203,11 +194,10 @@ function Hero({ t }: { t: T }) {
         <div className="mt-8 flex flex-wrap items-center gap-3">
           <Link to="/login">
             <Button size="lg" className="gap-2 bg-gradient-to-r from-[oklch(0.62_0.2_290)] to-[oklch(0.7_0.16_210)] text-white hover:opacity-90 border-0">
-
               {t("land.cta.primary")} <ArrowRight className="size-4" />
             </Button>
           </Link>
-          <a href="#features">
+          <a href="#preview">
             <Button size="lg" variant="outline">{t("land.cta.secondary")}</Button>
           </a>
         </div>
@@ -223,65 +213,203 @@ function Hero({ t }: { t: T }) {
   );
 }
 
+const FAKE_FEED: Array<{
+  id: string;
+  sev: "critical" | "high" | "medium";
+  source: "CVE" | "CTI" | "KEV";
+  title: string;
+  meta: string;
+  age: string;
+}> = [
+  {
+    id: "CVE-2025-31324",
+    sev: "critical",
+    source: "KEV",
+    title: "SAP NetWeaver — Unrestricted file upload, RCE confirmé in-the-wild",
+    meta: "CISA KEV · CVSS 10.0 · exploit public",
+    age: "il y a 12 min",
+  },
+  {
+    id: "CVE-2025-22457",
+    sev: "high",
+    source: "CVE",
+    title: "Ivanti Connect Secure — Buffer overflow auth bypass",
+    meta: "NVD · CVSS 9.0 · patch dispo",
+    age: "il y a 47 min",
+  },
+  {
+    id: "BHC-5821",
+    sev: "high",
+    source: "CTI",
+    title: "BleepingComputer — Nouvelle campagne Lazarus visant développeurs npm",
+    meta: "CTI · 23 IoCs · 4 paquets touchés",
+    age: "il y a 1 h",
+  },
+  {
+    id: "CVE-2025-26633",
+    sev: "medium",
+    source: "CVE",
+    title: "Microsoft Management Console — Spoofing, exploitée par EncryptHub",
+    meta: "Hacker News · CVSS 7.0",
+    age: "il y a 3 h",
+  },
+];
+
+const FAKE_TODOS = [
+  { t: "Patch lab interne Ivanti CS", p: "high" as const, done: false },
+  { t: "Write-up mission RT Banque-X", p: "med" as const, done: false },
+  { t: "Cert AZ-500 — module 4", p: "low" as const, done: true },
+  { t: "Revue trust zones — projet Atlas", p: "med" as const, done: false },
+];
+
 function HeroPreview({ t }: { t: T }) {
   return (
     <motion.div
+      id="preview"
       initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.9, delay: 0.25, ease: "easeOut" }}
-      className="mt-20 relative"
+      className="mt-16 relative"
     >
       <div className="absolute inset-x-10 -top-6 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
       <div className="rounded-2xl border border-border/70 bg-card/70 backdrop-blur-xl shadow-2xl shadow-primary/10 overflow-hidden">
+        {/* fake browser chrome */}
         <div className="flex items-center gap-2 border-b border-border/60 px-4 py-2.5">
           <div className="flex gap-1.5">
-            <div className="size-2.5 rounded-full bg-muted-foreground/30" />
-            <div className="size-2.5 rounded-full bg-muted-foreground/30" />
-            <div className="size-2.5 rounded-full bg-muted-foreground/30" />
+            <div className="size-2.5 rounded-full bg-[oklch(0.65_0.18_25)]/70" />
+            <div className="size-2.5 rounded-full bg-[oklch(0.75_0.15_85)]/70" />
+            <div className="size-2.5 rounded-full bg-[oklch(0.72_0.16_145)]/70" />
           </div>
-          <div className="ml-3 text-xs text-muted-foreground font-mono">taskx.app / dashboard</div>
+          <div className="ml-3 text-xs text-muted-foreground font-mono">taskx.tech / dashboard</div>
+          <div className="ml-auto text-[10px] text-muted-foreground font-mono hidden md:block">
+            <span className="inline-block size-1.5 rounded-full bg-[oklch(0.72_0.16_145)] mr-1.5 animate-pulse" />
+            {t("land.preview.live")}
+          </div>
         </div>
-        <div className="grid grid-cols-12 gap-4 p-5">
-          <div className="col-span-12 md:col-span-8 rounded-xl border border-border/60 bg-background/50 p-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-xs text-muted-foreground">{t("land.preview.kpi")}</div>
-                <div className="mt-1 text-2xl font-semibold">+38.4%</div>
+
+        <div className="grid grid-cols-12 gap-4 p-4 md:p-5">
+          {/* Feeds main panel */}
+          <div className="col-span-12 lg:col-span-8 rounded-xl border border-border/60 bg-background/50 p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Rss className="size-4 text-primary" />
+                <div className="text-sm font-medium">{t("land.preview.kpi")}</div>
               </div>
-              <div className="text-xs text-primary">{t("land.preview.live")}</div>
+              <div className="text-[10px] font-mono text-muted-foreground">4 sources · 24h</div>
             </div>
-            <div className="h-40 mt-3">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartA}>
-                  <defs>
-                    <linearGradient id="ga" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="oklch(0.68 0.16 270)" stopOpacity={0.6} />
-                      <stop offset="100%" stopColor="oklch(0.68 0.16 270)" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <Area
-                    type="monotone"
-                    dataKey="v"
-                    stroke="oklch(0.78 0.14 270)"
-                    strokeWidth={2}
-                    fill="url(#ga)"
+            <ul className="space-y-1.5">
+              {FAKE_FEED.map((f) => (
+                <li
+                  key={f.id}
+                  className="group flex items-start gap-3 rounded-lg border border-transparent hover:border-border/60 hover:bg-card/60 px-2.5 py-2 transition-colors"
+                >
+                  <ShieldAlert
+                    className={`size-3.5 mt-0.5 shrink-0 ${
+                      f.sev === "critical"
+                        ? "text-[oklch(0.65_0.22_25)]"
+                        : f.sev === "high"
+                        ? "text-[oklch(0.75_0.18_60)]"
+                        : "text-muted-foreground"
+                    }`}
                   />
-                </AreaChart>
-              </ResponsiveContainer>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <Badge
+                        variant={
+                          f.sev === "critical"
+                            ? "destructive"
+                            : f.sev === "high"
+                            ? "default"
+                            : "secondary"
+                        }
+                        className="h-4 px-1.5 text-[9px] uppercase tracking-wider"
+                      >
+                        {f.sev}
+                      </Badge>
+                      <Badge variant="outline" className="h-4 px-1.5 text-[9px] uppercase">
+                        {f.source}
+                      </Badge>
+                      <span className="text-[10px] font-mono text-muted-foreground">{f.id}</span>
+                    </div>
+                    <div className="mt-1 text-xs text-foreground/90 leading-snug truncate">{f.title}</div>
+                    <div className="text-[10px] text-muted-foreground mt-0.5 font-mono truncate">{f.meta}</div>
+                  </div>
+                  <span className="text-[10px] text-muted-foreground font-mono shrink-0 hidden sm:block">{f.age}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Right column: todos + streak + brief */}
+          <div className="col-span-12 lg:col-span-4 grid gap-4">
+            <div className="rounded-xl border border-border/60 bg-background/50 p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <CheckSquare className="size-4 text-primary" />
+                <div className="text-sm font-medium">{t("land.preview.tasks")}</div>
+                <span className="ml-auto text-[10px] font-mono text-muted-foreground">3 / 4</span>
+              </div>
+              <ul className="space-y-1.5">
+                {FAKE_TODOS.map((td) => (
+                  <li key={td.t} className="flex items-center gap-2 text-xs">
+                    <div
+                      className={`size-3.5 rounded border ${
+                        td.done
+                          ? "bg-primary border-primary"
+                          : "border-border bg-background"
+                      } flex items-center justify-center shrink-0`}
+                    >
+                      {td.done && <CheckCircle2 className="size-2.5 text-primary-foreground" />}
+                    </div>
+                    <span className={`flex-1 truncate ${td.done ? "line-through text-muted-foreground" : ""}`}>
+                      {td.t}
+                    </span>
+                    <span
+                      className={`size-1.5 rounded-full shrink-0 ${
+                        td.p === "high"
+                          ? "bg-[oklch(0.65_0.22_25)]"
+                          : td.p === "med"
+                          ? "bg-[oklch(0.75_0.18_60)]"
+                          : "bg-muted-foreground/40"
+                      }`}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="rounded-xl border border-border/60 bg-background/50 p-4">
+              <div className="flex items-center gap-2 mb-1.5">
+                <Sparkles className="size-4 text-primary" />
+                <div className="text-sm font-medium">{t("land.preview.focus")}</div>
+              </div>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-2xl font-semibold tracking-tight">12</span>
+                <span className="text-xs text-muted-foreground">jours d'affilée</span>
+              </div>
+              <div className="mt-2 flex gap-0.5">
+                {Array.from({ length: 14 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className={`flex-1 h-5 rounded-sm ${
+                      i < 12
+                        ? "bg-gradient-to-t from-[oklch(0.55_0.18_290)] to-[oklch(0.7_0.16_210)]"
+                        : "bg-border/40"
+                    }`}
+                  />
+                ))}
+              </div>
             </div>
           </div>
-          <div className="col-span-12 md:col-span-4 grid gap-4">
-            <MiniCard label={t("land.preview.tasks")} value="128" trend={chartB} type="line" />
-            <MiniCard label={t("land.preview.focus")} value="32" trend={chartC} type="bar" />
-          </div>
-          <div className="col-span-12 grid grid-cols-2 md:grid-cols-4 gap-3">
+
+          {/* Module pills */}
+          <div className="col-span-12 grid grid-cols-2 md:grid-cols-4 gap-2">
             {[
               { icon: CheckSquare, label: t("nav.todos") },
               { icon: FileText, label: t("nav.notes") },
               { icon: FolderKanban, label: t("nav.projects") },
               { icon: Rss, label: t("nav.feeds") },
             ].map((it) => (
-              <div key={it.label} className="rounded-lg border border-border/60 bg-background/40 px-3 py-2.5 flex items-center gap-2 text-xs">
+              <div key={it.label} className="rounded-lg border border-border/60 bg-background/40 px-3 py-2 flex items-center gap-2 text-xs">
                 <it.icon className="size-3.5 text-primary" />
                 <span className="text-muted-foreground">{it.label}</span>
               </div>
@@ -293,39 +421,74 @@ function HeroPreview({ t }: { t: T }) {
   );
 }
 
-function MiniCard({
-  label, value, trend, type,
-}: { label: string; value: string; trend: { v: number }[]; type: "line" | "bar" }) {
-  return (
-    <div className="rounded-xl border border-border/60 bg-background/50 p-4">
-      <div className="text-xs text-muted-foreground">{label}</div>
-      <div className="mt-1 text-xl font-semibold">{value}</div>
-      <div className="h-12 mt-2">
-        <ResponsiveContainer width="100%" height="100%">
-          {type === "line" ? (
-            <LineChart data={trend}>
-              <Line type="monotone" dataKey="v" stroke="oklch(0.78 0.14 270)" strokeWidth={1.8} dot={false} />
-            </LineChart>
-          ) : (
-            <BarChart data={trend}>
-              <Bar dataKey="v" fill="oklch(0.68 0.16 270 / 0.7)" radius={2} />
-            </BarChart>
-          )}
-        </ResponsiveContainer>
-      </div>
-    </div>
-  );
-}
+function PersonasSection({ t }: { t: T }) {
+  const personas = [
+    {
+      icon: Crosshair,
+      title: t("land.personas.pentest.t"),
+      desc: t("land.personas.pentest.d"),
+      uses: [t("land.personas.pentest.u1"), t("land.personas.pentest.u2")],
+    },
+    {
+      icon: Eye,
+      title: t("land.personas.soc.t"),
+      desc: t("land.personas.soc.d"),
+      uses: [t("land.personas.soc.u1"), t("land.personas.soc.u2")],
+    },
+    {
+      icon: Building2,
+      title: t("land.personas.archi.t"),
+      desc: t("land.personas.archi.d"),
+      uses: [t("land.personas.archi.u1"), t("land.personas.archi.u2")],
+    },
+    {
+      icon: Briefcase,
+      title: t("land.personas.ciso.t"),
+      desc: t("land.personas.ciso.d"),
+      uses: [t("land.personas.ciso.u1"), t("land.personas.ciso.u2")],
+    },
+  ];
 
-function LogoStrip({ t }: { t: T }) {
-  const items = t("land.strip.items").split(", ");
   return (
-    <section className="border-y border-border/60 bg-card/30">
-      <div className="mx-auto max-w-7xl px-6 py-6 flex flex-wrap items-center justify-center gap-x-10 gap-y-3 text-xs uppercase tracking-widest text-muted-foreground">
-        <span className="opacity-60">{t("land.strip")}</span>
-        {items.map((i) => (
-          <span key={i} className="font-mono">{i}</span>
-        ))}
+    <section id="personas" className="border-t border-border/60 bg-card/20">
+      <div className="mx-auto max-w-7xl px-6 py-24 md:py-28">
+        <div className="max-w-2xl">
+          <div className="text-xs uppercase tracking-widest text-primary">{t("land.personas.eyebrow")}</div>
+          <h2 className="mt-3 text-3xl md:text-5xl font-semibold tracking-tight">
+            {t("land.personas.title")}
+          </h2>
+          <p className="mt-4 text-muted-foreground leading-relaxed">{t("land.personas.sub")}</p>
+        </div>
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-4">
+          {personas.map((p, i) => (
+            <motion.div
+              key={p.title}
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.5, delay: i * 0.06 }}
+              className="rounded-xl border border-border/60 bg-card/60 p-6 hover:border-primary/40 transition-colors"
+            >
+              <div className="flex items-start gap-4">
+                <div className="size-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
+                  <p.icon className="size-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold tracking-tight">{p.title}</h3>
+                  <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">{p.desc}</p>
+                  <ul className="mt-4 space-y-1.5">
+                    {p.uses.map((u) => (
+                      <li key={u} className="flex items-start gap-2 text-xs text-foreground/80">
+                        <CheckCircle2 className="size-3.5 text-primary mt-0.5 shrink-0" />
+                        <span>{u}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -403,42 +566,107 @@ function CockpitShowcase({ t }: { t: T }) {
         >
           <div className="absolute -inset-6 rounded-3xl bg-gradient-to-tr from-primary/20 to-transparent blur-2xl" />
           <div className="relative rounded-2xl border border-border/70 bg-card/70 backdrop-blur-xl p-5">
-            <div className="grid grid-cols-3 gap-3">
+            <div className="flex items-center gap-2 mb-3">
+              <Sparkles className="size-4 text-primary" />
+              <div className="text-sm font-medium">Briefing du matin · 08:12</div>
+            </div>
+            <div className="space-y-2.5 text-sm">
+              <p className="text-foreground/90 leading-relaxed">
+                <span className="text-primary font-medium">3 CVE critiques</span> à regarder (1 KEV CISA),
+                <span className="text-primary font-medium"> 2 meetings</span> aujourd'hui,
+                streak <span className="text-primary font-medium">12 jours</span>.
+              </p>
+              <p className="text-muted-foreground text-xs leading-relaxed">
+                Top priorité : <span className="font-mono">CVE-2025-31324</span> (SAP NetWeaver — exploit in-the-wild). Lien CISA + note interne déjà créée.
+              </p>
+            </div>
+            <div className="mt-4 grid grid-cols-3 gap-2">
               {[
-                { l: t("nav.todos"), v: "42" },
-                { l: t("nav.notes"), v: "128" },
-                { l: t("nav.projects"), v: "9" },
+                { l: t("nav.todos"), v: "4", icon: CheckSquare },
+                { l: t("nav.notes"), v: "128", icon: FileText },
+                { l: t("nav.feeds"), v: "23", icon: Rss },
               ].map((k) => (
                 <div key={k.l} className="rounded-lg border border-border/60 bg-background/50 p-3">
-                  <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{k.l}</div>
+                  <div className="flex items-center gap-1.5">
+                    <k.icon className="size-3 text-muted-foreground" />
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{k.l}</div>
+                  </div>
                   <div className="mt-1 text-lg font-semibold">{k.v}</div>
                 </div>
               ))}
             </div>
-            <div className="h-48 mt-4">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartA}>
-                  <defs>
-                    <linearGradient id="gb" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="oklch(0.7 0.18 200)" stopOpacity={0.55} />
-                      <stop offset="100%" stopColor="oklch(0.7 0.18 200)" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <Area type="monotone" dataKey="v" stroke="oklch(0.8 0.14 200)" strokeWidth={2} fill="url(#gb)" />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
             <div className="mt-4 space-y-1.5">
               {[
-                `${t("nav.feeds")} · 14:02 · ok`,
-                `${t("nav.routines")} · 08:00 · ok`,
-                `${t("nav.meetings")} · 16:30 · scheduled`,
+                `${t("nav.feeds")} · ingest auto · 14:02 · ok`,
+                `${t("nav.routines")} · daily review · 08:00 · ok`,
+                `${t("nav.meetings")} · revue archi · 16:30 · planifié`,
               ].map((l) => (
                 <div key={l} className="flex items-center gap-2 font-mono text-[11px] text-muted-foreground">
                   <div className="size-1.5 rounded-full bg-primary" /> {l}
                 </div>
               ))}
             </div>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+function PricingSection({ t }: { t: T }) {
+  const features = [
+    t("land.pricing.f1"),
+    t("land.pricing.f2"),
+    t("land.pricing.f3"),
+    t("land.pricing.f4"),
+    t("land.pricing.f5"),
+  ];
+  return (
+    <section id="pricing" className="border-t border-border/60">
+      <div className="mx-auto max-w-5xl px-6 py-24 md:py-32">
+        <div className="text-center max-w-2xl mx-auto">
+          <div className="text-xs uppercase tracking-widest text-primary">{t("land.pricing.eyebrow")}</div>
+          <h2 className="mt-3 text-3xl md:text-5xl font-semibold tracking-tight">
+            {t("land.pricing.title")}
+          </h2>
+          <p className="mt-4 text-muted-foreground">{t("land.pricing.sub")}</p>
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 18 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="relative mt-12 mx-auto max-w-2xl"
+        >
+          <div className="absolute -inset-4 rounded-3xl bg-gradient-to-tr from-primary/20 via-transparent to-primary/10 blur-2xl" />
+          <div className="relative rounded-2xl border border-border/70 bg-card/70 backdrop-blur-xl p-8 md:p-10">
+            <div className="flex items-start justify-between flex-wrap gap-4">
+              <div>
+                <div className="text-sm font-medium text-muted-foreground">{t("land.pricing.plan")}</div>
+                <div className="mt-2 flex items-baseline gap-1">
+                  <span className="text-5xl font-semibold tracking-tight">{t("land.pricing.price")}</span>
+                  <span className="text-sm text-muted-foreground">{t("land.pricing.unit")}</span>
+                </div>
+              </div>
+              <Badge variant="outline" className="gap-1 text-[11px]">
+                <Lock className="size-3" />
+                {t("land.bullet.free")}
+              </Badge>
+            </div>
+            <ul className="mt-8 space-y-3">
+              {features.map((f) => (
+                <li key={f} className="flex items-start gap-3 text-sm">
+                  <CheckCircle2 className="size-4 text-primary mt-0.5 shrink-0" />
+                  <span className="text-foreground/90">{f}</span>
+                </li>
+              ))}
+            </ul>
+            <Link to="/login" className="block mt-8">
+              <Button size="lg" className="w-full gap-2 bg-gradient-to-r from-[oklch(0.62_0.2_290)] to-[oklch(0.7_0.16_210)] text-white hover:opacity-90 border-0">
+                {t("land.pricing.cta")} <ArrowRight className="size-4" />
+              </Button>
+            </Link>
           </div>
         </motion.div>
       </div>
@@ -467,6 +695,58 @@ function MetricsBand({ t }: { t: T }) {
   );
 }
 
+function FaqSection({ t }: { t: T }) {
+  const items: Array<{ q: TKey; a: TKey }> = [
+    { q: "land.faq.q1", a: "land.faq.a1" },
+    { q: "land.faq.q2", a: "land.faq.a2" },
+    { q: "land.faq.q3", a: "land.faq.a3" },
+    { q: "land.faq.q4", a: "land.faq.a4" },
+    { q: "land.faq.q5", a: "land.faq.a5" },
+    { q: "land.faq.q6", a: "land.faq.a6" },
+  ];
+  const [open, setOpen] = useState<number | null>(0);
+  return (
+    <section id="faq" className="border-t border-border/60">
+      <div className="mx-auto max-w-4xl px-6 py-24 md:py-32">
+        <div className="text-center max-w-2xl mx-auto">
+          <div className="text-xs uppercase tracking-widest text-primary">{t("land.faq.eyebrow")}</div>
+          <h2 className="mt-3 text-3xl md:text-5xl font-semibold tracking-tight">{t("land.faq.title")}</h2>
+        </div>
+        <div className="mt-12 space-y-2">
+          {items.map((it, i) => {
+            const isOpen = open === i;
+            return (
+              <div
+                key={it.q}
+                className="rounded-xl border border-border/60 bg-card/40 overflow-hidden"
+              >
+                <button
+                  type="button"
+                  onClick={() => setOpen(isOpen ? null : i)}
+                  className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left hover:bg-card/60 transition-colors"
+                  aria-expanded={isOpen}
+                >
+                  <span className="text-sm md:text-base font-medium">{t(it.q)}</span>
+                  {isOpen ? (
+                    <Minus className="size-4 text-muted-foreground shrink-0" />
+                  ) : (
+                    <Plus className="size-4 text-muted-foreground shrink-0" />
+                  )}
+                </button>
+                {isOpen && (
+                  <div className="px-5 pb-4 text-sm text-muted-foreground leading-relaxed">
+                    {t(it.a)}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function CTA({ t }: { t: T }) {
   return (
     <section className="mx-auto max-w-7xl px-6 py-28 md:py-36 text-center">
@@ -483,7 +763,7 @@ function CTA({ t }: { t: T }) {
           {t("land.cta.title")}
         </h2>
         <p className="mt-5 text-muted-foreground max-w-xl mx-auto">{t("land.cta.sub")}</p>
-        <div className="mt-8 flex items-center justify-center gap-3">
+        <div className="mt-8 flex items-center justify-center gap-3 flex-wrap">
           <Link to="/login">
             <Button size="lg" className="gap-2 bg-gradient-to-r from-[oklch(0.62_0.2_290)] to-[oklch(0.7_0.16_210)] text-white hover:opacity-90 border-0">
               {t("land.cta.create")} <ArrowRight className="size-4" />
@@ -492,6 +772,11 @@ function CTA({ t }: { t: T }) {
           <Link to="/login">
             <Button size="lg" variant="outline">{t("land.nav.signin")}</Button>
           </Link>
+        </div>
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
+          <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="size-3.5 text-primary" /> {t("land.bullet.free")}</span>
+          <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="size-3.5 text-primary" /> {t("land.bullet.team")}</span>
+          <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="size-3.5 text-primary" /> {t("land.bullet.secure")}</span>
         </div>
       </motion.div>
     </section>
@@ -507,8 +792,10 @@ function Footer({ t }: { t: T }) {
           <span className="ml-2">© {new Date().getFullYear()}</span>
         </div>
         <div className="flex items-center gap-6">
+          <a href="#personas" className="hover:text-foreground">{t("land.personas.eyebrow")}</a>
           <a href="#features" className="hover:text-foreground">{t("land.footer.features")}</a>
-          <a href="#workspace" className="hover:text-foreground">{t("land.footer.product")}</a>
+          <a href="#pricing" className="hover:text-foreground">{t("land.nav.pricing")}</a>
+          <a href="#faq" className="hover:text-foreground">{t("land.faq.eyebrow")}</a>
           <a href="#contact" className="hover:text-foreground">{t("land.footer.contact")}</a>
           <Link to="/login" className="hover:text-foreground">{t("land.footer.signin")}</Link>
         </div>
