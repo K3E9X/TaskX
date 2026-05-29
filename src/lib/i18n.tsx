@@ -247,7 +247,7 @@ const dict = {
     "feeds.deleteConfirm": "Supprimer cet item ?",
     "feeds.empty": "Aucun item de veille. Ajoute ta première CVE, alerte CTI ou tweet à suivre.",
     "feeds.sources": "Sources",
-    "feeds.sourcesDesc": "Flux RSS / JSON récupérés automatiquement 3x/jour (10h, 15h, 18h).",
+    "feeds.sourcesDesc": "Flux RSS / JSON récupérés automatiquement toutes les 30 min + 10h, 15h, 18h. Les items de plus de 7 jours sont purgés.",
     "feeds.addSource": "Ajouter source",
     "feeds.sourceNamePh": "Nom (ex: Krebs on Security)",
     "feeds.sourceUrlPh": "URL du flux (RSS, Atom, JSON)",
@@ -366,7 +366,7 @@ const dict = {
     "land.pricing.cta": "Créer mon compte",
     "land.pricing.f1": "Tous les modules (todos, notes, runbooks, projets, routines, meetings, diagrammes)",
     "land.pricing.f2": "Veille CVE & CTI préconfigurée (Hacker News, BleepingComputer, CISA KEV, NVD)",
-    "land.pricing.f3": "Refresh automatique toutes les heures, purge auto à 7 jours",
+    "land.pricing.f3": "Refresh automatique toutes les 30 minutes, purge auto à 7 jours",
     "land.pricing.f4": "Assistant IA (résumé, reformulation, classification)",
     "land.pricing.f5": "Données chiffrées, hébergées en Europe, exportables à tout moment",
 
