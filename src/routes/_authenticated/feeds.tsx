@@ -85,6 +85,9 @@ function FeedsPage() {
       if (error) throw error;
       return data as FeedItem[];
     },
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
+    staleTime: 0,
   });
 
   const remove = useMutation({
@@ -115,8 +118,14 @@ function FeedsPage() {
     try {
       const json = await refreshFn();
       toast.success(`${t("feeds.refreshDone")} (+${json.inserted ?? 0})`);
-      qc.invalidateQueries({ queryKey: ["feed_items"] });
-      qc.invalidateQueries({ queryKey: ["rss_sources"] });
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["feed_items"] }),
+        qc.invalidateQueries({ queryKey: ["rss_sources"] }),
+      ]);
+      await Promise.all([
+        qc.refetchQueries({ queryKey: ["feed_items"] }),
+        qc.refetchQueries({ queryKey: ["rss_sources"] }),
+      ]);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Error");
     } finally {

@@ -32,7 +32,8 @@ async function fetchText(url: string): Promise<{ text: string; contentType: stri
   let res: Response;
   try {
     res = await fetch(url, {
-      headers: { "User-Agent": "Lovable-Cockpit/1.0 (+rss-ingest)", Accept: "application/json, application/rss+xml, application/xml, text/xml, */*" },
+      headers: { Accept: "application/json, application/rss+xml, application/xml, text/xml, */*" },
+      cache: "no-store",
       redirect: "error",
       signal: controller.signal,
     });
@@ -226,7 +227,8 @@ export const refreshMyFeeds = createServerFn({ method: "POST" })
         await supabaseAdmin.from("rss_sources")
           .update({ last_fetched_at: new Date().toISOString() })
           .eq("id", src.id);
-      } catch {
+      } catch (e) {
+        console.warn("Feed refresh failed", { source: src.name, url: src.url, error: e instanceof Error ? e.message : String(e) });
         failed++;
       }
     }

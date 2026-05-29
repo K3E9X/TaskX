@@ -32,7 +32,8 @@ async function fetchText(url: string): Promise<{ text: string; contentType: stri
   let res: Response;
   try {
     res = await fetch(url, {
-      headers: { "User-Agent": "Lovable-Cockpit/1.0 (+rss-ingest)", Accept: "application/json, application/rss+xml, application/xml, text/xml, */*" },
+      headers: { Accept: "application/json, application/rss+xml, application/xml, text/xml, */*" },
+      cache: "no-store",
       redirect: "error", // prevent redirect-based SSRF bypass
       signal: controller.signal,
     });
@@ -281,12 +282,13 @@ export const Route = createFileRoute("/api/public/hooks/ingest-feeds")({
             results.push({ source: src.name, count: fresh.length });
           } catch (e) {
             failed++;
+            console.warn("Scheduled feed ingest failed", { source: src.name, url: src.url, error: e instanceof Error ? e.message : String(e) });
             results.push({ source: src.name, count: 0, error: e instanceof Error ? e.message : String(e) });
           }
         }
 
         return new Response(
-          JSON.stringify({ ok: true, sources: sources?.length ?? 0, inserted, failed }),
+          JSON.stringify({ ok: true, sources: sources?.length ?? 0, inserted, failed, results }),
           { headers: { "Content-Type": "application/json" } }
         );
       },
