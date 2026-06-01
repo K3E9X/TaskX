@@ -31,6 +31,7 @@ type FeedItem = {
   tags: string[];
   published_at: string;
   read: boolean;
+  starred: boolean;
 };
 
 export const Route = createFileRoute("/_authenticated/feeds")({
