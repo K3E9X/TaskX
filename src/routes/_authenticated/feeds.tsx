@@ -181,8 +181,12 @@ function FeedsPage() {
           >{t(`feeds.source.${s}` as TKey)}</Button>
         ))}
         <Button
+          size="sm" variant={starredOnly ? "default" : "outline"}
+          onClick={() => setStarredOnly((v) => !v)} className="h-7 text-xs ml-auto"
+        ><Star className={`h-3 w-3 ${starredOnly ? "fill-current" : ""}`} /> {t("feeds.starredOnly")}</Button>
+        <Button
           size="sm" variant={unreadOnly ? "default" : "outline"}
-          onClick={() => setUnreadOnly((v) => !v)} className="h-7 text-xs ml-auto"
+          onClick={() => setUnreadOnly((v) => !v)} className="h-7 text-xs"
         >{t("feeds.unreadOnly")}</Button>
       </div>
 
