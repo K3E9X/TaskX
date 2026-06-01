@@ -593,3 +593,56 @@ function KPITile({
     </div>
   );
 }
+
+const SEV_VARIANT_DASH = {
+  info: "outline", low: "secondary", medium: "secondary", high: "default", critical: "destructive",
+} as const;
+
+function CveRow({
+  item, onToggleStar, compact,
+}: {
+  item: {
+    id: string; source: string; severity: keyof typeof SEV_VARIANT_DASH;
+    title: string; summary: string | null; url: string | null;
+    external_id: string | null; published_at: string; starred: boolean;
+  };
+  onToggleStar: () => void;
+  compact?: boolean;
+}) {
+  return (
+    <li className="flex items-start gap-2 py-2 px-1">
+      <ShieldAlert className="h-3.5 w-3.5 mt-1 text-muted-foreground shrink-0" />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
+          <Badge variant={SEV_VARIANT_DASH[item.severity]} className="h-4 px-1 text-[9px] uppercase">
+            {item.severity}
+          </Badge>
+          <Badge variant="outline" className="h-4 px-1 text-[9px] uppercase">{item.source}</Badge>
+          {item.external_id && (
+            <span className="text-[10px] font-mono text-muted-foreground truncate">{item.external_id}</span>
+          )}
+          <span className="text-[10px] text-muted-foreground ml-auto shrink-0">
+            {formatDistanceToNow(parseISO(item.published_at), { addSuffix: true })}
+          </span>
+        </div>
+        <div className="text-sm leading-snug truncate">{item.title}</div>
+        {!compact && item.summary && (
+          <div className="text-[11px] text-muted-foreground line-clamp-1 mt-0.5">{item.summary}</div>
+        )}
+        {item.url && (
+          <a href={item.url} target="_blank" rel="noreferrer"
+            className="inline-flex items-center gap-1 text-[10px] text-primary hover:underline mt-0.5">
+            <ExternalLink className="h-2.5 w-2.5" /> {new URL(item.url).hostname}
+          </a>
+        )}
+      </div>
+      <button
+        onClick={onToggleStar}
+        title={item.starred ? "Unpin" : "Pin"}
+        className="h-6 w-6 inline-flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-accent/60 shrink-0"
+      >
+        <Star className={`h-3.5 w-3.5 ${item.starred ? "fill-yellow-500 text-yellow-500" : ""}`} />
+      </button>
+    </li>
+  );
+}
