@@ -479,6 +479,36 @@ function DashboardPage() {
             )}
           </Tile>
         );
+      case "cve-watch":
+        return (
+          <Tile key={item.id} {...common} title={t("dash.cveWatch")}
+            action={<Link to="/feeds" className="text-xs text-muted-foreground hover:text-foreground">{t("dash.viewAll")} →</Link>}>
+            {cveRecent.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-4">{t("dash.cveWatchEmpty")}</p>
+            ) : (
+              <ul className="divide-y divide-border -mx-1">
+                {cveRecent.map((c) => (
+                  <CveRow key={c.id} item={c} onToggleStar={() => toggleStar.mutate({ id: c.id, starred: !c.starred })} />
+                ))}
+              </ul>
+            )}
+          </Tile>
+        );
+      case "cve-starred":
+        return (
+          <Tile key={item.id} {...common} title={t("dash.cveStarred")}
+            action={<Link to="/feeds" className="text-xs text-muted-foreground hover:text-foreground">{t("dash.viewAll")} →</Link>}>
+            {cveStarred.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-4">{t("dash.cveStarredEmpty")}</p>
+            ) : (
+              <ul className="divide-y divide-border -mx-1">
+                {cveStarred.map((c) => (
+                  <CveRow key={c.id} item={c} onToggleStar={() => toggleStar.mutate({ id: c.id, starred: !c.starred })} compact />
+                ))}
+              </ul>
+            )}
+          </Tile>
+        );
     }
   };
 
