@@ -76,6 +76,7 @@ function FeedsPage() {
   const [showSources, setShowSources] = useState(false);
   const [filterSource, setFilterSource] = useState<Source | "all">("all");
   const [unreadOnly, setUnreadOnly] = useState(false);
+  const [starredOnly, setStarredOnly] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   const { data: items = [], isLoading } = useQuery({
