@@ -13,7 +13,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Plus, Trash2, ExternalLink, Eye, EyeOff, ShieldAlert, RefreshCw, Rss } from "lucide-react";
+import { Plus, Trash2, ExternalLink, Eye, EyeOff, ShieldAlert, RefreshCw, Rss, Star } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Switch } from "@/components/ui/switch";
 
@@ -31,6 +31,7 @@ type FeedItem = {
   tags: string[];
   published_at: string;
   read: boolean;
+  starred: boolean;
 };
 
 export const Route = createFileRoute("/_authenticated/feeds")({
@@ -75,6 +76,7 @@ function FeedsPage() {
   const [showSources, setShowSources] = useState(false);
   const [filterSource, setFilterSource] = useState<Source | "all">("all");
   const [unreadOnly, setUnreadOnly] = useState(false);
+  const [starredOnly, setStarredOnly] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   const { data: items = [], isLoading } = useQuery({
@@ -106,9 +108,18 @@ function FeedsPage() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["feed_items"] }),
   });
 
+  const toggleStar = useMutation({
+    mutationFn: async ({ id, starred }: { id: string; starred: boolean }) => {
+      const { error } = await supabase.from("feed_items").update({ starred }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["feed_items"] }),
+  });
+
   const filtered = items.filter((x) => {
     if (filterSource !== "all" && x.source !== filterSource) return false;
     if (unreadOnly && x.read) return false;
+    if (starredOnly && !x.starred) return false;
     return true;
   });
 
@@ -170,8 +181,12 @@ function FeedsPage() {
           >{t(`feeds.source.${s}` as TKey)}</Button>
         ))}
         <Button
+          size="sm" variant={starredOnly ? "default" : "outline"}
+          onClick={() => setStarredOnly((v) => !v)} className="h-7 text-xs ml-auto"
+        ><Star className={`h-3 w-3 ${starredOnly ? "fill-current" : ""}`} /> {t("feeds.starredOnly")}</Button>
+        <Button
           size="sm" variant={unreadOnly ? "default" : "outline"}
-          onClick={() => setUnreadOnly((v) => !v)} className="h-7 text-xs ml-auto"
+          onClick={() => setUnreadOnly((v) => !v)} className="h-7 text-xs"
         >{t("feeds.unreadOnly")}</Button>
       </div>
 
@@ -215,6 +230,13 @@ function FeedsPage() {
                   </div>
                 </div>
                 <div className="flex flex-col gap-1">
+                  <Button
+                    variant="ghost" size="icon" className="h-7 w-7"
+                    onClick={() => toggleStar.mutate({ id: x.id, starred: !x.starred })}
+                    title={x.starred ? t("feeds.starOff") : t("feeds.starOn")}
+                  >
+                    <Star className={`h-3.5 w-3.5 ${x.starred ? "fill-yellow-500 text-yellow-500" : ""}`} />
+                  </Button>
                   <Button
                     variant="ghost" size="icon" className="h-7 w-7"
                     onClick={() => toggleRead.mutate({ id: x.id, read: !x.read })}

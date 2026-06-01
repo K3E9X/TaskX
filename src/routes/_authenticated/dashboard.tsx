@@ -13,8 +13,10 @@ import {
 import { format, isPast, parseISO, isToday, startOfDay, endOfDay, subDays } from "date-fns";
 import { SendDigestButton } from "@/components/SendDigestButton";
 import { MorningBrief } from "@/components/MorningBrief";
-import { Maximize2, Minimize2, X, Plus, RotateCcw, Sparkles } from "lucide-react";
+import { Maximize2, Minimize2, X, Plus, RotateCcw, Sparkles, Star, ExternalLink, ShieldAlert } from "lucide-react";
 import { NOTE_TEMPLATES, type TemplateRole } from "@/lib/note-templates";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { formatDistanceToNow } from "date-fns";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -49,7 +51,8 @@ type Size = "sm" | "md" | "lg";
 type WidgetId =
   | "kpi-overdue" | "kpi-today" | "kpi-routines" | "kpi-done"
   | "today-todos" | "overdue-todos" | "done-yesterday"
-  | "routines-today" | "recent-notes" | "tip" | "suggested-templates";
+  | "routines-today" | "recent-notes" | "tip" | "suggested-templates"
+  | "cve-watch" | "cve-starred";
 
 type LayoutItem = { id: WidgetId; size: Size; visible: boolean };
 
@@ -60,6 +63,8 @@ const DEFAULT_LAYOUT: LayoutItem[] = [
   { id: "kpi-done", size: "sm", visible: true },
   { id: "today-todos", size: "md", visible: true },
   { id: "overdue-todos", size: "md", visible: true },
+  { id: "cve-watch", size: "lg", visible: true },
+  { id: "cve-starred", size: "md", visible: true },
   { id: "suggested-templates", size: "md", visible: true },
   { id: "done-yesterday", size: "md", visible: true },
   { id: "routines-today", size: "md", visible: true },
@@ -149,6 +154,8 @@ const WIDGET_TITLE: Record<WidgetId, TKey> = {
   "recent-notes": "dash.recentNotes",
   "tip": "dash.tip",
   "suggested-templates": "dash.suggestedTemplates",
+  "cve-watch": "dash.cveWatch",
+  "cve-starred": "dash.cveStarred",
 };
 
 function DashboardPage() {
@@ -205,6 +212,55 @@ function DashboardPage() {
         .order("updated_at", { ascending: false }).limit(5);
       if (error) throw error;
       return data as Note[];
+    },
+  });
+
+  const qc = useQueryClient();
+  type CveItem = {
+    id: string; source: string; severity: "info"|"low"|"medium"|"high"|"critical";
+    title: string; summary: string|null; url: string|null; external_id: string|null;
+    tags: string[]; published_at: string; starred: boolean;
+  };
+
+  const { data: cveRecent = [] } = useQuery({
+    queryKey: ["dash", "cve-recent"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("feed_items")
+        .select("id,source,severity,title,summary,url,external_id,tags,published_at,starred")
+        .in("source", ["cve", "cti"])
+        .order("published_at", { ascending: false })
+        .limit(6);
+      if (error) throw error;
+      return data as CveItem[];
+    },
+    refetchOnMount: "always",
+    staleTime: 0,
+  });
+
+  const { data: cveStarred = [] } = useQuery({
+    queryKey: ["dash", "cve-starred"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("feed_items")
+        .select("id,source,severity,title,summary,url,external_id,tags,published_at,starred")
+        .eq("starred", true)
+        .order("published_at", { ascending: false })
+        .limit(8);
+      if (error) throw error;
+      return data as CveItem[];
+    },
+  });
+
+  const toggleStar = useMutation({
+    mutationFn: async ({ id, starred }: { id: string; starred: boolean }) => {
+      const { error } = await supabase.from("feed_items").update({ starred }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["dash", "cve-recent"] });
+      qc.invalidateQueries({ queryKey: ["dash", "cve-starred"] });
+      qc.invalidateQueries({ queryKey: ["feed_items"] });
     },
   });
 
@@ -423,6 +479,36 @@ function DashboardPage() {
             )}
           </Tile>
         );
+      case "cve-watch":
+        return (
+          <Tile key={item.id} {...common} title={t("dash.cveWatch")}
+            action={<Link to="/feeds" className="text-xs text-muted-foreground hover:text-foreground">{t("dash.viewAll")} →</Link>}>
+            {cveRecent.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-4">{t("dash.cveWatchEmpty")}</p>
+            ) : (
+              <ul className="divide-y divide-border -mx-1">
+                {cveRecent.map((c) => (
+                  <CveRow key={c.id} item={c} onToggleStar={() => toggleStar.mutate({ id: c.id, starred: !c.starred })} />
+                ))}
+              </ul>
+            )}
+          </Tile>
+        );
+      case "cve-starred":
+        return (
+          <Tile key={item.id} {...common} title={t("dash.cveStarred")}
+            action={<Link to="/feeds" className="text-xs text-muted-foreground hover:text-foreground">{t("dash.viewAll")} →</Link>}>
+            {cveStarred.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-4">{t("dash.cveStarredEmpty")}</p>
+            ) : (
+              <ul className="divide-y divide-border -mx-1">
+                {cveStarred.map((c) => (
+                  <CveRow key={c.id} item={c} onToggleStar={() => toggleStar.mutate({ id: c.id, starred: !c.starred })} compact />
+                ))}
+              </ul>
+            )}
+          </Tile>
+        );
     }
   };
 
@@ -505,5 +591,58 @@ function KPITile({
       <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{title}</div>
       <div className="mt-2 text-3xl font-semibold tabular-nums">{value}</div>
     </div>
+  );
+}
+
+const SEV_VARIANT_DASH = {
+  info: "outline", low: "secondary", medium: "secondary", high: "default", critical: "destructive",
+} as const;
+
+function CveRow({
+  item, onToggleStar, compact,
+}: {
+  item: {
+    id: string; source: string; severity: keyof typeof SEV_VARIANT_DASH;
+    title: string; summary: string | null; url: string | null;
+    external_id: string | null; published_at: string; starred: boolean;
+  };
+  onToggleStar: () => void;
+  compact?: boolean;
+}) {
+  return (
+    <li className="flex items-start gap-2 py-2 px-1">
+      <ShieldAlert className="h-3.5 w-3.5 mt-1 text-muted-foreground shrink-0" />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
+          <Badge variant={SEV_VARIANT_DASH[item.severity]} className="h-4 px-1 text-[9px] uppercase">
+            {item.severity}
+          </Badge>
+          <Badge variant="outline" className="h-4 px-1 text-[9px] uppercase">{item.source}</Badge>
+          {item.external_id && (
+            <span className="text-[10px] font-mono text-muted-foreground truncate">{item.external_id}</span>
+          )}
+          <span className="text-[10px] text-muted-foreground ml-auto shrink-0">
+            {formatDistanceToNow(parseISO(item.published_at), { addSuffix: true })}
+          </span>
+        </div>
+        <div className="text-sm leading-snug truncate">{item.title}</div>
+        {!compact && item.summary && (
+          <div className="text-[11px] text-muted-foreground line-clamp-1 mt-0.5">{item.summary}</div>
+        )}
+        {item.url && (
+          <a href={item.url} target="_blank" rel="noreferrer"
+            className="inline-flex items-center gap-1 text-[10px] text-primary hover:underline mt-0.5">
+            <ExternalLink className="h-2.5 w-2.5" /> {new URL(item.url).hostname}
+          </a>
+        )}
+      </div>
+      <button
+        onClick={onToggleStar}
+        title={item.starred ? "Unpin" : "Pin"}
+        className="h-6 w-6 inline-flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-accent/60 shrink-0"
+      >
+        <Star className={`h-3.5 w-3.5 ${item.starred ? "fill-yellow-500 text-yellow-500" : ""}`} />
+      </button>
+    </li>
   );
 }
