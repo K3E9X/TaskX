@@ -1,0 +1,2 @@
+ALTER TABLE public.feed_items ADD COLUMN IF NOT EXISTS starred boolean NOT NULL DEFAULT false;
+CREATE INDEX IF NOT EXISTS feed_items_user_starred_idx ON public.feed_items (user_id, starred) WHERE starred = true;

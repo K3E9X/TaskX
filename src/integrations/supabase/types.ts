@@ -381,6 +381,7 @@ export type Database = {
           read: boolean
           severity: Database["public"]["Enums"]["feed_severity"]
           source: Database["public"]["Enums"]["feed_source"]
+          starred: boolean
           summary: string | null
           tags: string[]
           title: string
@@ -397,6 +398,7 @@ export type Database = {
           read?: boolean
           severity?: Database["public"]["Enums"]["feed_severity"]
           source?: Database["public"]["Enums"]["feed_source"]
+          starred?: boolean
           summary?: string | null
           tags?: string[]
           title: string
@@ -413,6 +415,7 @@ export type Database = {
           read?: boolean
           severity?: Database["public"]["Enums"]["feed_severity"]
           source?: Database["public"]["Enums"]["feed_source"]
+          starred?: boolean
           summary?: string | null
           tags?: string[]
           title?: string
