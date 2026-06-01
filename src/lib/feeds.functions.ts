@@ -34,7 +34,7 @@ async function fetchText(url: string): Promise<{ text: string; contentType: stri
     res = await fetch(url, {
       headers: { Accept: "application/json, application/rss+xml, application/xml, text/xml, */*" },
       cache: "no-store",
-      redirect: "error",
+      redirect: "follow",
       signal: controller.signal,
     });
   } finally { clearTimeout(timeout); }
