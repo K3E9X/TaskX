@@ -51,7 +51,8 @@ type Size = "sm" | "md" | "lg";
 type WidgetId =
   | "kpi-overdue" | "kpi-today" | "kpi-routines" | "kpi-done"
   | "today-todos" | "overdue-todos" | "done-yesterday"
-  | "routines-today" | "recent-notes" | "tip" | "suggested-templates";
+  | "routines-today" | "recent-notes" | "tip" | "suggested-templates"
+  | "cve-watch" | "cve-starred";
 
 type LayoutItem = { id: WidgetId; size: Size; visible: boolean };
 
