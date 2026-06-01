@@ -108,9 +108,18 @@ function FeedsPage() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["feed_items"] }),
   });
 
+  const toggleStar = useMutation({
+    mutationFn: async ({ id, starred }: { id: string; starred: boolean }) => {
+      const { error } = await supabase.from("feed_items").update({ starred }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["feed_items"] }),
+  });
+
   const filtered = items.filter((x) => {
     if (filterSource !== "all" && x.source !== filterSource) return false;
     if (unreadOnly && x.read) return false;
+    if (starredOnly && !x.starred) return false;
     return true;
   });
 
