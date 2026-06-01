@@ -154,6 +154,8 @@ const WIDGET_TITLE: Record<WidgetId, TKey> = {
   "recent-notes": "dash.recentNotes",
   "tip": "dash.tip",
   "suggested-templates": "dash.suggestedTemplates",
+  "cve-watch": "dash.cveWatch",
+  "cve-starred": "dash.cveStarred",
 };
 
 function DashboardPage() {
