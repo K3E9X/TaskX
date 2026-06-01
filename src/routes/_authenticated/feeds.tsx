@@ -232,6 +232,13 @@ function FeedsPage() {
                 <div className="flex flex-col gap-1">
                   <Button
                     variant="ghost" size="icon" className="h-7 w-7"
+                    onClick={() => toggleStar.mutate({ id: x.id, starred: !x.starred })}
+                    title={x.starred ? t("feeds.starOff") : t("feeds.starOn")}
+                  >
+                    <Star className={`h-3.5 w-3.5 ${x.starred ? "fill-yellow-500 text-yellow-500" : ""}`} />
+                  </Button>
+                  <Button
+                    variant="ghost" size="icon" className="h-7 w-7"
                     onClick={() => toggleRead.mutate({ id: x.id, read: !x.read })}
                     title={x.read ? t("feeds.markUnread") : t("feeds.markRead")}
                   >
