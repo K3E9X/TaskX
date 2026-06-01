@@ -215,6 +215,55 @@ function DashboardPage() {
     },
   });
 
+  const qc = useQueryClient();
+  type CveItem = {
+    id: string; source: string; severity: "info"|"low"|"medium"|"high"|"critical";
+    title: string; summary: string|null; url: string|null; external_id: string|null;
+    tags: string[]; published_at: string; starred: boolean;
+  };
+
+  const { data: cveRecent = [] } = useQuery({
+    queryKey: ["dash", "cve-recent"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("feed_items")
+        .select("id,source,severity,title,summary,url,external_id,tags,published_at,starred")
+        .in("source", ["cve", "cti"])
+        .order("published_at", { ascending: false })
+        .limit(6);
+      if (error) throw error;
+      return data as CveItem[];
+    },
+    refetchOnMount: "always",
+    staleTime: 0,
+  });
+
+  const { data: cveStarred = [] } = useQuery({
+    queryKey: ["dash", "cve-starred"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("feed_items")
+        .select("id,source,severity,title,summary,url,external_id,tags,published_at,starred")
+        .eq("starred", true)
+        .order("published_at", { ascending: false })
+        .limit(8);
+      if (error) throw error;
+      return data as CveItem[];
+    },
+  });
+
+  const toggleStar = useMutation({
+    mutationFn: async ({ id, starred }: { id: string; starred: boolean }) => {
+      const { error } = await supabase.from("feed_items").update({ starred }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["dash", "cve-recent"] });
+      qc.invalidateQueries({ queryKey: ["dash", "cve-starred"] });
+      qc.invalidateQueries({ queryKey: ["feed_items"] });
+    },
+  });
+
   const { data: routines = [] } = useQuery({
     queryKey: ["dash", "routines"],
     queryFn: async () => {
