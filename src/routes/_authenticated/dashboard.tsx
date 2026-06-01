@@ -63,6 +63,8 @@ const DEFAULT_LAYOUT: LayoutItem[] = [
   { id: "kpi-done", size: "sm", visible: true },
   { id: "today-todos", size: "md", visible: true },
   { id: "overdue-todos", size: "md", visible: true },
+  { id: "cve-watch", size: "lg", visible: true },
+  { id: "cve-starred", size: "md", visible: true },
   { id: "suggested-templates", size: "md", visible: true },
   { id: "done-yesterday", size: "md", visible: true },
   { id: "routines-today", size: "md", visible: true },
