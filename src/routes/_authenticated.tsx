@@ -33,7 +33,6 @@ export const Route = createFileRoute("/_authenticated")({
 
 const NAV: { to: string; key: TKey; icon: typeof LayoutDashboard }[] = [
   { to: "/dashboard", key: "nav.dashboard", icon: LayoutDashboard },
-  { to: "/cockpit", key: "nav.cockpit", icon: Gauge },
   { to: "/todos", key: "nav.todos", icon: CheckSquare },
   { to: "/notes", key: "nav.notes", icon: FileText },
   { to: "/templates", key: "nav.templates", icon: LayoutTemplate },
