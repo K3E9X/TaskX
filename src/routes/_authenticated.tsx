@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { trackPageView } from "@/lib/admin-console.functions";
 import {
   LayoutDashboard, CheckSquare, FileText, Repeat, FolderKanban,
-  CalendarClock, GitBranch, Rss, Terminal, Bookmark, Users, LogOut, Gauge, Shield,
+  CalendarClock, GitBranch, Rss, Terminal, Bookmark, Users, LogOut, Shield,
   PanelLeftClose, PanelLeftOpen, ShieldCheck, Code2, LayoutTemplate,
 } from "lucide-react";
 import { TaskXMark } from "@/components/brand/TaskXLogo";
@@ -33,7 +33,6 @@ export const Route = createFileRoute("/_authenticated")({
 
 const NAV: { to: string; key: TKey; icon: typeof LayoutDashboard }[] = [
   { to: "/dashboard", key: "nav.dashboard", icon: LayoutDashboard },
-  { to: "/cockpit", key: "nav.cockpit", icon: Gauge },
   { to: "/todos", key: "nav.todos", icon: CheckSquare },
   { to: "/notes", key: "nav.notes", icon: FileText },
   { to: "/templates", key: "nav.templates", icon: LayoutTemplate },

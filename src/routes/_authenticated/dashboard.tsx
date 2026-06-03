@@ -13,7 +13,11 @@ import {
 import { format, isPast, parseISO, isToday, startOfDay, endOfDay, subDays } from "date-fns";
 import { SendDigestButton } from "@/components/SendDigestButton";
 import { MorningBrief } from "@/components/MorningBrief";
-import { Maximize2, Minimize2, X, Plus, RotateCcw, Sparkles, Star, ExternalLink, ShieldAlert } from "lucide-react";
+import {
+  Maximize2, Minimize2, X, Plus, RotateCcw, Sparkles, Star, ExternalLink, ShieldAlert,
+  AlertTriangle, CheckSquare, CalendarClock, FolderKanban, GitBranch, Bookmark, Terminal,
+  Rss, Users, Code2,
+} from "lucide-react";
 import { NOTE_TEMPLATES, type TemplateRole } from "@/lib/note-templates";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
@@ -212,6 +216,17 @@ function DashboardPage() {
         .order("updated_at", { ascending: false }).limit(5);
       if (error) throw error;
       return data as Note[];
+    },
+  });
+
+  const { data: meetings = [] } = useQuery({
+    queryKey: ["dash", "next-meetings"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("meetings").select("id,title,meeting_date")
+        .gte("meeting_date", new Date().toISOString())
+        .order("meeting_date", { ascending: true }).limit(1);
+      return data ?? [];
     },
   });
 
@@ -512,12 +527,23 @@ function DashboardPage() {
     }
   };
 
+  const nextMeeting = meetings[0];
+  const criticalCves = cveRecent.filter((c) => c.severity === "critical");
+
+  const visibleByGroup = (ids: WidgetId[]) =>
+    layout.filter((x) => x.visible && ids.includes(x.id));
+
+  const priorityWidgets = visibleByGroup(["today-todos", "overdue-todos"]);
+  const watchWidgets = visibleByGroup(["cve-watch", "cve-starred"]);
+  const workWidgets = visibleByGroup(["done-yesterday", "routines-today", "recent-notes", "suggested-templates", "tip"]);
+
   return (
     <div className="mx-auto max-w-6xl px-4 md:px-8 py-8">
-      <div className="mb-8 flex items-start justify-between gap-4">
+      {/* Header */}
+      <div className="mb-6 flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">{t("dash.title")}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-1 text-sm text-muted-foreground capitalize">
             {format(new Date(), "EEEE d MMMM yyyy")}
           </p>
         </div>
@@ -554,13 +580,238 @@ function DashboardPage() {
         </div>
       </div>
 
+      {/* Hero brief */}
+      <HeroBrief
+        overdueCount={overdue.length}
+        todayCount={today.length}
+        criticalCveCount={criticalCves.length}
+        nextMeeting={nextMeeting ? { title: nextMeeting.title, at: nextMeeting.meeting_date } : null}
+        firstOverdue={overdue[0]?.title ?? null}
+        firstToday={today[0]?.title ?? null}
+        firstCve={criticalCves[0]?.title ?? null}
+      />
+
       <div className="mb-6">
         <MorningBrief />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-4">
-        {layout.filter((x) => x.visible).map(renderWidget)}
+      {/* Section: priority */}
+      {priorityWidgets.length > 0 && (
+        <Section label={t("dash.section.priority")}>
+          <div className="grid gap-4 md:grid-cols-4">
+            {priorityWidgets.map(renderWidget)}
+          </div>
+        </Section>
+      )}
+
+      {/* Section: security watch */}
+      {watchWidgets.length > 0 && (
+        <Section label={t("dash.section.watch")}>
+          <div className="grid gap-4 md:grid-cols-4">
+            {watchWidgets.map(renderWidget)}
+          </div>
+        </Section>
+      )}
+
+      {/* Section: your work */}
+      {workWidgets.length > 0 && (
+        <Section label={t("dash.section.work")}>
+          <div className="grid gap-4 md:grid-cols-4">
+            {workWidgets.map(renderWidget)}
+          </div>
+        </Section>
+      )}
+
+      {/* KPIs at the end (if visible) */}
+      {(() => {
+        const kpis = visibleByGroup(["kpi-overdue", "kpi-today", "kpi-routines", "kpi-done"]);
+        if (kpis.length === 0) return null;
+        return (
+          <Section label="KPI">
+            <div className="grid gap-4 md:grid-cols-4">{kpis.map(renderWidget)}</div>
+          </Section>
+        );
+      })()}
+
+      {/* Section: quick access */}
+      <Section label={t("dash.section.quickAccess")}>
+        <QuickAccessGrid t={t} />
+      </Section>
+    </div>
+  );
+}
+
+function Section({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <section className="mb-8">
+      <div className="flex items-center gap-3 mb-3">
+        <h2 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">{label}</h2>
+        <div className="flex-1 h-px bg-border" />
       </div>
+      {children}
+    </section>
+  );
+}
+
+function greetingKey(): "dash.hero.greeting.morning" | "dash.hero.greeting.afternoon" | "dash.hero.greeting.evening" {
+  const h = new Date().getHours();
+  if (h < 12) return "dash.hero.greeting.morning";
+  if (h < 18) return "dash.hero.greeting.afternoon";
+  return "dash.hero.greeting.evening";
+}
+
+function HeroBrief({
+  overdueCount, todayCount, criticalCveCount, nextMeeting,
+  firstOverdue, firstToday, firstCve,
+}: {
+  overdueCount: number;
+  todayCount: number;
+  criticalCveCount: number;
+  nextMeeting: { title: string; at: string } | null;
+  firstOverdue: string | null;
+  firstToday: string | null;
+  firstCve: string | null;
+}) {
+  const { t } = useI18n();
+  const { data: profile } = useQuery({
+    queryKey: ["dash", "hero-profile"],
+    queryFn: async () => {
+      const { data } = await supabase.from("profiles").select("display_name,team_role").maybeSingle();
+      return data;
+    },
+  });
+  const firstName = (profile?.display_name ?? "").split(" ")[0] || "";
+  const allClear = overdueCount === 0 && criticalCveCount === 0;
+
+  return (
+    <div className="relative mb-6 overflow-hidden rounded-xl border bg-gradient-to-br from-card via-card to-accent/30">
+      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_top_right,oklch(0.74_0.18_295/_0.08),transparent_60%)]" />
+      <div className="relative p-6">
+        <div className="mb-5 flex items-baseline justify-between gap-3 flex-wrap">
+          <h2 className="text-lg font-semibold tracking-tight">
+            {t(greetingKey())}{firstName ? `, ${firstName}` : ""}.
+          </h2>
+          <span className="text-[11px] uppercase tracking-wider text-muted-foreground">
+            {allClear ? t("dash.hero.kpi.allClear") : "Brief"}
+          </span>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <HeroTile
+            to="/todos"
+            icon={AlertTriangle}
+            tone={overdueCount > 0 ? "danger" : "neutral"}
+            label={t("dash.hero.kpi.overdue")}
+            value={overdueCount}
+            sub={firstOverdue ?? t("dash.hero.kpi.empty")}
+          />
+          <HeroTile
+            to="/todos"
+            icon={CheckSquare}
+            tone="neutral"
+            label={t("dash.hero.kpi.today")}
+            value={todayCount}
+            sub={firstToday ?? t("dash.hero.kpi.empty")}
+          />
+          <HeroTile
+            to="/feeds"
+            icon={ShieldAlert}
+            tone={criticalCveCount > 0 ? "danger" : "neutral"}
+            label={t("dash.hero.kpi.cve")}
+            value={criticalCveCount}
+            sub={firstCve ?? t("dash.hero.kpi.empty")}
+          />
+          <HeroTile
+            to="/meetings"
+            icon={CalendarClock}
+            tone="neutral"
+            label={t("dash.hero.kpi.next")}
+            value={nextMeeting ? format(parseISO(nextMeeting.at), "HH:mm") : "—"}
+            sub={nextMeeting?.title ?? t("dash.hero.kpi.empty")}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function HeroTile({
+  to, icon: Icon, label, value, sub, tone,
+}: {
+  to: string;
+  icon: typeof AlertTriangle;
+  label: string;
+  value: React.ReactNode;
+  sub: string;
+  tone: "danger" | "neutral";
+}) {
+  const danger = tone === "danger";
+  return (
+    <Link
+      to={to}
+      className={`group relative rounded-lg border p-4 transition-all hover:shadow-md hover:-translate-y-px ${
+        danger ? "border-destructive/40 bg-destructive/[0.04]" : "border-border bg-background/60"
+      }`}
+    >
+      <div className="flex items-center justify-between mb-2">
+        <span className={`text-[10px] font-medium uppercase tracking-wider ${danger ? "text-destructive" : "text-muted-foreground"}`}>
+          {label}
+        </span>
+        <Icon className={`h-3.5 w-3.5 ${danger ? "text-destructive" : "text-muted-foreground"}`} />
+      </div>
+      <div className={`text-2xl font-semibold tabular-nums leading-none ${danger ? "text-destructive" : "text-foreground"}`}>
+        {value}
+      </div>
+      <div className="mt-2 text-[11px] text-muted-foreground line-clamp-1 min-h-[1em]">{sub}</div>
+    </Link>
+  );
+}
+
+function QuickAccessGrid({ t }: { t: (k: TKey) => string }) {
+  const { data: counts } = useQuery({
+    queryKey: ["dash", "quick-counts"],
+    queryFn: async () => {
+      const [p, m, d, b, ti, s, f] = await Promise.all([
+        supabase.from("projects").select("id", { count: "exact", head: true }).in("status", ["active", "draft"]),
+        supabase.from("meetings").select("id", { count: "exact", head: true }).gte("meeting_date", new Date().toISOString()),
+        supabase.from("diagrams").select("id", { count: "exact", head: true }),
+        supabase.from("bookmarks").select("id", { count: "exact", head: true }),
+        supabase.from("usage_tips").select("id", { count: "exact", head: true }).eq("published", true),
+        supabase.from("snippets").select("id", { count: "exact", head: true }),
+        supabase.from("feed_items").select("id", { count: "exact", head: true }).eq("read", false),
+      ]);
+      return {
+        projects: p.count ?? 0, meetings: m.count ?? 0, diagrams: d.count ?? 0,
+        bookmarks: b.count ?? 0, tips: ti.count ?? 0, snippets: s.count ?? 0, feeds: f.count ?? 0,
+      };
+    },
+  });
+
+  const items: { to: string; icon: typeof FolderKanban; label: string; value: number | string }[] = [
+    { to: "/projects", icon: FolderKanban, label: t("dash.quick.projects"), value: counts?.projects ?? "—" },
+    { to: "/meetings", icon: CalendarClock, label: t("dash.quick.meetings"), value: counts?.meetings ?? "—" },
+    { to: "/diagrams", icon: GitBranch, label: t("dash.quick.diagrams"), value: counts?.diagrams ?? "—" },
+    { to: "/feeds", icon: Rss, label: t("dash.quick.feeds"), value: counts?.feeds ?? "—" },
+    { to: "/snippets", icon: Code2, label: t("dash.quick.snippets"), value: counts?.snippets ?? "—" },
+    { to: "/tips", icon: Terminal, label: t("dash.quick.tips"), value: counts?.tips ?? "—" },
+    { to: "/bookmarks", icon: Bookmark, label: t("dash.quick.bookmarks"), value: counts?.bookmarks ?? "—" },
+    { to: "/team", icon: Users, label: t("dash.quick.team"), value: "→" },
+  ];
+
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
+      {items.map((it) => (
+        <Link
+          key={it.to}
+          to={it.to}
+          className="group rounded-lg border bg-card p-3 hover:bg-accent/40 hover:border-foreground/20 transition-all"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <it.icon className="h-3.5 w-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
+            <span className="text-base font-semibold tabular-nums leading-none">{it.value}</span>
+          </div>
+          <div className="text-[10px] uppercase tracking-wider text-muted-foreground truncate">{it.label}</div>
+        </Link>
+      ))}
     </div>
   );
 }
