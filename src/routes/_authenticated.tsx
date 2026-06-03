@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { trackPageView } from "@/lib/admin-console.functions";
 import {
   LayoutDashboard, CheckSquare, FileText, Repeat, FolderKanban,
-  CalendarClock, GitBranch, Rss, Terminal, Bookmark, Users, LogOut, Gauge, Shield,
+  CalendarClock, GitBranch, Rss, Terminal, Bookmark, Users, LogOut, Shield,
   PanelLeftClose, PanelLeftOpen, ShieldCheck, Code2, LayoutTemplate,
 } from "lucide-react";
 import { TaskXMark } from "@/components/brand/TaskXLogo";
