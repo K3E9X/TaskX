@@ -219,6 +219,17 @@ function DashboardPage() {
     },
   });
 
+  const { data: meetings = [] } = useQuery({
+    queryKey: ["dash", "next-meetings"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("meetings").select("id,title,meeting_date")
+        .gte("meeting_date", new Date().toISOString())
+        .order("meeting_date", { ascending: true }).limit(1);
+      return data ?? [];
+    },
+  });
+
   const qc = useQueryClient();
   type CveItem = {
     id: string; source: string; severity: "info"|"low"|"medium"|"high"|"critical";
