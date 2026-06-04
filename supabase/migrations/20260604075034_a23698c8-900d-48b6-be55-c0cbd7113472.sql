@@ -1,0 +1,15 @@
+CREATE INDEX IF NOT EXISTS idx_feed_items_user_published ON public.feed_items (user_id, published_at DESC);
+CREATE INDEX IF NOT EXISTS idx_feed_items_user_starred ON public.feed_items (user_id) WHERE starred = true;
+CREATE INDEX IF NOT EXISTS idx_todos_user_due ON public.todos (user_id, due_at) WHERE due_at IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_todos_user_status ON public.todos (user_id, status);
+CREATE INDEX IF NOT EXISTS idx_meetings_user_date ON public.meetings (user_id, meeting_date DESC);
+CREATE INDEX IF NOT EXISTS idx_notes_user_updated ON public.notes (user_id, updated_at DESC);
+CREATE INDEX IF NOT EXISTS idx_page_views_created ON public.page_views (created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_page_views_user_created ON public.page_views (user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_rss_sources_user ON public.rss_sources (user_id);
+CREATE INDEX IF NOT EXISTS idx_bookmarks_user_created ON public.bookmarks (user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_snippets_user_updated ON public.snippets (user_id, updated_at DESC);
+CREATE INDEX IF NOT EXISTS idx_daily_activity_user_day ON public.daily_activity (user_id, day DESC);
+CREATE INDEX IF NOT EXISTS idx_projects_user_updated ON public.projects (user_id, updated_at DESC);
+CREATE INDEX IF NOT EXISTS idx_diagrams_user_updated ON public.diagrams (user_id, updated_at DESC);
+CREATE INDEX IF NOT EXISTS idx_routine_runs_user_date ON public.routine_runs (user_id, run_date DESC);

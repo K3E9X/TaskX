@@ -58,6 +58,24 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState<string | null>(null);
+
+  const resendConfirmation = async (target: string) => {
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email: target,
+        options: { emailRedirectTo: window.location.origin },
+      });
+      if (error) throw error;
+      toast.success(t("auth.verify.resent"));
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : t("auth.error"));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -72,10 +90,18 @@ function LoginPage() {
           },
         });
         if (error) throw error;
-        toast.success(t("auth.createdToast"));
+        setPendingEmail(email);
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
+        if (error) {
+          const msg = error.message?.toLowerCase() ?? "";
+          if (msg.includes("not confirmed") || msg.includes("email_not_confirmed")) {
+            setPendingEmail(email);
+            toast.error(t("auth.notConfirmed"));
+            return;
+          }
+          throw error;
+        }
         const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
         if (aal && aal.currentLevel !== aal.nextLevel) {
           navigate({ to: "/mfa-challenge" });
@@ -101,6 +127,32 @@ function LoginPage() {
     if (res.redirected) return;
     navigate({ to: "/dashboard" });
   };
+
+  if (pendingEmail) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background px-4 relative">
+        <div className="absolute top-4 right-4"><LangToggle /></div>
+        <div className="w-full max-w-sm text-center">
+          <div className="flex justify-center"><TaskXMark size={44} /></div>
+          <h1 className="mt-6 text-2xl font-semibold tracking-tight">{t("auth.verify.title")}</h1>
+          <p className="mt-3 text-sm text-muted-foreground">
+            {t("auth.verify.body")} <span className="font-medium text-foreground">{pendingEmail}</span>
+          </p>
+          <p className="mt-2 text-xs text-muted-foreground">{t("auth.verify.hint")}</p>
+          <div className="mt-6 space-y-2">
+            <Button onClick={() => resendConfirmation(pendingEmail)} disabled={loading} className="w-full">
+              {t("auth.verify.resend")}
+            </Button>
+            <Button variant="ghost" onClick={() => { setPendingEmail(null); setMode("signin"); }} className="w-full">
+              {t("auth.verify.back")}
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4 relative">
