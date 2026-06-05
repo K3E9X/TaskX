@@ -48,7 +48,7 @@ function ProfilePage() {
 
   useEffect(() => {
     supabase.from("profiles").select("display_name").maybeSingle().then(({ data }) => {
-      setDisplayName(data?.display_name ?? "");
+      setDisplayName((data?.display_name as string | null) ?? "");
       setLoadingProfile(false);
     });
   }, []);
