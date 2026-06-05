@@ -9,8 +9,12 @@ import { trackPageView } from "@/lib/admin-console.functions";
 import {
   LayoutDashboard, CheckSquare, FileText, Repeat, FolderKanban,
   CalendarClock, GitBranch, Rss, Terminal, Bookmark, Users, LogOut, Shield,
-  PanelLeftClose, PanelLeftOpen, ShieldCheck, Code2, LayoutTemplate,
+  PanelLeftClose, PanelLeftOpen, ShieldCheck, Code2, LayoutTemplate, UserCircle2,
 } from "lucide-react";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
+  DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { TaskXMark } from "@/components/brand/TaskXLogo";
 import { CommandPalette } from "@/components/admin/CommandPalette";
 import { AnnouncementBanner } from "@/components/admin/AnnouncementBanner";
@@ -204,6 +208,10 @@ function AuthenticatedLayout() {
           <div className="flex items-center gap-2">
             <StreakBadge />
             <LangToggle />
+            <ProfileMenu
+              email={session.user.email ?? ""}
+              onSignOut={async () => { await signOut(); navigate({ to: "/login" }); }}
+            />
           </div>
         </header>
         <AnnouncementBanner />
@@ -246,5 +254,46 @@ function UserChip({ email, onSignOut }: { email: string; onSignOut: () => void }
         <LogOut className="h-3.5 w-3.5" aria-hidden="true" />
       </button>
     </div>
+  );
+}
+
+function ProfileMenu({ email, onSignOut }: { email: string; onSignOut: () => void }) {
+  const { t } = useI18n();
+  const [name, setName] = useState<string>(email);
+  useEffect(() => {
+    supabase.from("profiles").select("display_name").maybeSingle().then(({ data }) => {
+      if (data?.display_name) setName(data.display_name);
+    });
+  }, []);
+  const initials = (name || email).slice(0, 2).toUpperCase();
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        className="h-8 w-8 rounded-full bg-accent flex items-center justify-center text-[11px] font-medium hover:ring-2 hover:ring-ring/40 transition"
+        aria-label="Profile"
+      >
+        {initials}
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-56">
+        <DropdownMenuLabel className="font-normal">
+          <div className="flex flex-col">
+            <span className="text-sm font-medium truncate">{name}</span>
+            <span className="text-[11px] text-muted-foreground truncate">{email}</span>
+          </div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <Link to="/profile" className="cursor-pointer">
+            <UserCircle2 className="h-4 w-4 mr-2" />
+            {t("profile.title")}
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={onSignOut} className="cursor-pointer">
+          <LogOut className="h-4 w-4 mr-2" />
+          {t("common.signout")}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

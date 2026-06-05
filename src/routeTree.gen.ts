@@ -26,6 +26,7 @@ import { Route as AuthenticatedSnippetsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedSecurityRouteImport } from './routes/_authenticated/security'
 import { Route as AuthenticatedRoutinesRouteImport } from './routes/_authenticated/routines'
 import { Route as AuthenticatedProjectsRouteImport } from './routes/_authenticated/projects'
+import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedNotesRouteImport } from './routes/_authenticated/notes'
 import { Route as AuthenticatedMeetingsRouteImport } from './routes/_authenticated/meetings'
 import { Route as AuthenticatedFeedsRouteImport } from './routes/_authenticated/feeds'
@@ -128,6 +129,11 @@ const AuthenticatedRoutinesRoute = AuthenticatedRoutinesRouteImport.update({
 const AuthenticatedProjectsRoute = AuthenticatedProjectsRouteImport.update({
   id: '/projects',
   path: '/projects',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedNotesRoute = AuthenticatedNotesRouteImport.update({
@@ -249,6 +255,7 @@ export interface FileRoutesByFullPath {
   '/feeds': typeof AuthenticatedFeedsRoute
   '/meetings': typeof AuthenticatedMeetingsRoute
   '/notes': typeof AuthenticatedNotesRoute
+  '/profile': typeof AuthenticatedProfileRoute
   '/projects': typeof AuthenticatedProjectsRoute
   '/routines': typeof AuthenticatedRoutinesRoute
   '/security': typeof AuthenticatedSecurityRoute
@@ -286,6 +293,7 @@ export interface FileRoutesByTo {
   '/feeds': typeof AuthenticatedFeedsRoute
   '/meetings': typeof AuthenticatedMeetingsRoute
   '/notes': typeof AuthenticatedNotesRoute
+  '/profile': typeof AuthenticatedProfileRoute
   '/projects': typeof AuthenticatedProjectsRoute
   '/routines': typeof AuthenticatedRoutinesRoute
   '/security': typeof AuthenticatedSecurityRoute
@@ -325,6 +333,7 @@ export interface FileRoutesById {
   '/_authenticated/feeds': typeof AuthenticatedFeedsRoute
   '/_authenticated/meetings': typeof AuthenticatedMeetingsRoute
   '/_authenticated/notes': typeof AuthenticatedNotesRoute
+  '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/projects': typeof AuthenticatedProjectsRoute
   '/_authenticated/routines': typeof AuthenticatedRoutinesRoute
   '/_authenticated/security': typeof AuthenticatedSecurityRoute
@@ -364,6 +373,7 @@ export interface FileRouteTypes {
     | '/feeds'
     | '/meetings'
     | '/notes'
+    | '/profile'
     | '/projects'
     | '/routines'
     | '/security'
@@ -401,6 +411,7 @@ export interface FileRouteTypes {
     | '/feeds'
     | '/meetings'
     | '/notes'
+    | '/profile'
     | '/projects'
     | '/routines'
     | '/security'
@@ -439,6 +450,7 @@ export interface FileRouteTypes {
     | '/_authenticated/feeds'
     | '/_authenticated/meetings'
     | '/_authenticated/notes'
+    | '/_authenticated/profile'
     | '/_authenticated/projects'
     | '/_authenticated/routines'
     | '/_authenticated/security'
@@ -604,6 +616,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProjectsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/profile': {
+      id: '/_authenticated/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/notes': {
       id: '/_authenticated/notes'
       path: '/notes'
@@ -749,6 +768,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFeedsRoute: typeof AuthenticatedFeedsRoute
   AuthenticatedMeetingsRoute: typeof AuthenticatedMeetingsRoute
   AuthenticatedNotesRoute: typeof AuthenticatedNotesRoute
+  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedProjectsRoute: typeof AuthenticatedProjectsRoute
   AuthenticatedRoutinesRoute: typeof AuthenticatedRoutinesRoute
   AuthenticatedSecurityRoute: typeof AuthenticatedSecurityRoute
@@ -768,6 +788,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedFeedsRoute: AuthenticatedFeedsRoute,
   AuthenticatedMeetingsRoute: AuthenticatedMeetingsRoute,
   AuthenticatedNotesRoute: AuthenticatedNotesRoute,
+  AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedProjectsRoute: AuthenticatedProjectsRoute,
   AuthenticatedRoutinesRoute: AuthenticatedRoutinesRoute,
   AuthenticatedSecurityRoute: AuthenticatedSecurityRoute,
