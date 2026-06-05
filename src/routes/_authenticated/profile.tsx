@@ -60,7 +60,7 @@ function ProfilePage() {
     try {
       const { error } = await supabase
         .from("profiles")
-        .update({ display_name: displayName.trim() || null })
+        .update({ display_name: displayName.trim() })
         .eq("id", session.user.id);
       if (error) throw error;
       await supabase.auth.updateUser({ data: { display_name: displayName.trim() } });
