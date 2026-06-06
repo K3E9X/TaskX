@@ -95,17 +95,24 @@ function LoginPage() {
     setLoading(true);
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
-          email, password,
+        const normalizedEmail = email.trim().toLowerCase();
+        const { data, error } = await supabase.auth.signUp({
+          email: normalizedEmail,
+          password,
           options: {
-            emailRedirectTo: window.location.origin,
-            data: { display_name: displayName || email.split("@")[0] },
+            emailRedirectTo: `${window.location.origin}/dashboard`,
+            data: { display_name: displayName || normalizedEmail.split("@")[0] },
           },
         });
         if (error) throw error;
-        setPendingEmail(email);
+        if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+          toast.info(t("auth.accountExists"));
+          setMode("signin");
+          return;
+        }
+        setPendingEmail(normalizedEmail);
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
         if (error) {
           const msg = error.message?.toLowerCase() ?? "";
           if (msg.includes("not confirmed") || msg.includes("email_not_confirmed")) {
