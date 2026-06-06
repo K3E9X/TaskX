@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useState, type FormEvent } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
@@ -59,16 +59,29 @@ function LoginPage() {
   const [displayName, setDisplayName] = useState("");
   const [loading, setLoading] = useState(false);
   const [pendingEmail, setPendingEmail] = useState<string | null>(null);
+  const [lastResendAt, setLastResendAt] = useState<number | null>(null);
+
+  const normalizedPendingEmail = useMemo(
+    () => pendingEmail?.trim().toLowerCase() ?? "",
+    [pendingEmail],
+  );
 
   const resendConfirmation = async (target: string) => {
+    const normalizedTarget = target.trim().toLowerCase();
+    if (!normalizedTarget) return;
+    if (lastResendAt && Date.now() - lastResendAt < 60_000) {
+      toast.info(t("auth.verify.wait"));
+      return;
+    }
     setLoading(true);
     try {
       const { error } = await supabase.auth.resend({
         type: "signup",
-        email: target,
-        options: { emailRedirectTo: window.location.origin },
+        email: normalizedTarget,
+        options: { emailRedirectTo: `${window.location.origin}/dashboard` },
       });
       if (error) throw error;
+      setLastResendAt(Date.now());
       toast.success(t("auth.verify.resent"));
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t("auth.error"));
@@ -140,7 +153,7 @@ function LoginPage() {
           </p>
           <p className="mt-2 text-xs text-muted-foreground">{t("auth.verify.hint")}</p>
           <div className="mt-6 space-y-2">
-            <Button onClick={() => resendConfirmation(pendingEmail)} disabled={loading} className="w-full">
+            <Button onClick={() => resendConfirmation(normalizedPendingEmail)} disabled={loading} className="w-full">
               {t("auth.verify.resend")}
             </Button>
             <Button variant="ghost" onClick={() => { setPendingEmail(null); setMode("signin"); }} className="w-full">
