@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n, type TKey } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
@@ -10,8 +11,9 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Sparkles, Send, Loader2, Check } from "lucide-react";
 import mermaid from "mermaid";
+import { generateMermaid } from "@/lib/diagrams-ai.functions";
 
 export const Route = createFileRoute("/_authenticated/diagrams")({
   head: () => ({
@@ -155,6 +157,7 @@ function DiagramEditor({ diagram, onUpdate, onDelete }: {
   const [title, setTitle] = useState(diagram.title);
   const [source, setSource] = useState(diagram.source);
   const [type, setType] = useState<DType>(diagram.diagram_type);
+  const [aiOpen, setAiOpen] = useState(false);
 
   return (
     <div className="rounded-lg border bg-card overflow-hidden">
@@ -173,12 +176,20 @@ function DiagramEditor({ diagram, onUpdate, onDelete }: {
             ))}
           </SelectContent>
         </Select>
+        <Button
+          size="sm"
+          variant={aiOpen ? "default" : "outline"}
+          onClick={() => setAiOpen((v) => !v)}
+          className="h-8 gap-1.5"
+        >
+          <Sparkles className="h-3.5 w-3.5" /> {t("diagrams.ai.toggle")}
+        </Button>
         <button onClick={onDelete} className="p-1.5 text-muted-foreground hover:text-destructive">
           <Trash2 className="h-4 w-4" />
         </button>
       </div>
 
-      <div className="grid md:grid-cols-2 divide-x divide-border">
+      <div className={`grid divide-x divide-border ${aiOpen ? "md:grid-cols-3" : "md:grid-cols-2"}`}>
         <div className="p-3">
           <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">{t("diagrams.source")}</div>
           <Textarea
@@ -193,6 +204,126 @@ function DiagramEditor({ diagram, onUpdate, onDelete }: {
           <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">{t("diagrams.preview")}</div>
           <MermaidPreview source={source} />
         </div>
+        {aiOpen && (
+          <AiChatPanel
+            diagramType={type}
+            currentSource={source}
+            onApply={(code) => {
+              setSource(code);
+              onUpdate({ source: code });
+            }}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+type ChatMsg = { role: "user" | "assistant"; content: string; code?: string };
+
+function AiChatPanel({ diagramType, currentSource, onApply }: {
+  diagramType: DType;
+  currentSource: string;
+  onApply: (code: string) => void;
+}) {
+  const { t } = useI18n();
+  const generate = useServerFn(generateMermaid);
+  const [messages, setMessages] = useState<ChatMsg[]>([]);
+  const [prompt, setPrompt] = useState("");
+  const [busy, setBusy] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
+  }, [messages, busy]);
+
+  const send = async () => {
+    const p = prompt.trim();
+    if (!p || busy) return;
+    setPrompt("");
+    const history = messages.map((m) => ({ role: m.role, content: m.content }));
+    setMessages((m) => [...m, { role: "user", content: p }]);
+    setBusy(true);
+    try {
+      const res = await generate({
+        data: { prompt: p, diagramType, currentSource, history },
+      });
+      setMessages((m) => [...m, { role: "assistant", content: res.content, code: res.code ?? undefined }]);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "AI error");
+      setMessages((m) => [...m, { role: "assistant", content: "⚠️ " + (e instanceof Error ? e.message : "error") }]);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-col h-[560px]">
+      <div className="px-3 py-2 border-b flex items-center gap-2">
+        <Sparkles className="h-3.5 w-3.5 text-primary" />
+        <div className="text-xs font-medium">{t("diagrams.ai.title")}</div>
+      </div>
+      <div ref={scrollRef} className="flex-1 overflow-y-auto p-3 space-y-3">
+        {messages.length === 0 && (
+          <div className="text-xs text-muted-foreground">
+            {t("diagrams.ai.hint")}
+            <ul className="mt-2 space-y-1 list-disc list-inside opacity-80">
+              <li>{t("diagrams.ai.ex1")}</li>
+              <li>{t("diagrams.ai.ex2")}</li>
+              <li>{t("diagrams.ai.ex3")}</li>
+            </ul>
+          </div>
+        )}
+        {messages.map((m, i) => (
+          <div key={i} className={`text-xs ${m.role === "user" ? "text-foreground" : "text-muted-foreground"}`}>
+            <div className="text-[10px] uppercase tracking-wider mb-1 opacity-60">
+              {m.role === "user" ? t("diagrams.ai.you") : t("diagrams.ai.assistant")}
+            </div>
+            {m.code ? (
+              <div className="space-y-2">
+                {m.content
+                  .replace(/```(?:mermaid)?[\s\S]*?```/g, "")
+                  .trim() && (
+                  <div className="whitespace-pre-wrap">
+                    {m.content.replace(/```(?:mermaid)?[\s\S]*?```/g, "").trim()}
+                  </div>
+                )}
+                <pre className="rounded-md bg-muted/50 border p-2 overflow-x-auto text-[10px] font-mono max-h-40">
+                  {m.code}
+                </pre>
+                <Button size="sm" variant="secondary" onClick={() => onApply(m.code!)} className="h-7 gap-1.5">
+                  <Check className="h-3 w-3" /> {t("diagrams.ai.apply")}
+                </Button>
+              </div>
+            ) : (
+              <div className="whitespace-pre-wrap">{m.content}</div>
+            )}
+          </div>
+        ))}
+        {busy && (
+          <div className="text-xs text-muted-foreground flex items-center gap-2">
+            <Loader2 className="h-3 w-3 animate-spin" /> {t("diagrams.ai.thinking")}
+          </div>
+        )}
+      </div>
+      <div className="border-t p-2 flex gap-2">
+        <Textarea
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              send();
+            }
+          }}
+          placeholder={t("diagrams.ai.placeholder")}
+          rows={2}
+          className="text-xs resize-none"
+          disabled={busy}
+        />
+        <Button size="sm" onClick={send} disabled={busy || !prompt.trim()} className="self-end">
+          <Send className="h-3.5 w-3.5" />
+        </Button>
       </div>
     </div>
   );
