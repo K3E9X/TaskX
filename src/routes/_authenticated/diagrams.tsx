@@ -333,6 +333,10 @@ function MermaidPreview({ source }: { source: string }) {
   const { t } = useI18n();
   const ref = useRef<HTMLDivElement>(null);
   const [error, setError] = useState<string | null>(null);
+  const [scale, setScale] = useState(1);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [isPanning, setIsPanning] = useState(false);
+  const dragStart = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     let cancelled = false;
@@ -341,12 +345,38 @@ function MermaidPreview({ source }: { source: string }) {
       if (cancelled || !ref.current) return;
       ref.current.innerHTML = svg;
       setError(null);
+      setScale(1);
+      setOffset({ x: 0, y: 0 });
     }).catch((e) => {
       if (cancelled) return;
       setError(String(e.message ?? e));
     });
     return () => { cancelled = true; };
   }, [source]);
+
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? -0.15 : 0.15;
+    setScale((s) => Math.min(Math.max(s + delta, 0.1), 5));
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (e.button !== 0) return;
+    setIsPanning(true);
+    dragStart.current = { x: e.clientX - offset.x, y: e.clientY - offset.y };
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isPanning) return;
+    setOffset({ x: e.clientX - dragStart.current.x, y: e.clientY - dragStart.current.y });
+  };
+
+  const handleMouseUp = () => setIsPanning(false);
+
+  const resetView = () => {
+    setScale(1);
+    setOffset({ x: 0, y: 0 });
+  };
 
   if (error) {
     return (
@@ -357,7 +387,37 @@ function MermaidPreview({ source }: { source: string }) {
     );
   }
 
-  return <div ref={ref} className="overflow-auto [&_svg]:max-w-full [&_svg]:h-auto" />;
+  return (
+    <div
+      className="relative overflow-hidden h-[560px] rounded-md border bg-background/50 cursor-grab active:cursor-grabbing"
+      onWheel={handleWheel}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
+    >
+      <div className="absolute top-2 right-2 flex gap-1 z-10">
+        <Button size="icon" variant="secondary" className="h-7 w-7" onClick={() => setScale((s) => Math.min(s + 0.2, 5))}>
+          <span className="text-xs">+</span>
+        </Button>
+        <Button size="icon" variant="secondary" className="h-7 w-7" onClick={() => setScale((s) => Math.max(s - 0.2, 0.1))}>
+          <span className="text-xs">−</span>
+        </Button>
+        <Button size="icon" variant="secondary" className="h-7 w-7" onClick={resetView} title="Reset">
+          <span className="text-xs">⟲</span>
+        </Button>
+      </div>
+      <div
+        ref={ref}
+        style={{
+          transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
+          transformOrigin: "center center",
+          transition: isPanning ? "none" : "transform 0.1s ease-out",
+        }}
+        className="w-full h-full flex items-center justify-center [&_svg]:max-w-full [&_svg]:h-auto"
+      />
+    </div>
+  );
 }
 
 function NewDiagramForm({ onCreate, pending }: {
