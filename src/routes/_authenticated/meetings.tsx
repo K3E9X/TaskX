@@ -142,7 +142,7 @@ function MeetingsPage() {
                     onSave={(v) => update.mutate({ id: m.id, patch: { action_items: v || null } })} />
                   <div className="flex items-center justify-end pt-2 border-t">
                     <button
-                      onClick={() => confirm(t("meetings.deleteConfirm")) && remove.mutate(m.id)}
+                      onClick={() => remove.mutate(m.id)}
                       className="text-xs text-muted-foreground hover:text-destructive flex items-center gap-1"
                     >
                       <Trash2 className="h-3.5 w-3.5" /> {t("common.delete")}

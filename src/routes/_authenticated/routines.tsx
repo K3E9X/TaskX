@@ -163,7 +163,7 @@ function RoutinesPage() {
                       {t(`routines.freq.${r.frequency}` as TKey)}
                     </span>
                     <button
-                      onClick={() => confirm(t("routines.deleteConfirm")) && remove.mutate(r.id)}
+                      onClick={() => remove.mutate(r.id)}
                       className="text-muted-foreground hover:text-destructive"
                     >
                       <Trash2 className="h-3.5 w-3.5" />

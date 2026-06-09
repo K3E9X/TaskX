@@ -111,7 +111,6 @@ function SecurityPage() {
   };
 
   const disable = async (factorId: string) => {
-    if (!confirm(t("security.disableConfirm"))) return;
     setBusy(true);
     const { error } = await supabase.auth.mfa.unenroll({ factorId });
     if (error) toast.error(error.message);

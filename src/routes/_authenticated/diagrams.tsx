@@ -140,7 +140,7 @@ function DiagramsPage() {
             key={current.id}
             diagram={current}
             onUpdate={(patch) => update.mutate({ id: current.id, patch })}
-            onDelete={() => confirm(t("diagrams.deleteConfirm")) && remove.mutate(current.id)}
+            onDelete={() => remove.mutate(current.id)}
           />
         )}
       </div>
