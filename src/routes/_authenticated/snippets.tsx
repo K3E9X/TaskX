@@ -1,14 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { toast } from "sonner";
-import { Plus, Trash2, Copy, Star, Terminal } from "lucide-react";
+import { Plus, Trash2, Copy, Star, Terminal, Sparkles, Send, Save, Loader2 } from "lucide-react";
+import { generateSnippet } from "@/lib/snippets-ai.functions";
+
+type ChatMsg = { role: "user" | "assistant"; content: string; code?: string | null };
 
 export const Route = createFileRoute("/_authenticated/snippets")({
   head: () => ({
