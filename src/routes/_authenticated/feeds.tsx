@@ -246,7 +246,7 @@ function FeedsPage() {
                   </Button>
                   <Button
                     variant="ghost" size="icon" className="h-7 w-7"
-                    onClick={() => { if (confirm(t("feeds.deleteConfirm"))) remove.mutate(x.id); }}
+                    onClick={() => remove.mutate(x.id)}
                   ><Trash2 className="h-3.5 w-3.5" /></Button>
                 </div>
               </div>
@@ -382,7 +382,7 @@ function SourcesPanel() {
               {t("feeds.lastFetch")}: {s.last_fetched_at ? formatDistanceToNow(new Date(s.last_fetched_at), { addSuffix: true }) : t("feeds.never")}
             </span>
             <Button variant="ghost" size="icon" className="h-7 w-7"
-              onClick={() => { if (confirm(`Delete ${s.name}?`)) remove.mutate(s.id); }}>
+              onClick={() => remove.mutate(s.id)}>
               <Trash2 className="h-3.5 w-3.5" />
             </Button>
           </li>

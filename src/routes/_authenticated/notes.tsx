@@ -164,10 +164,8 @@ function NotesPage() {
             setMode={setMode}
             onChange={(patch) => update.mutate({ id: selected.id, patch })}
             onDelete={() => {
-              if (confirm(t("notes.deleteConfirm"))) {
-                remove.mutate(selected.id);
-                setSelectedId(null);
-              }
+              remove.mutate(selected.id);
+              setSelectedId(null);
             }}
           />
         ) : (

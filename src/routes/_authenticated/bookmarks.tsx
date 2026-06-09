@@ -143,7 +143,7 @@ function BookmarksPage() {
                 ))}
                 <Button
                   variant="ghost" size="icon" className="h-6 w-6 ml-auto"
-                  onClick={() => { if (confirm(t("bookmarks.deleteConfirm"))) remove.mutate(x.id); }}
+                  onClick={() => remove.mutate(x.id)}
                 ><Trash2 className="h-3 w-3" /></Button>
               </div>
             </li>
