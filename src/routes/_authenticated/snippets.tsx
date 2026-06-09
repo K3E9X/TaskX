@@ -136,6 +136,8 @@ function SnippetsPage() {
             <Plus className="h-3.5 w-3.5" /> {t("snip.new")}
           </Button>
         </div>
+      </div>
+
 
       <div className="grid grid-cols-1 md:grid-cols-[280px,1fr] gap-6 h-[calc(100vh-220px)]">
         {/* List */}
