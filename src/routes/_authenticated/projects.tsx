@@ -184,7 +184,7 @@ function ProjectsPage() {
                   <div className="flex items-center justify-between pt-2 border-t">
                     <span className="text-[10px] text-muted-foreground">{format(parseISO(p.updated_at), "dd MMM yyyy HH:mm")}</span>
                     <button
-                      onClick={() => confirm(t("projects.deleteConfirm")) && remove.mutate(p.id)}
+                      onClick={() => remove.mutate(p.id)}
                       className="text-xs text-muted-foreground hover:text-destructive flex items-center gap-1"
                     >
                       <Trash2 className="h-3.5 w-3.5" /> {t("common.delete")}

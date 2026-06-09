@@ -672,7 +672,6 @@ function ContentTab() {
                 <TableCell className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleString("fr-FR")}</TableCell>
                 <TableCell className="text-right">
                   <Button size="sm" variant="ghost" onClick={() => {
-                    if (!confirm("Supprimer définitivement ?")) return;
                     del({ data: { table, id: r.id } })
                       .then(() => { toast.success("Supprimé"); qc.invalidateQueries({ queryKey: ["admin", "content", table] }); })
                       .catch((e) => toast.error(e instanceof Error ? e.message : String(e)));
@@ -1040,7 +1039,6 @@ function AnnounceTab() {
                     qc.invalidateQueries({ queryKey: ["announcements", "active"] });
                   }}>{a.active ? "Désactiver" : "Activer"}</Button>
                   <Button size="sm" variant="ghost" onClick={async () => {
-                    if (!confirm("Supprimer ?")) return;
                     await del({ data: { id: a.id } });
                     qc.invalidateQueries({ queryKey: ["admin", "announcements"] });
                     qc.invalidateQueries({ queryKey: ["announcements", "active"] });
