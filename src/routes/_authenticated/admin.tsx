@@ -286,7 +286,7 @@ function UsersTab() {
                         </Button>
                       )}
                       <Button size="sm" variant="ghost" title="Supprimer"
-                        onClick={() => { if (confirm(`Supprimer ${u.email} ? Irréversible.`)) mut(() => del({ data: { userId: u.id } }), "User supprimé"); }}>
+                        onClick={() => mut(() => del({ data: { userId: u.id } }), "User supprimé")}>
                         <Trash2 className="h-3.5 w-3.5 text-red-500" />
                       </Button>
                     </div>
