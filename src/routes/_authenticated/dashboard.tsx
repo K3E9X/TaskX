@@ -594,6 +594,7 @@ function DashboardPage() {
       />
 
       <DynamicPulse />
+      <ExtraPulse />
 
       <div className="mb-6">
         <MorningBrief />
