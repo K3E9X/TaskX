@@ -592,6 +592,8 @@ function DashboardPage() {
         firstCve={criticalCves[0]?.title ?? null}
       />
 
+      <DynamicPulse />
+
       <div className="mb-6">
         <MorningBrief />
       </div>
