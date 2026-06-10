@@ -13,6 +13,7 @@ import {
 import { format, isPast, parseISO, isToday, startOfDay, endOfDay, subDays } from "date-fns";
 import { SendDigestButton } from "@/components/SendDigestButton";
 import { MorningBrief } from "@/components/MorningBrief";
+import { DynamicPulse } from "@/components/DynamicPulse";
 import {
   Maximize2, Minimize2, X, Plus, RotateCcw, Sparkles, Star, ExternalLink, ShieldAlert,
   AlertTriangle, CheckSquare, CalendarClock, FolderKanban, GitBranch, Bookmark, Terminal,
@@ -590,6 +591,8 @@ function DashboardPage() {
         firstToday={today[0]?.title ?? null}
         firstCve={criticalCves[0]?.title ?? null}
       />
+
+      <DynamicPulse />
 
       <div className="mb-6">
         <MorningBrief />
