@@ -14,6 +14,7 @@ import { format, isPast, parseISO, isToday, startOfDay, endOfDay, subDays } from
 import { SendDigestButton } from "@/components/SendDigestButton";
 import { MorningBrief } from "@/components/MorningBrief";
 import { DynamicPulse } from "@/components/DynamicPulse";
+import { ExtraPulse } from "@/components/ExtraPulse";
 import {
   Maximize2, Minimize2, X, Plus, RotateCcw, Sparkles, Star, ExternalLink, ShieldAlert,
   AlertTriangle, CheckSquare, CalendarClock, FolderKanban, GitBranch, Bookmark, Terminal,
