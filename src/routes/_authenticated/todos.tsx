@@ -368,7 +368,7 @@ function SmartList({
   items, rowHandlers, emptyHint,
 }: {
   items: Todo[];
-  rowHandlers: (t: Todo) => React.ComponentProps<typeof TodoRow>;
+  rowHandlers: (t: Todo) => Omit<React.ComponentProps<typeof TodoRow>, "todo">;
   emptyHint: string;
 }) {
   if (items.length === 0) {
