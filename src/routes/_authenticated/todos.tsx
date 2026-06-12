@@ -381,7 +381,7 @@ function SmartList({
   return (
     <div className="mt-3 divide-y divide-border border rounded-lg bg-card">
       {items.map((todo) => (
-        <TodoRow key={todo.id} {...rowHandlers(todo)} />
+        <TodoRow key={todo.id} todo={todo} {...rowHandlers(todo)} />
       ))}
     </div>
   );
