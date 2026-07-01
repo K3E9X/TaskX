@@ -59,6 +59,7 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [pendingEmail, setPendingEmail] = useState<string | null>(null);
   const [lastResendAt, setLastResendAt] = useState<number | null>(null);
 
