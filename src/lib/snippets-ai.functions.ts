@@ -25,8 +25,7 @@ export const generateSnippet = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => Input.parse(data))
   .handler(async ({ data }) => {
-    const apiKey = process.env.LOVABLE_API_KEY;
-    if (!apiKey) throw new Error("LOVABLE_API_KEY missing");
+    const { chatCompletion } = await import("./ai-provider.server");
 
     const system = `You are a cybersecurity command-line expert assistant.
 Help the user craft reusable ${data.language} commands / snippets (pentest, recon, forensic, sysadmin, etc.).
@@ -36,33 +35,13 @@ Rules:
 - A short explanation (1-3 lines) BEFORE the code block is welcome.
 - No disclaimers, no "as an AI" preamble.`;
 
-    const messages: Array<{ role: string; content: string }> = [{ role: "system", content: system }];
+    const messages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
+      { role: "system", content: system },
+    ];
     for (const h of data.history) messages.push({ role: h.role, content: h.content });
     messages.push({ role: "user", content: data.prompt });
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Lovable-API-Key": apiKey,
-        "X-Lovable-AIG-SDK": "vercel-ai-sdk",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
-        messages,
-      }),
-    });
-
-    if (!res.ok) {
-      const txt = await res.text().catch(() => "");
-      if (res.status === 429) throw new Error("AI rate limit, retry shortly");
-      if (res.status === 402) throw new Error("AI credits exhausted");
-      throw new Error(`AI error ${res.status}: ${txt.slice(0, 200)}`);
-    }
-    const json = (await res.json()) as {
-      choices?: Array<{ message?: { content?: string } }>;
-    };
-    const content = json.choices?.[0]?.message?.content ?? "";
+    const content = await chatCompletion({ messages, fallbackModel: "google/gemini-3-flash-preview" });
     const code = extractCommand(content, data.language);
     return { content, code };
   });
