@@ -406,7 +406,7 @@ export const deleteContent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) =>
     z.object({
-      table: z.enum(["notes", "bookmarks", "feed_items", "todos"]),
+      table: z.enum(["notes", "feed_items", "todos"]),
       id: z.string().uuid(),
     }).parse(d),
   )
