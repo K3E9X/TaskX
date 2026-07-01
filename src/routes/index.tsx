@@ -166,7 +166,7 @@ function Nav({ t }: { t: T }) {
             {t("land.nav.opensource.badge")}
           </a>
         </div>
-        <nav className="hidden md:flex items-center gap-7 text-sm text-muted-foreground">
+        <nav className="hidden lg:flex items-center gap-6 text-sm text-muted-foreground whitespace-nowrap">
           <a href="#personas" className="hover:text-foreground transition">{t("land.personas.eyebrow")}</a>
           <a href="#features" className="hover:text-foreground transition">{t("land.nav.features")}</a>
           <a href="#pricing" className="hover:text-foreground transition">{t("land.nav.pricing")}</a>
@@ -176,21 +176,11 @@ function Nav({ t }: { t: T }) {
         </nav>
         <div className="flex items-center gap-2">
           <LangToggle />
-          <a
-            href="https://github.com/K3E9X/TaskX"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden sm:inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition px-2"
-            aria-label="GitHub"
-          >
-            <Github className="size-4" />
-            <span className="hidden lg:inline">GitHub</span>
-          </a>
           <Link to="/login">
-            <Button variant="ghost" size="sm">{t("land.nav.signin")}</Button>
+            <Button variant="ghost" size="sm" className="whitespace-nowrap">{t("land.nav.signin")}</Button>
           </Link>
           <Link to="/login">
-            <Button size="sm" className="gap-1.5 bg-gradient-to-r from-primary to-[oklch(0.72_0.14_180)] text-primary-foreground hover:opacity-90 border-0 shadow-[0_0_24px_-8px_oklch(0.78_0.15_195/60%)]">
+            <Button size="sm" className="gap-1.5 whitespace-nowrap bg-gradient-to-r from-primary to-[oklch(0.72_0.14_180)] text-primary-foreground hover:opacity-90 border-0 shadow-[0_0_24px_-8px_oklch(0.78_0.15_195/60%)]">
               {t("land.nav.start")} <ArrowRight className="size-3.5" />
             </Button>
           </Link>
