@@ -13,7 +13,8 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Plus, Trash2, ExternalLink, Eye, EyeOff, ShieldAlert, RefreshCw, Rss, Star } from "lucide-react";
+import { Plus, Trash2, ExternalLink, Eye, EyeOff, ShieldAlert, RefreshCw, Rss, Star, Sparkles } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
 import { Switch } from "@/components/ui/switch";
 
@@ -77,7 +78,17 @@ function FeedsPage() {
   const [filterSource, setFilterSource] = useState<Source | "all">("all");
   const [unreadOnly, setUnreadOnly] = useState(false);
   const [starredOnly, setStarredOnly] = useState(false);
+  const [forYouOnly, setForYouOnly] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+
+  const { data: stackTags = [] } = useQuery({
+    queryKey: ["profile_stack_tags"],
+    queryFn: async () => {
+      const { data } = await supabase.from("profiles").select("stack_tags").maybeSingle();
+      return ((data?.stack_tags as string[] | null) ?? []).map((t) => t.toLowerCase());
+    },
+    staleTime: 60_000,
+  });
 
   const { data: items = [], isLoading } = useQuery({
     queryKey: ["feed_items"],
@@ -116,12 +127,25 @@ function FeedsPage() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["feed_items"] }),
   });
 
-  const filtered = items.filter((x) => {
-    if (filterSource !== "all" && x.source !== filterSource) return false;
-    if (unreadOnly && x.read) return false;
-    if (starredOnly && !x.starred) return false;
-    return true;
-  });
+  const matchTagsFor = (x: FeedItem): string[] => {
+    if (stackTags.length === 0) return [];
+    const hay = `${x.title} ${x.summary ?? ""} ${x.tags.join(" ")}`.toLowerCase();
+    return stackTags.filter((tag) => new RegExp(`\\b${tag.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(hay));
+  };
+
+  const filtered = items
+    .map((x) => ({ x, matches: matchTagsFor(x) }))
+    .filter(({ x, matches }) => {
+      if (filterSource !== "all" && x.source !== filterSource) return false;
+      if (unreadOnly && x.read) return false;
+      if (starredOnly && !x.starred) return false;
+      if (forYouOnly && matches.length === 0) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      if (forYouOnly) return b.matches.length - a.matches.length;
+      return 0;
+    });
 
   const refreshFn = useServerFn(refreshMyFeeds);
   const refresh = async () => {
@@ -181,8 +205,17 @@ function FeedsPage() {
           >{t(`feeds.source.${s}` as TKey)}</Button>
         ))}
         <Button
+          size="sm" variant={forYouOnly ? "default" : "outline"}
+          onClick={() => setForYouOnly((v) => !v)}
+          className="h-7 text-xs ml-auto"
+          disabled={stackTags.length === 0}
+          title={stackTags.length === 0 ? "Configure your stack in /profile" : undefined}
+        >
+          <Sparkles className="h-3 w-3" /> For You{stackTags.length > 0 ? ` (${stackTags.length})` : ""}
+        </Button>
+        <Button
           size="sm" variant={starredOnly ? "default" : "outline"}
-          onClick={() => setStarredOnly((v) => !v)} className="h-7 text-xs ml-auto"
+          onClick={() => setStarredOnly((v) => !v)} className="h-7 text-xs"
         ><Star className={`h-3 w-3 ${starredOnly ? "fill-current" : ""}`} /> {t("feeds.starredOnly")}</Button>
         <Button
           size="sm" variant={unreadOnly ? "default" : "outline"}
@@ -190,16 +223,22 @@ function FeedsPage() {
         >{t("feeds.unreadOnly")}</Button>
       </div>
 
+      {forYouOnly && stackTags.length === 0 && (
+        <p className="text-xs text-muted-foreground mb-3">
+          Add stack tags in your <Link to="/profile" className="text-primary hover:underline">profile</Link> to enable For You filtering.
+        </p>
+      )}
+
       {isLoading ? (
         <p className="text-sm text-muted-foreground">{t("common.loading")}</p>
       ) : filtered.length === 0 ? (
         <p className="text-sm text-muted-foreground py-12 text-center">{t("feeds.empty")}</p>
       ) : (
         <ul className="space-y-2">
-          {filtered.map((x) => (
+          {filtered.map(({ x, matches }) => (
             <li
               key={x.id}
-              className={`rounded-lg border bg-card p-4 ${x.read ? "opacity-60" : ""}`}
+              className={`rounded-lg border bg-card p-4 ${x.read ? "opacity-60" : ""} ${matches.length > 0 ? "border-primary/40" : ""}`}
             >
               <div className="flex items-start gap-3">
                 <ShieldAlert className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
@@ -211,6 +250,11 @@ function FeedsPage() {
                     <Badge variant={SEV_VARIANT[x.severity]} className="h-5 px-1.5 text-[10px]">
                       {t(`feeds.sev.${x.severity}` as TKey)}
                     </Badge>
+                    {matches.length > 0 && (
+                      <Badge className="h-5 px-1.5 text-[10px] gap-1 bg-primary/15 text-primary border-primary/30" variant="outline">
+                        <Sparkles className="h-2.5 w-2.5" /> {matches.slice(0, 3).join(", ")}
+                      </Badge>
+                    )}
                     {x.external_id && <span className="text-[10px] font-mono text-muted-foreground">{x.external_id}</span>}
                     <span className="text-[10px] text-muted-foreground ml-auto">
                       {formatDistanceToNow(new Date(x.published_at), { addSuffix: true })}

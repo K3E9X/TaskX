@@ -14,7 +14,8 @@ import {
   AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { UserCircle2, Mail, KeyRound, Trash2, Loader2 } from "lucide-react";
+import { UserCircle2, Mail, KeyRound, Trash2, Loader2, Tag, X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   component: ProfilePage,
@@ -32,6 +33,11 @@ function ProfilePage() {
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [savingName, setSavingName] = useState(false);
 
+  // Stack tags (Watch For You)
+  const [stackTags, setStackTags] = useState<string[]>([]);
+  const [newTag, setNewTag] = useState("");
+  const [savingStack, setSavingStack] = useState(false);
+
   // Email
   const [newEmail, setNewEmail] = useState("");
   const [savingEmail, setSavingEmail] = useState(false);
@@ -47,11 +53,33 @@ function ProfilePage() {
   const deleteFn = useServerFn(deleteMyAccount);
 
   useEffect(() => {
-    supabase.from("profiles").select("display_name").maybeSingle().then(({ data }) => {
+    supabase.from("profiles").select("display_name,stack_tags").maybeSingle().then(({ data }) => {
       setDisplayName((data?.display_name as string | null) ?? "");
+      setStackTags(((data?.stack_tags as string[] | null) ?? []));
       setLoadingProfile(false);
     });
   }, []);
+
+  const addTag = () => {
+    const t = newTag.trim().toLowerCase();
+    if (!t || stackTags.includes(t)) return;
+    setStackTags([...stackTags, t]);
+    setNewTag("");
+  };
+  const removeTag = (t: string) => setStackTags(stackTags.filter((x) => x !== t));
+  const saveStack = async () => {
+    if (!session) return;
+    setSavingStack(true);
+    try {
+      const { error } = await supabase.from("profiles").update({ stack_tags: stackTags }).eq("id", session.user.id);
+      if (error) throw error;
+      toast.success(fr ? "Stack enregistrée" : "Stack saved");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Error");
+    } finally {
+      setSavingStack(false);
+    }
+  };
 
   const saveName = async (e: FormEvent) => {
     e.preventDefault();
@@ -163,6 +191,49 @@ function ProfilePage() {
             {fr ? "Enregistrer" : "Save"}
           </Button>
         </form>
+      </section>
+
+      {/* Stack tags */}
+      <section className="rounded-lg border bg-card p-5">
+        <h2 className="text-sm font-semibold mb-1 flex items-center gap-2">
+          <Tag className="h-4 w-4 text-muted-foreground" />
+          {fr ? "Ma stack (Watch For You)" : "My stack (Watch For You)"}
+        </h2>
+        <p className="text-xs text-muted-foreground mb-3">
+          {fr
+            ? "Techs/produits que tu suis (ex: nginx, kubernetes, cisco, wordpress). Utilisé pour filtrer les CVE/CTI pertinents pour toi."
+            : "Techs/products you follow (e.g. nginx, kubernetes, cisco, wordpress). Used to filter CVEs/CTI relevant to you."}
+        </p>
+        <div className="flex flex-wrap gap-1.5 mb-3 min-h-6">
+          {stackTags.length === 0 && (
+            <span className="text-xs text-muted-foreground italic">{fr ? "Aucune tag" : "No tag"}</span>
+          )}
+          {stackTags.map((t) => (
+            <Badge key={t} variant="secondary" className="gap-1 pr-1">
+              {t}
+              <button type="button" onClick={() => removeTag(t)} className="hover:text-destructive">
+                <X className="h-3 w-3" />
+              </button>
+            </Badge>
+          ))}
+        </div>
+        <div className="flex gap-2">
+          <Input
+            value={newTag}
+            onChange={(e) => setNewTag(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addTag(); } }}
+            placeholder={fr ? "ex: nginx" : "e.g. nginx"}
+            className="h-9"
+            maxLength={40}
+          />
+          <Button type="button" variant="outline" size="sm" onClick={addTag} disabled={!newTag.trim()}>
+            {fr ? "Ajouter" : "Add"}
+          </Button>
+          <Button type="button" size="sm" onClick={saveStack} disabled={savingStack || loadingProfile}>
+            {savingStack && <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />}
+            {fr ? "Enregistrer" : "Save"}
+          </Button>
+        </div>
       </section>
 
       {/* Email */}
