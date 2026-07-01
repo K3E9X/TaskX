@@ -113,7 +113,14 @@ function SnippetsPage() {
     onError: (e) => toast.error(e.message),
   });
 
+  const [varsOpen, setVarsOpen] = useState(false);
+  const [varsCmd, setVarsCmd] = useState("");
   const copy = async (text: string) => {
+    if (extractVars(text).length > 0) {
+      setVarsCmd(text);
+      setVarsOpen(true);
+      return;
+    }
     try {
       await navigator.clipboard.writeText(text);
       toast.success(t("snip.copied"));
