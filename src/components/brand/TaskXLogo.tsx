@@ -18,20 +18,20 @@ export function TaskXMark({ size = 28, className = "" }: { size?: number; classN
     >
       <defs>
         <linearGradient id="taskx-bg" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="oklch(0.22 0.04 270)" />
-          <stop offset="100%" stopColor="oklch(0.14 0.03 260)" />
+          <stop offset="0%" stopColor="oklch(0.18 0.03 210)" />
+          <stop offset="100%" stopColor="oklch(0.11 0.02 220)" />
         </linearGradient>
         <linearGradient id="taskx-x1" x1="6" y1="8" x2="34" y2="32" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="oklch(0.86 0.16 270)" />
-          <stop offset="100%" stopColor="oklch(0.62 0.18 260)" />
+          <stop offset="0%" stopColor="oklch(0.88 0.14 195)" />
+          <stop offset="100%" stopColor="oklch(0.72 0.15 195)" />
         </linearGradient>
         <linearGradient id="taskx-x2" x1="34" y1="8" x2="6" y2="32" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="oklch(0.74 0.18 210)" />
-          <stop offset="100%" stopColor="oklch(0.5 0.16 250)" />
+          <stop offset="0%" stopColor="oklch(0.82 0.14 180)" />
+          <stop offset="100%" stopColor="oklch(0.62 0.14 200)" />
         </linearGradient>
         <linearGradient id="taskx-edge" x1="0" y1="0" x2="0" y2="40" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="oklch(1 0 0 / 0.28)" />
-          <stop offset="100%" stopColor="oklch(1 0 0 / 0.04)" />
+          <stop offset="0%" stopColor="oklch(0.78 0.15 195 / 0.45)" />
+          <stop offset="100%" stopColor="oklch(0.78 0.15 195 / 0.08)" />
         </linearGradient>
       </defs>
 
@@ -40,7 +40,7 @@ export function TaskXMark({ size = 28, className = "" }: { size?: number; classN
       <rect x="1.5" y="1.5" width="37" height="37" rx="9.5" stroke="url(#taskx-edge)" />
 
       {/* Subtle inner grid hint (security/precision) */}
-      <g opacity="0.08" stroke="white" strokeWidth="0.5">
+      <g opacity="0.1" stroke="oklch(0.78 0.15 195)" strokeWidth="0.5">
         <path d="M20 4 V36" />
         <path d="M4 20 H36" />
       </g>
@@ -60,8 +60,8 @@ export function TaskXMark({ size = 28, className = "" }: { size?: number; classN
       />
 
       {/* Accent dot — scan target / status indicator */}
-      <circle cx="31.5" cy="9" r="2.2" fill="oklch(0.82 0.18 160)" />
-      <circle cx="31.5" cy="9" r="2.2" stroke="oklch(0.22 0.04 270)" strokeWidth="0.8" />
+      <circle cx="31.5" cy="9" r="2.2" fill="oklch(0.88 0.14 195)" />
+      <circle cx="31.5" cy="9" r="2.2" stroke="oklch(0.11 0.02 220)" strokeWidth="0.8" />
     </svg>
   );
 }
@@ -74,7 +74,7 @@ export function TaskXLogo({ size = 28, withWordmark = true, className = "" }: Pr
         <span className="text-[1.05rem] leading-none flex items-baseline">
           <span>Task</span>
           <span
-            className="ml-[1px] bg-gradient-to-br from-primary to-[oklch(0.62_0.18_260)] bg-clip-text text-transparent font-bold"
+            className="ml-[1px] bg-gradient-to-br from-primary to-[oklch(0.72_0.14_180)] bg-clip-text text-transparent font-bold"
             style={{ fontFeatureSettings: '"ss01"' }}
           >
             X
