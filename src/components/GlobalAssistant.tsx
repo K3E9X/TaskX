@@ -6,6 +6,7 @@ import { Sparkles, Send, Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { askAssistant } from "@/lib/assistant.functions";
+import { useI18n } from "@/lib/i18n";
 import { toast } from "sonner";
 
 type Msg = { role: "user" | "assistant"; content: string };
@@ -17,7 +18,18 @@ export function GlobalAssistant() {
   const [loading, setLoading] = useState(false);
   const ask = useServerFn(askAssistant);
   const path = useRouterState({ select: (s) => s.location.pathname });
+  const { lang } = useI18n();
   const bottomRef = useRef<HTMLDivElement>(null);
+  const isFr = lang === "fr";
+  const T = {
+    hint: isFr ? "Pose une question cyber ou demande de l'aide sur cette page." : "Ask a cyber question or get help on this page.",
+    thinking: isFr ? "Réflexion…" : "Thinking…",
+    placeholder: isFr ? "Demande quelque chose…" : "Ask something…",
+    aiError: isFr ? "Erreur IA" : "AI error",
+    suggestions: isFr
+      ? ["Explique CVSS 4.0", "Payload XSS bypass CSP", "Différence EDR/XDR"]
+      : ["Explain CVSS 4.0", "XSS payload bypassing CSP", "EDR vs XDR"],
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -41,10 +53,10 @@ export function GlobalAssistant() {
     setLoading(true);
     try {
       const history = next.slice(-10).map((m) => ({ role: m.role, content: m.content }));
-      const res = await ask({ data: { prompt: p, context: path, history } });
+      const res = await ask({ data: { prompt: p, context: path, lang, history } });
       setMessages((m) => [...m, { role: "assistant", content: res.content }]);
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "AI error";
+      const msg = e instanceof Error ? e.message : T.aiError;
       toast.error(msg);
       setMessages((m) => [...m, { role: "assistant", content: `⚠️ ${msg}` }]);
     } finally {
@@ -74,9 +86,9 @@ export function GlobalAssistant() {
           <div className="flex-1 overflow-y-auto p-3 space-y-3 text-sm">
             {messages.length === 0 && (
               <div className="text-xs text-muted-foreground space-y-2">
-                <p>Pose une question cyber ou demande de l'aide sur cette page.</p>
+                <p>{T.hint}</p>
                 <div className="flex flex-wrap gap-1">
-                  {["Explique CVSS 4.0", "Payload XSS bypass CSP", "Différence EDR/XDR"].map((s) => (
+                  {T.suggestions.map((s) => (
                     <button
                       key={s}
                       onClick={() => setPrompt(s)}
@@ -103,7 +115,7 @@ export function GlobalAssistant() {
             ))}
             {loading && (
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Loader2 className="h-3.5 w-3.5 animate-spin" /> Réflexion…
+                <Loader2 className="h-3.5 w-3.5 animate-spin" /> {T.thinking}
               </div>
             )}
             <div ref={bottomRef} />
@@ -119,7 +131,7 @@ export function GlobalAssistant() {
                   send();
                 }
               }}
-              placeholder="Demande quelque chose…"
+              placeholder={T.placeholder}
               className="min-h-[40px] max-h-32 text-sm resize-none"
             />
             <Button size="icon" onClick={send} disabled={loading || !prompt.trim()}>
