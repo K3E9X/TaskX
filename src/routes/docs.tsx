@@ -485,7 +485,7 @@ PORT=3000`}</code></pre>
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search docs…"
+                placeholder={tr("Rechercher dans la doc…", "Search docs…")}
                 className="pl-9 h-9 bg-card/60"
               />
             </div>
