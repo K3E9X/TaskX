@@ -179,9 +179,15 @@ export function useQuickCapture() {
         setOpen(true);
       }
     };
+    const onEvent = () => setOpen(true);
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener("quickcapture:open", onEvent);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("quickcapture:open", onEvent);
+    };
   }, []);
 
   return { open, setOpen };
 }
+

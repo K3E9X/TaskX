@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/command";
 import {
   LayoutDashboard, CheckSquare, FileText, FolderKanban, CalendarClock,
-  GitBranch, Rss, Shield, ShieldCheck, LogOut, Code2,
+  GitBranch, Rss, Shield, ShieldCheck, LogOut, Code2, Plus, LayoutTemplate, UserCircle2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { universalSearch } from "@/lib/universal-search.functions";
@@ -53,21 +53,29 @@ export function CommandPalette() {
   });
 
   const items: Item[] = [
+    { group: "Créer", label: "Capture rapide (todo / note / lien)", icon: Plus,
+      action: () => window.dispatchEvent(new CustomEvent("quickcapture:open")) },
+    { group: "Créer", label: "Nouveau snippet", to: "/snippets", icon: Code2 },
+    { group: "Créer", label: "Nouveau diagramme", to: "/diagrams", icon: GitBranch },
+    { group: "Créer", label: "Nouvelle note depuis template", to: "/templates", icon: LayoutTemplate },
     { group: "Navigation", label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
     { group: "Navigation", label: "Todos", to: "/todos", icon: CheckSquare },
     { group: "Navigation", label: "Notes", to: "/notes", icon: FileText },
+    { group: "Navigation", label: "Templates", to: "/templates", icon: LayoutTemplate },
     { group: "Navigation", label: "Projets", to: "/projects", icon: FolderKanban },
     { group: "Navigation", label: "Réunions", to: "/meetings", icon: CalendarClock },
     { group: "Navigation", label: "Diagrammes", to: "/diagrams", icon: GitBranch },
     { group: "Navigation", label: "Feeds", to: "/feeds", icon: Rss },
     { group: "Navigation", label: "Snippets", to: "/snippets", icon: Code2 },
     { group: "Navigation", label: "Sécurité", to: "/security", icon: ShieldCheck },
+    { group: "Navigation", label: "Profil", to: "/profile", icon: UserCircle2 },
     { group: "Admin", label: "Console admin", to: "/admin", icon: Shield },
     {
       group: "Actions", label: "Se déconnecter", icon: LogOut,
       action: async () => { await supabase.auth.signOut(); navigate({ to: "/login" }); },
     },
   ];
+
 
   const hits = results?.hits ?? [];
   const grouped = hits.reduce<Record<string, typeof hits>>((acc, h) => {
