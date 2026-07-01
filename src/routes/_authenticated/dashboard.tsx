@@ -659,7 +659,7 @@ function HeroBrief({
   const { data: profile } = useQuery({
     queryKey: ["dash", "hero-profile"],
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("display_name,team_role").maybeSingle();
+      const { data } = await supabase.from("profiles").select("display_name,profile_type").maybeSingle();
       return data;
     },
   });
