@@ -97,12 +97,15 @@ export function QuickCaptureDialog({ open, onOpenChange }: {
         qc.invalidateQueries({ queryKey: ["notes"] });
         toast.success(t("qc.toast.note"));
       } else {
-        await supabase.from("bookmarks").insert({
+        await supabase.from("notes").insert({
           user_id: user.id,
           title: parsed.title || parsed.url || "Untitled",
-          url: parsed.url ?? parsed.title,
+          content: "",
+          kind: "link",
+          link_url: parsed.url ?? parsed.title,
           tags: parsed.tags,
         });
+        qc.invalidateQueries({ queryKey: ["notes"] });
         toast.success(t("qc.toast.bookmark"));
       }
       onOpenChange(false);
