@@ -131,7 +131,7 @@ export function GlobalAssistant() {
                   send();
                 }
               }}
-              placeholder="Demande quelque chose…"
+              placeholder={T.placeholder}
               className="min-h-[40px] max-h-32 text-sm resize-none"
             />
             <Button size="icon" onClick={send} disabled={loading || !prompt.trim()}>
