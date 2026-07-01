@@ -13,7 +13,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Plus, Trash2, ExternalLink, Eye, EyeOff, ShieldAlert, RefreshCw, Rss, Star, Sparkles } from "lucide-react";
+import { Plus, Trash2, ExternalLink, Eye, EyeOff, ShieldAlert, RefreshCw, Rss, Star, Sparkles, Package } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
 import { Switch } from "@/components/ui/switch";
