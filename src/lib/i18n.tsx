@@ -643,6 +643,7 @@ const dict = {
     "nav.meetings": "Meetings",
     "nav.diagrams": "Diagrams",
     "nav.feeds": "Watch",
+    "nav.stack": "My Stack",
     "nav.tips": "Tips",
     "nav.bookmarks": "Add-ons",
     "nav.team": "Team",
