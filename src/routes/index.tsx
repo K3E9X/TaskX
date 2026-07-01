@@ -39,17 +39,17 @@ import { useI18n, LangToggle, type TKey } from "@/lib/i18n";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "TaskX — Le workspace quotidien des pros cyber (CVE, notes, runbooks)" },
+      { title: "TaskX — Le second cerveau des pros cyber (CVE, snippets, runbooks, IA)" },
       {
         name: "description",
         content:
-          "TaskX est le workspace personnel des pros cyber : veille CVE auto, notes, runbooks, todos et fil X — préconfiguré dès l'inscription. Gratuit, sans CB.",
+          "Le workspace personnel des pros cyber : veille CVE filtrée par ta stack, snippets à variables, runbooks, diagrammes Mermaid, palette ⌘K et assistant IA contextuel. Gratuit, sans CB.",
       },
-      { property: "og:title", content: "TaskX — Le workspace quotidien des pros cyber" },
+      { property: "og:title", content: "TaskX — Le second cerveau des pros cyber" },
       {
         property: "og:description",
         content:
-          "Veille CVE auto, notes, runbooks, todos et fil X. Préconfiguré dès l'inscription. Gratuit, sans CB.",
+          "Veille CVE For You, snippets à variables {{VAR}}, runbooks, diagrammes, palette ⌘K et IA contextuelle. Gratuit, sans CB.",
       },
       { property: "og:url", content: "https://taskx.tech/" },
       { property: "og:type", content: "website" },
@@ -64,7 +64,7 @@ export const Route = createFileRoute("/")({
           name: "TaskX",
           url: "https://taskx.tech/",
           description:
-            "Workspace quotidien personnel pour les pros cyber : veille CVE, notes, runbooks, todos, RSS et fil X.",
+            "Second cerveau quotidien pour les pros cyber : veille CVE personnalisée, snippets à variables, runbooks, diagrammes Mermaid et IA contextuelle.",
         }),
       },
       {
@@ -78,6 +78,7 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
+
   component: LandingPage,
 });
 
