@@ -653,7 +653,7 @@ function CockpitShowcase({ t }: { t: T }) {
             <div className="mt-4 space-y-1.5">
               {[
                 `${t("nav.feeds")} · ingest auto · 14:02 · ok`,
-                `${t("nav.routines")} · daily review · 08:00 · ok`,
+                `snippets · exec kubectl-drain · 08:00 · copié`,
                 `${t("nav.meetings")} · revue archi · 16:30 · planifié`,
               ].map((l) => (
                 <div key={l} className="flex items-center gap-2 font-mono text-[11px] text-muted-foreground">
