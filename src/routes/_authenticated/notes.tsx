@@ -47,7 +47,7 @@ function NotesPage() {
   const { data: profile } = useQuery({
     queryKey: ["profile-role"],
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("team_role").maybeSingle();
+      const { data } = await supabase.from("profiles").select("profile_type").maybeSingle();
       return data;
     },
   });
