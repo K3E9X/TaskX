@@ -20,6 +20,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as AuthenticatedTodosRouteImport } from './routes/_authenticated/todos'
 import { Route as AuthenticatedTemplatesRouteImport } from './routes/_authenticated/templates'
+import { Route as AuthenticatedStackRouteImport } from './routes/_authenticated/stack'
 import { Route as AuthenticatedSnippetsRouteImport } from './routes/_authenticated/snippets'
 import { Route as AuthenticatedSecurityRouteImport } from './routes/_authenticated/security'
 import { Route as AuthenticatedProjectsRouteImport } from './routes/_authenticated/projects'
@@ -38,6 +39,7 @@ import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/l
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
+import { Route as ApiPublicHooksRefreshNucleiIndexRouteImport } from './routes/api/public/hooks/refresh-nuclei-index'
 import { Route as ApiPublicHooksIngestFeedsRouteImport } from './routes/api/public/hooks/ingest-feeds'
 import { Route as ApiPublicHooksDailyDigestRouteImport } from './routes/api/public/hooks/daily-digest'
 import { Route as ApiPublicHooksDailyDigestStatusRouteImport } from './routes/api/public/hooks/daily-digest.status'
@@ -94,6 +96,11 @@ const AuthenticatedTodosRoute = AuthenticatedTodosRouteImport.update({
 const AuthenticatedTemplatesRoute = AuthenticatedTemplatesRouteImport.update({
   id: '/templates',
   path: '/templates',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedStackRoute = AuthenticatedStackRouteImport.update({
+  id: '/stack',
+  path: '/stack',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedSnippetsRoute = AuthenticatedSnippetsRouteImport.update({
@@ -189,6 +196,12 @@ const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
   path: '/lovable/email/auth/preview',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksRefreshNucleiIndexRoute =
+  ApiPublicHooksRefreshNucleiIndexRouteImport.update({
+    id: '/api/public/hooks/refresh-nuclei-index',
+    path: '/api/public/hooks/refresh-nuclei-index',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksIngestFeedsRoute =
   ApiPublicHooksIngestFeedsRouteImport.update({
     id: '/api/public/hooks/ingest-feeds',
@@ -227,6 +240,7 @@ export interface FileRoutesByFullPath {
   '/projects': typeof AuthenticatedProjectsRoute
   '/security': typeof AuthenticatedSecurityRoute
   '/snippets': typeof AuthenticatedSnippetsRoute
+  '/stack': typeof AuthenticatedStackRoute
   '/templates': typeof AuthenticatedTemplatesRoute
   '/todos': typeof AuthenticatedTodosRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
@@ -234,6 +248,7 @@ export interface FileRoutesByFullPath {
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/api/public/hooks/daily-digest': typeof ApiPublicHooksDailyDigestRouteWithChildren
   '/api/public/hooks/ingest-feeds': typeof ApiPublicHooksIngestFeedsRoute
+  '/api/public/hooks/refresh-nuclei-index': typeof ApiPublicHooksRefreshNucleiIndexRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -260,6 +275,7 @@ export interface FileRoutesByTo {
   '/projects': typeof AuthenticatedProjectsRoute
   '/security': typeof AuthenticatedSecurityRoute
   '/snippets': typeof AuthenticatedSnippetsRoute
+  '/stack': typeof AuthenticatedStackRoute
   '/templates': typeof AuthenticatedTemplatesRoute
   '/todos': typeof AuthenticatedTodosRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
@@ -267,6 +283,7 @@ export interface FileRoutesByTo {
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/api/public/hooks/daily-digest': typeof ApiPublicHooksDailyDigestRouteWithChildren
   '/api/public/hooks/ingest-feeds': typeof ApiPublicHooksIngestFeedsRoute
+  '/api/public/hooks/refresh-nuclei-index': typeof ApiPublicHooksRefreshNucleiIndexRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -295,6 +312,7 @@ export interface FileRoutesById {
   '/_authenticated/projects': typeof AuthenticatedProjectsRoute
   '/_authenticated/security': typeof AuthenticatedSecurityRoute
   '/_authenticated/snippets': typeof AuthenticatedSnippetsRoute
+  '/_authenticated/stack': typeof AuthenticatedStackRoute
   '/_authenticated/templates': typeof AuthenticatedTemplatesRoute
   '/_authenticated/todos': typeof AuthenticatedTodosRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
@@ -302,6 +320,7 @@ export interface FileRoutesById {
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/api/public/hooks/daily-digest': typeof ApiPublicHooksDailyDigestRouteWithChildren
   '/api/public/hooks/ingest-feeds': typeof ApiPublicHooksIngestFeedsRoute
+  '/api/public/hooks/refresh-nuclei-index': typeof ApiPublicHooksRefreshNucleiIndexRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -330,6 +349,7 @@ export interface FileRouteTypes {
     | '/projects'
     | '/security'
     | '/snippets'
+    | '/stack'
     | '/templates'
     | '/todos'
     | '/email/unsubscribe'
@@ -337,6 +357,7 @@ export interface FileRouteTypes {
     | '/lovable/email/suppression'
     | '/api/public/hooks/daily-digest'
     | '/api/public/hooks/ingest-feeds'
+    | '/api/public/hooks/refresh-nuclei-index'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -363,6 +384,7 @@ export interface FileRouteTypes {
     | '/projects'
     | '/security'
     | '/snippets'
+    | '/stack'
     | '/templates'
     | '/todos'
     | '/email/unsubscribe'
@@ -370,6 +392,7 @@ export interface FileRouteTypes {
     | '/lovable/email/suppression'
     | '/api/public/hooks/daily-digest'
     | '/api/public/hooks/ingest-feeds'
+    | '/api/public/hooks/refresh-nuclei-index'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -397,6 +420,7 @@ export interface FileRouteTypes {
     | '/_authenticated/projects'
     | '/_authenticated/security'
     | '/_authenticated/snippets'
+    | '/_authenticated/stack'
     | '/_authenticated/templates'
     | '/_authenticated/todos'
     | '/email/unsubscribe'
@@ -404,6 +428,7 @@ export interface FileRouteTypes {
     | '/lovable/email/suppression'
     | '/api/public/hooks/daily-digest'
     | '/api/public/hooks/ingest-feeds'
+    | '/api/public/hooks/refresh-nuclei-index'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -426,6 +451,7 @@ export interface RootRouteChildren {
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   ApiPublicHooksDailyDigestRoute: typeof ApiPublicHooksDailyDigestRouteWithChildren
   ApiPublicHooksIngestFeedsRoute: typeof ApiPublicHooksIngestFeedsRoute
+  ApiPublicHooksRefreshNucleiIndexRoute: typeof ApiPublicHooksRefreshNucleiIndexRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
@@ -510,6 +536,13 @@ declare module '@tanstack/react-router' {
       path: '/templates'
       fullPath: '/templates'
       preLoaderRoute: typeof AuthenticatedTemplatesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/stack': {
+      id: '/_authenticated/stack'
+      path: '/stack'
+      fullPath: '/stack'
+      preLoaderRoute: typeof AuthenticatedStackRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/snippets': {
@@ -638,6 +671,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/refresh-nuclei-index': {
+      id: '/api/public/hooks/refresh-nuclei-index'
+      path: '/api/public/hooks/refresh-nuclei-index'
+      fullPath: '/api/public/hooks/refresh-nuclei-index'
+      preLoaderRoute: typeof ApiPublicHooksRefreshNucleiIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/ingest-feeds': {
       id: '/api/public/hooks/ingest-feeds'
       path: '/api/public/hooks/ingest-feeds'
@@ -674,6 +714,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedProjectsRoute: typeof AuthenticatedProjectsRoute
   AuthenticatedSecurityRoute: typeof AuthenticatedSecurityRoute
   AuthenticatedSnippetsRoute: typeof AuthenticatedSnippetsRoute
+  AuthenticatedStackRoute: typeof AuthenticatedStackRoute
   AuthenticatedTemplatesRoute: typeof AuthenticatedTemplatesRoute
   AuthenticatedTodosRoute: typeof AuthenticatedTodosRoute
 }
@@ -690,6 +731,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedProjectsRoute: AuthenticatedProjectsRoute,
   AuthenticatedSecurityRoute: AuthenticatedSecurityRoute,
   AuthenticatedSnippetsRoute: AuthenticatedSnippetsRoute,
+  AuthenticatedStackRoute: AuthenticatedStackRoute,
   AuthenticatedTemplatesRoute: AuthenticatedTemplatesRoute,
   AuthenticatedTodosRoute: AuthenticatedTodosRoute,
 }
@@ -726,6 +768,7 @@ const rootRouteChildren: RootRouteChildren = {
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   ApiPublicHooksDailyDigestRoute: ApiPublicHooksDailyDigestRouteWithChildren,
   ApiPublicHooksIngestFeedsRoute: ApiPublicHooksIngestFeedsRoute,
+  ApiPublicHooksRefreshNucleiIndexRoute: ApiPublicHooksRefreshNucleiIndexRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
