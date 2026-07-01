@@ -47,7 +47,7 @@ export const generateMorningBrief = createServerFn({ method: "POST" })
 
     // Build AI prompt
     const firstName = profile?.first_name || profile?.display_name || "";
-    const role = profile?.team_role ?? "architect";
+    const role = profile?.profile_type ?? "architect";
     const lang = data.lang;
 
     const factSheet = JSON.stringify({
