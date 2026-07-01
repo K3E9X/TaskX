@@ -295,11 +295,11 @@ function DashboardPage() {
   const { data: profile } = useQuery({
     queryKey: ["dash", "profile-role"],
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("team_role").maybeSingle();
+      const { data } = await supabase.from("profiles").select("profile_type").maybeSingle();
       return data;
     },
   });
-  const role = (profile?.team_role ?? "architect") as TemplateRole;
+  const role = (profile?.profile_type ?? "architect") as TemplateRole;
   const suggestedTemplates = useMemo(() => {
     const mine = NOTE_TEMPLATES.filter((tpl) => tpl.role === role);
     const universal = NOTE_TEMPLATES.filter((tpl) => tpl.role === "universal");
