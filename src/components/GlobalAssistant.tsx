@@ -18,7 +18,18 @@ export function GlobalAssistant() {
   const [loading, setLoading] = useState(false);
   const ask = useServerFn(askAssistant);
   const path = useRouterState({ select: (s) => s.location.pathname });
+  const { lang } = useI18n();
   const bottomRef = useRef<HTMLDivElement>(null);
+  const isFr = lang === "fr";
+  const T = {
+    hint: isFr ? "Pose une question cyber ou demande de l'aide sur cette page." : "Ask a cyber question or get help on this page.",
+    thinking: isFr ? "Réflexion…" : "Thinking…",
+    placeholder: isFr ? "Demande quelque chose…" : "Ask something…",
+    aiError: isFr ? "Erreur IA" : "AI error",
+    suggestions: isFr
+      ? ["Explique CVSS 4.0", "Payload XSS bypass CSP", "Différence EDR/XDR"]
+      : ["Explain CVSS 4.0", "XSS payload bypassing CSP", "EDR vs XDR"],
+  };
 
   useEffect(() => {
     if (!open) return;
