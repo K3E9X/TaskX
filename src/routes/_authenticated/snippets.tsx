@@ -12,6 +12,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { toast } from "sonner";
 import { Plus, Trash2, Copy, Star, Terminal, Sparkles, Send, Save, Loader2 } from "lucide-react";
 import { generateSnippet } from "@/lib/snippets-ai.functions";
+import { SnippetVarsDialog, extractVars } from "@/components/SnippetVarsDialog";
 
 type ChatMsg = { role: "user" | "assistant"; content: string; code?: string | null };
 
