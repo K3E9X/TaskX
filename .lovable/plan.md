@@ -1,57 +1,74 @@
-# Refonte Dashboard — plan en 4 étapes
 
-## Étape 1 — Audit & nettoyage (bugs identifiés)
+# TaskX — Enrichir le Watch + Notes en outil indispensable
 
-À la lecture du code (`src/routes/_authenticated/dashboard.tsx`, 881 lignes), plusieurs tuiles sont **mortes ou trompeuses** depuis la fusion Phase 1 :
+Objectif : passer d'un agrégateur RSS dédupliqué à un vrai workspace perso pour cyber pros (pentester, DFIR, SOC, CISO), sans dériver vers un outil d'équipe SOC/CTI.
 
-- **`routines-today`** : la table `routines` a été supprimée, `routines = []` est codé en dur → la tuile affiche toujours « Aucune routine ». À supprimer (les récurrences vivent dans Todos maintenant).
-- **`kpi-routines`** : affiche systématiquement `0/0`. À supprimer.
-- **`tip`** : la table `usage_tips` a été supprimée, la tuile affiche uniquement le texte fallback `dash.tipSoon`. À supprimer.
-- **`kpi-today`** duplique le titre de la tuile `today-todos` (même libellé « Todos aujourd'hui ») → confusion. Renommer le KPI en « Dus aujourd'hui ».
-- Requête `recent-notes` ne filtre pas `kind` → mélange notes, runbooks et bookmarks liens. Filtrer sur `kind IN ('note','runbook')`.
-- Le rôle par défaut pour `suggested-templates` est `architect` en dur. Le baser sur `profile_type` réel (fallback intelligent).
+## Phase 1 — Priorisation réelle du Watch (grosse valeur, faible coût)
 
-Vérification live à faire ensemble une fois signé sur le preview : chaque tuile renvoie-t-elle bien les bonnes données, les liens « Voir tout » atterrissent-ils sur la bonne page, le toggle star fonctionne-t-il ?
+### 1.1 Enrichissement CVE : EPSS + KEV + PoC
+- Ajouter colonnes sur `feed_items` : `epss_score numeric`, `epss_percentile numeric`, `is_kev bool`, `has_poc bool`, `poc_urls text[]`, `cve_id text`.
+- Extraire le `cve_id` (regex `CVE-\d{4}-\d+`) au moment de l'ingestion.
+- À l'ingestion d'un item CVE, batch-fetch :
+  - **EPSS** : `https://api.first.org/data/v1/epss?cve=CVE-...` (public, sans clé)
+  - **KEV** : match contre la liste CISA KEV déjà ingérée
+  - **PoC** : `https://api.github.com/search/repositories?q=CVE-...` (limite 60/h non-auth, suffisant en batch cron) + check si le CVE apparaît dans `projectdiscovery/nuclei-templates` (dump JSON téléchargé quotidiennement)
+- UI Watch : 3 badges compacts à côté du CVSS → `EPSS 87%`, `KEV`, `PoC`.
+- Tri par défaut : `KEV DESC, epss_percentile DESC, cvss DESC`.
 
-## Étape 2 — Nouvelles tuiles à valeur
+### 1.2 Sources CERT-FR + CERT-EU
+- Ajouter dans le seed `handle_new_user()` et via un one-shot migration pour les users existants :
+  - CERT-FR avis : `https://www.cert.ssi.gouv.fr/avis/feed/` (CTI, high)
+  - CERT-FR alertes : `https://www.cert.ssi.gouv.fr/alerte/feed/` (CTI, critical)
+  - CERT-EU news : `https://cert.europa.eu/publications/threat-intelligence/rss` (CTI, medium)
 
-Ajouter 5 tuiles qui exploitent les phases 3-4 déjà livrées :
+### 1.3 « Mon Stack » — matching CPE
+- Nouvelle table `user_stack_items` : `id`, `user_id`, `vendor`, `product`, `version_min`, `version_max`, `cpe_prefix` (ex: `cpe:2.3:a:microsoft:exchange_server`), `label`, `created_at`.
+- UI : `/stack` (ou dans `/profile`) — CRUD simple + autocomplete depuis NVD CPE search (`https://services.nvd.nist.gov/rest/json/cpes/2.0?keywordSearch=...`).
+- Au moment de l'ingestion CVE (NVD renvoie déjà les CPE `configurations.nodes.cpeMatch`) → stocker les CPE affectés dans `feed_items.affected_cpes text[]`.
+- Nouveau flag calculé `matches_my_stack` côté requête (JOIN sur `user_stack_items.cpe_prefix`).
+- Onglet « For You » sur `/feeds` : filtre `matches_my_stack = true`. Badge orange « Your stack » sur les cartes concernées.
 
-- **Watch For You** : CVE/CTI filtrées par `stack_tags` du profil (highlight des tags qui matchent, comme sur `/feeds`). C'est LA tuile signature du produit.
-- **Snippets récents** : 5 derniers snippets par `updated_at`, badge si contient `{{VAR}}`, clic → copie ou ouvre le dialog variables.
-- **Diagrammes récents** : 4 derniers `diagrams`, mini-thumbnail Mermaid + titre.
-- **Projets actifs** : projets non-archivés, avec compteurs (todos ouverts, notes liées).
-- **Streak & activité 7 jours** : mini-heatmap 7 jours (basée sur `daily_activity`), + streak courant via `get_current_streak()` (déjà en DB).
+## Phase 2 — Notes de niveau pro
 
-Chaque tuile a un état vide utile (CTA « Créer ton premier X »).
+### 2.1 Templates de notes livrés
+- Nouvelle table `note_templates` (seedée, lecture pour tous authentifiés, écriture admin) : `id`, `slug`, `title`, `category`, `body_markdown`, `variables jsonb`.
+- Templates à livrer :
+  - **SITREP CSIRT** (situation report avec sections What/Impact/Actions/Timeline)
+  - **Timeline DFIR** (tableau chronologique horodaté)
+  - **Note d'archi sécu** (contexte, menaces, contrôles, résiduel)
+  - **Rapport pentest** (scope, findings CVSS, PoC, remédiation)
+  - **Playbook IR NIS2** (checklists 24h notification / 72h rapport)
+- UI : bouton `+ Nouvelle note depuis template` dans `/notes` → picker → duplique le markdown dans une nouvelle note.
 
-## Étape 3 — Layout hybride
+### 2.2 Liens bidirectionnels `[[Note title]]`
+- Parser markdown côté client : détecter `[[...]]`, rendre en lien cliquable vers la note ciblée (match par titre, case-insensitive).
+- Nouvelle table `note_links` (dérivée, rebuild sur save) : `source_note_id`, `target_note_id`.
+- Panneau latéral sur une note : « Backlinks » (liste des notes qui pointent vers celle-ci).
+- Autocomplete `[[` dans l'éditeur.
 
-- **Layout figé par défaut** : 3 zones fixes bien composées → Hero + Watch/Priorité (Watch For You + Todos du jour + Overdue) / Ta journée (Snippets, Notes, Diagrammes récents) / Contexte (Meetings, Projets, Streak, KPIs compacts).
-- **Bouton « Personnaliser »** (icône engrenage discrète en haut à droite) : active le mode drag/resize/hide existant (`taskx.dashboard.layout.v2`, on bump la version pour effacer les anciens layouts pollués par les widgets morts).
-- Retire les widgets morts du `DEFAULT_LAYOUT`.
+## Phase 3 — AI assistant plus utile
 
-## Étape 4 — Refonte visuelle Cyber Cyan
+### 3.1 Defang + structuration IOC
+- Nouveau bouton dans `GlobalAssistant` : « Structure IOCs » → colle un blob → l'assistant retourne un JSON `{ipv4:[], domains:[], hashes:{md5,sha1,sha256}, urls:[], emails:[]}` avec option "defang" (`1.2.3.4` → `1.2.3[.]4`, `http://` → `hxxp://`).
+- Système de prompt dédié, output structuré (Zod schema via AI SDK `Output.object`).
+- Bouton "Save as note" pour envoyer le résultat vers `/notes`.
 
-- Titres de tuile en `font-mono` (JetBrains Mono, déjà chargé), uppercase, tracking étendu.
-- Bordures teintées cyan (`border-primary/15`) + glow subtil au hover.
-- KPIs : gros chiffres mono, delta vs J-1 en vert/rouge cyan-teinté.
-- Hero : scanlines discrètes, gradient radial cyan derrière le briefing.
-- Sévérités CVE gardent leur code couleur mais critical passe en cyan-red hybrid pour cohérence.
+### 3.2 « Suis-je concerné ? » sur une CVE
+- Sur une carte CVE dans `/feeds` : bouton `Am I affected?` → passe la CVE + `user_stack_items` de l'user à l'assistant → réponse structurée : `{concerned: bool, matched_products: [], reasoning: string, recommended_actions: []}`.
+
+## Hors scope (explicitement refusé)
+- Pas de tagging MITRE ATT&CK structuré, pas de vue par technique. Les users tapent `T1566.001` en texte libre s'ils veulent.
+- Pas de génération de règles Sigma/KQL/SPL dans l'assistant. Si vraiment demandé plus tard : ajout de snippets templates paramétrés dans le module `/snippets` existant, pas de feature IA dédiée.
 
 ## Ordre d'exécution
-
-1. Nettoyage (retirer routines-today, kpi-routines, tip ; fixer requêtes notes & KPI ; bump layout key).
-2. Nouvelles tuiles (dans l'ordre : Watch For You → Snippets récents → Diagrammes → Projets → Streak).
-3. Layout hybride + bouton Personnaliser.
-4. Passe Cyber Cyan.
-5. Vérif live ensemble sur le preview (tu te reconnectes, je pilote Playwright pour valider chaque tuile).
+1. **Phase 1.1 + 1.2** (migration DB + ingestion enrichie + sources) — livrable visible immédiatement dans `/feeds`
+2. **Phase 1.3 Mon Stack** — nécessite UI CRUD, plus long mais différenciateur #1
+3. **Phase 2.1 templates** puis **2.2 backlinks**
+4. **Phase 3.1 IOC** puis **3.2 « Suis-je concerné ? »**
 
 ## Détails techniques
 
-- Nouvelles queries via `useQuery` + client Supabase (RLS déjà en place sur snippets, diagrams, projects, feed_items, daily_activity).
-- Streak : appel `supabase.rpc('get_current_streak')` (fonction déjà déployée).
-- Watch For You : réutilise la logique de matching `stack_tags` déjà écrite dans `src/routes/_authenticated/feeds.tsx` — extraire dans `src/lib/stack-match.ts` pour partage.
-- Layout : `DEFAULT_LAYOUT_V2` + `LAYOUT_KEY = "taskx.dashboard.layout.v2"` (les anciens layouts localStorage sont ignorés, remplacés par le nouveau défaut propre).
-- i18n : nouvelles clés `dash.fg.*` en FR + EN, pas de string hardcodée.
-- Aucune migration DB nécessaire — tout existe déjà.
+- Cron enrichissement : job existant de refresh feeds ajoute les appels EPSS/GitHub après ingestion, avec cache 24h par CVE ID.
+- Nuclei templates : petit endpoint interne `/api/public/cron/refresh-nuclei-index` qui télécharge l'index du repo une fois par jour et stocke la liste des CVE couvertes dans une table `nuclei_cve_index`.
+- CPE matching : purement SQL (`LIKE cpe_prefix || '%'` sur `affected_cpes` unnest), pas de service externe.
+- Core memory à mettre à jour à la fin : ajouter que TaskX gère désormais un « stack déclaré » (CPE) et des templates de notes livrés — reste centré perso, toujours pas MITRE/Sigma/SIEM.

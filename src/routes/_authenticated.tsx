@@ -9,7 +9,7 @@ import { trackPageView } from "@/lib/admin-console.functions";
 import {
   LayoutDashboard, CheckSquare, FileText, FolderKanban,
   CalendarClock, GitBranch, Rss, LogOut, Shield,
-  PanelLeftClose, PanelLeftOpen, ShieldCheck, Code2, LayoutTemplate, UserCircle2,
+  PanelLeftClose, PanelLeftOpen, ShieldCheck, Code2, LayoutTemplate, UserCircle2, Package,
 } from "lucide-react";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
@@ -46,6 +46,7 @@ const NAV: { to: string; key: TKey; icon: typeof LayoutDashboard }[] = [
   { to: "/meetings", key: "nav.meetings", icon: CalendarClock },
   { to: "/diagrams", key: "nav.diagrams", icon: GitBranch },
   { to: "/feeds", key: "nav.feeds", icon: Rss },
+  { to: "/stack", key: "nav.stack", icon: Package },
   { to: "/security", key: "nav.security", icon: ShieldCheck },
 ];
 

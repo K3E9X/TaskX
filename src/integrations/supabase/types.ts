@@ -337,10 +337,17 @@ export type Database = {
       }
       feed_items: {
         Row: {
+          affected_cpes: string[]
           created_at: string
+          cve_id: string | null
+          epss_percentile: number | null
+          epss_score: number | null
           external_id: string | null
+          has_poc: boolean
           id: string
           is_auto: boolean
+          is_kev: boolean
+          poc_urls: string[]
           published_at: string
           read: boolean
           severity: Database["public"]["Enums"]["feed_severity"]
@@ -354,10 +361,17 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          affected_cpes?: string[]
           created_at?: string
+          cve_id?: string | null
+          epss_percentile?: number | null
+          epss_score?: number | null
           external_id?: string | null
+          has_poc?: boolean
           id?: string
           is_auto?: boolean
+          is_kev?: boolean
+          poc_urls?: string[]
           published_at?: string
           read?: boolean
           severity?: Database["public"]["Enums"]["feed_severity"]
@@ -371,10 +385,17 @@ export type Database = {
           user_id: string
         }
         Update: {
+          affected_cpes?: string[]
           created_at?: string
+          cve_id?: string | null
+          epss_percentile?: number | null
+          epss_score?: number | null
           external_id?: string | null
+          has_poc?: boolean
           id?: string
           is_auto?: boolean
+          is_kev?: boolean
+          poc_urls?: string[]
           published_at?: string
           read?: boolean
           severity?: Database["public"]["Enums"]["feed_severity"]
@@ -464,6 +485,21 @@ export type Database = {
           title?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      nuclei_cve_index: {
+        Row: {
+          added_at: string
+          cve_id: string
+        }
+        Insert: {
+          added_at?: string
+          cve_id: string
+        }
+        Update: {
+          added_at?: string
+          cve_id?: string
         }
         Relationships: []
       }
@@ -761,6 +797,39 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      user_stack_items: {
+        Row: {
+          cpe_prefix: string
+          created_at: string
+          id: string
+          label: string | null
+          product: string
+          user_id: string
+          vendor: string
+          version: string | null
+        }
+        Insert: {
+          cpe_prefix: string
+          created_at?: string
+          id?: string
+          label?: string | null
+          product: string
+          user_id: string
+          vendor: string
+          version?: string | null
+        }
+        Update: {
+          cpe_prefix?: string
+          created_at?: string
+          id?: string
+          label?: string | null
+          product?: string
+          user_id?: string
+          vendor?: string
+          version?: string | null
         }
         Relationships: []
       }

@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Plus, Trash2, FileText, LayoutTemplate } from "lucide-react";
+import { Plus, Trash2, FileText, LayoutTemplate, Link2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -18,9 +18,9 @@ export const Route = createFileRoute("/_authenticated/notes")({
   head: () => ({
     meta: [
       { title: "Notes — TaskX" },
-      { name: "description", content: "Markdown notes in TaskX: capture research, runbooks and investigation findings with full-text search and tags." },
+      { name: "description", content: "Markdown notes in TaskX: capture research, runbooks and investigation findings with full-text search, tags and bidirectional [[wiki]] links." },
       { property: "og:title", content: "Notes — TaskX" },
-      { property: "og:description", content: "Markdown notes in TaskX: capture research, runbooks and investigation findings with full-text search and tags." },
+      { property: "og:description", content: "Markdown notes in TaskX: capture research, runbooks and investigation findings with full-text search, tags and bidirectional [[wiki]] links." },
       { property: "og:url", content: "https://taskxx.lovable.app/notes" },
     ],
     links: [{ rel: "canonical", href: "https://taskxx.lovable.app/notes" }],
@@ -35,6 +35,24 @@ type Note = {
   tags: string[];
   updated_at: string;
 };
+
+// Extract all [[wiki-style]] link targets (case-insensitive titles) from a note.
+const WIKI_RE = /\[\[([^\]]+)\]\]/g;
+function extractWikiLinks(content: string): string[] {
+  const out = new Set<string>();
+  for (const m of content.matchAll(WIKI_RE)) out.add(m[1].trim().toLowerCase());
+  return [...out];
+}
+
+// Replace [[Title]] with markdown links pointing to a custom scheme we intercept.
+function rewriteWikiLinks(content: string, titleToId: Map<string, string>): string {
+  return content.replace(WIKI_RE, (_, raw: string) => {
+    const key = raw.trim().toLowerCase();
+    const id = titleToId.get(key);
+    if (id) return `[${raw.trim()}](taskx-note://${id})`;
+    return `[${raw.trim()}](taskx-note://__missing__)`;
+  });
+}
 
 function NotesPage() {
   const { t } = useI18n();
@@ -51,6 +69,7 @@ function NotesPage() {
       return data;
     },
   });
+  const profileRole = (profile?.profile_type as TemplateRole | null) ?? null;
 
   const { data: notes = [], isLoading } = useQuery({
     queryKey: ["notes"],
@@ -70,13 +89,28 @@ function NotesPage() {
     if (!selectedId && notes[0]) setSelectedId(notes[0].id);
   }, [notes, selectedId]);
 
+  // Title lookup for wiki-link resolution
+  const titleToId = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const n of notes) m.set((n.title || "").trim().toLowerCase(), n.id);
+    return m;
+  }, [notes]);
+
+  // Backlinks for selected note
+  const backlinks = useMemo(() => {
+    if (!selected) return [] as Note[];
+    const target = (selected.title || "").trim().toLowerCase();
+    if (!target) return [];
+    return notes.filter((n) => n.id !== selected.id && extractWikiLinks(n.content).includes(target));
+  }, [selected, notes]);
+
   const create = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (init?: { title?: string; content?: string }) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not signed in");
       const { data, error } = await supabase
         .from("notes")
-        .insert({ user_id: user.id, title: "Untitled", content: "" })
+        .insert({ user_id: user.id, title: init?.title ?? "Untitled", content: init?.content ?? "" })
         .select()
         .single();
       if (error) throw error;
@@ -119,9 +153,14 @@ function NotesPage() {
       {/* List */}
       <aside className="w-72 border-r flex flex-col">
         <div className="p-3 border-b space-y-2">
-          <Button size="sm" className="w-full" onClick={() => create.mutate()} disabled={create.isPending}>
-            <Plus className="h-4 w-4" /> {t("notes.new")}
-          </Button>
+          <div className="flex gap-2">
+            <Button size="sm" className="flex-1" onClick={() => create.mutate(undefined)} disabled={create.isPending}>
+              <Plus className="h-4 w-4" /> {t("notes.new")}
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => setTplOpen(true)} title="New from template">
+              <LayoutTemplate className="h-4 w-4" />
+            </Button>
+          </div>
           <Input
             placeholder={t("common.search")}
             value={search}
@@ -162,6 +201,9 @@ function NotesPage() {
             note={selected}
             mode={mode}
             setMode={setMode}
+            titleToId={titleToId}
+            backlinks={backlinks}
+            onNavigateToNote={(id) => { setSelectedId(id); setMode("preview"); }}
             onChange={(patch) => update.mutate({ id: selected.id, patch })}
             onDelete={() => {
               remove.mutate(selected.id);
@@ -174,6 +216,16 @@ function NotesPage() {
           </div>
         )}
       </section>
+
+      <TemplateGalleryDialog
+        open={tplOpen}
+        onOpenChange={setTplOpen}
+        defaultRole={profileRole}
+        onPick={({ title, body }) => {
+          setTplOpen(false);
+          create.mutate({ title, content: body });
+        }}
+      />
     </div>
   );
 }
@@ -182,12 +234,18 @@ function Editor({
   note,
   mode,
   setMode,
+  titleToId,
+  backlinks,
+  onNavigateToNote,
   onChange,
   onDelete,
 }: {
   note: Note;
   mode: "edit" | "preview";
   setMode: (m: "edit" | "preview") => void;
+  titleToId: Map<string, string>;
+  backlinks: Note[];
+  onNavigateToNote: (id: string) => void;
   onChange: (patch: Partial<Note>) => void;
   onDelete: () => void;
 }) {
@@ -208,6 +266,8 @@ function Editor({
     }, 600);
     return () => clearTimeout(tid);
   }, [title, content]);
+
+  const rendered = useMemo(() => rewriteWikiLinks(content || "*Empty*", titleToId), [content, titleToId]);
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
@@ -236,14 +296,61 @@ function Editor({
         <Textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder={t("notes.contentPh")}
+          placeholder={`${t("notes.contentPh")}\n\nTip: link other notes with [[Note title]]`}
           className="flex-1 resize-none border-0 rounded-none focus-visible:ring-0 font-mono text-sm leading-relaxed p-6"
         />
       ) : (
         <div className="flex-1 overflow-auto p-6">
           <article className="markdown text-sm leading-relaxed">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{content || "*Empty*"}</ReactMarkdown>
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                a: ({ href, children }) => {
+                  if (href?.startsWith("taskx-note://")) {
+                    const id = href.slice("taskx-note://".length);
+                    if (id === "__missing__") {
+                      return (
+                        <span className="px-1 rounded bg-destructive/10 text-destructive text-[0.9em]" title="No matching note">
+                          {children}
+                        </span>
+                      );
+                    }
+                    return (
+                      <button
+                        type="button"
+                        onClick={(e) => { e.preventDefault(); onNavigateToNote(id); }}
+                        className="px-1 rounded bg-primary/10 text-primary hover:bg-primary/20 text-[0.9em]"
+                      >
+                        {children}
+                      </button>
+                    );
+                  }
+                  return <a href={href} target="_blank" rel="noreferrer">{children}</a>;
+                },
+              }}
+            >
+              {rendered}
+            </ReactMarkdown>
           </article>
+          {backlinks.length > 0 && (
+            <div className="mt-8 border-t pt-4">
+              <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2 flex items-center gap-1">
+                <Link2 className="h-3 w-3" /> Backlinks ({backlinks.length})
+              </div>
+              <ul className="space-y-1">
+                {backlinks.map((b) => (
+                  <li key={b.id}>
+                    <button
+                      onClick={() => onNavigateToNote(b.id)}
+                      className="text-xs text-primary hover:underline"
+                    >
+                      {b.title || "Untitled"}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       )}
     </div>

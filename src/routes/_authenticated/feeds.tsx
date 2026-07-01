@@ -13,7 +13,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Plus, Trash2, ExternalLink, Eye, EyeOff, ShieldAlert, RefreshCw, Rss, Star, Sparkles } from "lucide-react";
+import { Plus, Trash2, ExternalLink, Eye, EyeOff, ShieldAlert, RefreshCw, Rss, Star, Sparkles, Package } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
 import { Switch } from "@/components/ui/switch";
@@ -34,7 +34,15 @@ type FeedItem = {
   published_at: string;
   read: boolean;
   starred: boolean;
+  cve_id: string | null;
+  epss_score: number | null;
+  epss_percentile: number | null;
+  is_kev: boolean;
+  has_poc: boolean;
+  affected_cpes: string[];
 };
+
+type StackItem = { cpe_prefix: string; label: string | null; vendor: string; product: string };
 
 export const Route = createFileRoute("/_authenticated/feeds")({
   head: () => ({
@@ -91,6 +99,15 @@ function FeedsPage() {
     staleTime: 60_000,
   });
 
+  const { data: stackItems = [] } = useQuery({
+    queryKey: ["user_stack_items_min"],
+    queryFn: async () => {
+      const { data } = await supabase.from("user_stack_items").select("cpe_prefix,label,vendor,product");
+      return (data ?? []) as StackItem[];
+    },
+    staleTime: 60_000,
+  });
+
   const { data: items = [], isLoading } = useQuery({
     queryKey: ["feed_items"],
     queryFn: async () => {
@@ -129,20 +146,44 @@ function FeedsPage() {
   });
 
   const matchTagsFor = (x: FeedItem): string[] => matchStackTags(x, stackTags);
+  const matchStackFor = (x: FeedItem): StackItem[] => {
+    if (!x.affected_cpes || x.affected_cpes.length === 0 || stackItems.length === 0) return [];
+    const found: StackItem[] = [];
+    for (const s of stackItems) {
+      if (x.affected_cpes.some((cpe) => cpe.toLowerCase().startsWith(s.cpe_prefix.toLowerCase()))) {
+        found.push(s);
+      }
+    }
+    return found;
+  };
+
+  // Priority score: KEV > EPSS percentile > severity weight
+  const sevWeight: Record<Severity, number> = { info: 0, low: 1, medium: 2, high: 3, critical: 4 };
+  const priorityOf = (x: FeedItem, stackMatch: StackItem[]): number => {
+    let s = 0;
+    if (x.is_kev) s += 1000;
+    if (stackMatch.length > 0) s += 500;
+    if (x.has_poc) s += 100;
+    s += (x.epss_percentile ?? 0) * 100;
+    s += sevWeight[x.severity] * 10;
+    return s;
+  };
 
   const filtered = items
-    .map((x) => ({ x, matches: matchTagsFor(x) }))
-    .filter(({ x, matches }) => {
+    .map((x) => {
+      const stackMatch = matchStackFor(x);
+      const tagMatch = matchTagsFor(x);
+      return { x, matches: tagMatch, stackMatch, priority: priorityOf(x, stackMatch) };
+    })
+    .filter(({ x, matches, stackMatch }) => {
       if (filterSource !== "all" && x.source !== filterSource) return false;
       if (unreadOnly && x.read) return false;
       if (starredOnly && !x.starred) return false;
-      if (forYouOnly && matches.length === 0) return false;
+      if (forYouOnly && matches.length === 0 && stackMatch.length === 0) return false;
       return true;
     })
-    .sort((a, b) => {
-      if (forYouOnly) return b.matches.length - a.matches.length;
-      return 0;
-    });
+    .sort((a, b) => b.priority - a.priority);
+
 
   const refreshFn = useServerFn(refreshMyFeeds);
   const refresh = async () => {
@@ -205,10 +246,10 @@ function FeedsPage() {
           size="sm" variant={forYouOnly ? "default" : "outline"}
           onClick={() => setForYouOnly((v) => !v)}
           className="h-7 text-xs ml-auto"
-          disabled={stackTags.length === 0}
-          title={stackTags.length === 0 ? "Configure your stack in /profile" : undefined}
+          disabled={stackTags.length === 0 && stackItems.length === 0}
+          title={stackTags.length === 0 && stackItems.length === 0 ? "Configure your stack" : undefined}
         >
-          <Sparkles className="h-3 w-3" /> For You{stackTags.length > 0 ? ` (${stackTags.length})` : ""}
+          <Sparkles className="h-3 w-3" /> For You{stackItems.length > 0 ? ` (${stackItems.length})` : stackTags.length > 0 ? ` (${stackTags.length})` : ""}
         </Button>
         <Button
           size="sm" variant={starredOnly ? "default" : "outline"}
@@ -220,9 +261,9 @@ function FeedsPage() {
         >{t("feeds.unreadOnly")}</Button>
       </div>
 
-      {forYouOnly && stackTags.length === 0 && (
+      {forYouOnly && stackTags.length === 0 && stackItems.length === 0 && (
         <p className="text-xs text-muted-foreground mb-3">
-          Add stack tags in your <Link to="/profile" className="text-primary hover:underline">profile</Link> to enable For You filtering.
+          Declare products in <Link to="/stack" className="text-primary hover:underline">My Stack</Link> or add tags in your <Link to="/profile" className="text-primary hover:underline">profile</Link> to enable For You filtering.
         </p>
       )}
 
@@ -232,10 +273,10 @@ function FeedsPage() {
         <p className="text-sm text-muted-foreground py-12 text-center">{t("feeds.empty")}</p>
       ) : (
         <ul className="space-y-2">
-          {filtered.map(({ x, matches }) => (
+          {filtered.map(({ x, matches, stackMatch }) => (
             <li
               key={x.id}
-              className={`rounded-lg border bg-card p-4 ${x.read ? "opacity-60" : ""} ${matches.length > 0 ? "border-primary/40" : ""}`}
+              className={`rounded-lg border bg-card p-4 ${x.read ? "opacity-60" : ""} ${(matches.length > 0 || stackMatch.length > 0) ? "border-primary/40" : ""} ${x.is_kev ? "ring-1 ring-destructive/30" : ""}`}
             >
               <div className="flex items-start gap-3">
                 <ShieldAlert className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
@@ -247,7 +288,27 @@ function FeedsPage() {
                     <Badge variant={SEV_VARIANT[x.severity]} className="h-5 px-1.5 text-[10px]">
                       {t(`feeds.sev.${x.severity}` as TKey)}
                     </Badge>
-                    {matches.length > 0 && (
+                    {x.is_kev && (
+                      <Badge variant="destructive" className="h-5 px-1.5 text-[10px] font-semibold" title="CISA Known Exploited Vulnerability">
+                        KEV
+                      </Badge>
+                    )}
+                    {x.epss_percentile != null && x.epss_percentile >= 0.5 && (
+                      <Badge variant="outline" className="h-5 px-1.5 text-[10px] border-orange-500/50 text-orange-500" title={`EPSS ${x.epss_score?.toFixed(3)} — exploitation probability`}>
+                        EPSS {Math.round(x.epss_percentile * 100)}%
+                      </Badge>
+                    )}
+                    {x.has_poc && (
+                      <Badge variant="outline" className="h-5 px-1.5 text-[10px] border-yellow-500/50 text-yellow-500" title="Nuclei template exists — PoC available">
+                        PoC
+                      </Badge>
+                    )}
+                    {stackMatch.length > 0 && (
+                      <Badge className="h-5 px-1.5 text-[10px] gap-1 bg-orange-500/15 text-orange-500 border-orange-500/30" variant="outline" title="Matches your declared stack">
+                        <Package className="h-2.5 w-2.5" /> Your stack: {stackMatch.slice(0, 2).map((s) => s.label ?? `${s.vendor} ${s.product}`).join(", ")}
+                      </Badge>
+                    )}
+                    {matches.length > 0 && stackMatch.length === 0 && (
                       <Badge className="h-5 px-1.5 text-[10px] gap-1 bg-primary/15 text-primary border-primary/30" variant="outline">
                         <Sparkles className="h-2.5 w-2.5" /> {matches.slice(0, 3).join(", ")}
                       </Badge>
