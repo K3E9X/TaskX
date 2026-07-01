@@ -187,13 +187,14 @@ function Hero({ t }: { t: T }) {
         <h1 className="mt-6 text-5xl md:text-7xl font-semibold tracking-tight leading-[1.02]">
           {t("land.hero.t1")}
           <br />
-          <span className="bg-gradient-to-r from-[oklch(0.74_0.18_295)] via-[oklch(0.82_0.14_240)] to-[oklch(0.78_0.15_200)] bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-primary via-[oklch(0.85_0.14_190)] to-[oklch(0.72_0.14_180)] bg-clip-text text-transparent">
             {t("land.hero.t2")}
           </span>
         </h1>
         <p className="mt-6 text-lg text-muted-foreground max-w-2xl leading-relaxed">
-          {t("land.hero.sub")}
+          Veille CVE filtrée par ta stack, snippets à variables <span className="font-mono text-primary">{"{{VAR}}"}</span>, runbooks Markdown, diagrammes Mermaid, palette <kbd className="rounded border border-border/70 bg-card/70 px-1.5 py-0.5 font-mono text-xs">⌘K</kbd> et assistant IA contextuel. Le second cerveau des pros cyber.
         </p>
+
         <div className="mt-8 flex flex-wrap items-center gap-3">
           <Link to="/login">
             <Button size="lg" className="gap-2 bg-gradient-to-r from-primary to-[oklch(0.72_0.14_180)] text-primary-foreground hover:opacity-90 border-0 shadow-[0_0_24px_-8px_oklch(0.78_0.15_195/60%)]">
