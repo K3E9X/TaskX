@@ -5,6 +5,7 @@ import { z } from "zod";
 const Input = z.object({
   prompt: z.string().min(1).max(4000),
   context: z.string().max(200).optional().default(""),
+  lang: z.enum(["fr", "en"]).optional().default("en"),
   history: z
     .array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().max(20_000) }))
     .max(20)
