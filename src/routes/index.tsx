@@ -158,10 +158,21 @@ function Nav({ t }: { t: T }) {
           <a href="#personas" className="hover:text-foreground transition">{t("land.personas.eyebrow")}</a>
           <a href="#features" className="hover:text-foreground transition">{t("land.nav.features")}</a>
           <a href="#pricing" className="hover:text-foreground transition">{t("land.nav.pricing")}</a>
+          <a href="#opensource" className="hover:text-foreground transition">{t("land.nav.opensource")}</a>
           <a href="#faq" className="hover:text-foreground transition">{t("land.faq.eyebrow")}</a>
         </nav>
         <div className="flex items-center gap-2">
           <LangToggle />
+          <a
+            href="https://github.com/K3E9X/TaskX"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden sm:inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition px-2"
+            aria-label="GitHub"
+          >
+            <Github className="size-4" />
+            <span className="hidden lg:inline">GitHub</span>
+          </a>
           <Link to="/login">
             <Button variant="ghost" size="sm">{t("land.nav.signin")}</Button>
           </Link>
