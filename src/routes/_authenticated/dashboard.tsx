@@ -396,7 +396,7 @@ function DashboardPage() {
       case "routines-today":
         return (
           <Tile key={item.id} {...common} title={t("dash.routinesToday")}
-            action={<Link to="/routines" className="text-xs text-muted-foreground hover:text-foreground">{t("dash.viewAll")} →</Link>}>
+            action={<Link to="/todos" className="text-xs text-muted-foreground hover:text-foreground">{t("dash.viewAll")} →</Link>}>
             {dailyRoutines.length === 0 ? (
               <p className="text-sm text-muted-foreground py-4">{t("dash.noRoutines")}</p>
             ) : (
