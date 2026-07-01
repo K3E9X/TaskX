@@ -20,10 +20,12 @@ export const askAssistant = createServerFn({ method: "POST" })
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY missing");
 
+    const langLabel = data.lang === "fr" ? "French" : "English";
     const system = `You are TaskX Assistant, a concise cybersecurity co-pilot for a solo practitioner
 (pentester, SOC analyst, CISO, security architect or forensic analyst).
 Context page: ${data.context || "unknown"}.
 Rules:
+- ALWAYS reply in ${langLabel}, regardless of the language of the user's question. Never switch language.
 - Be direct, short, technical. No fluff, no "as an AI".
 - Prefer markdown lists and fenced code blocks for commands/config.
 - If asked to run/change something in the app, explain how to do it in the current TaskX module (todos, notes, snippets, diagrams, feeds, meetings, projects).
