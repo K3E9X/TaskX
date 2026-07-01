@@ -259,6 +259,7 @@ function SnippetsPage() {
           )}
         </div>
       </div>
+      <SnippetVarsDialog open={varsOpen} onOpenChange={setVarsOpen} command={varsCmd} />
     </div>
   );
 }
