@@ -281,38 +281,16 @@ function DashboardPage() {
     },
   });
 
-  const { data: routines = [] } = useQuery({
-    queryKey: ["dash", "routines"],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("routines").select("id,name,steps,frequency");
-      if (error) throw error;
-      return (data ?? []).map((r) => ({
-        ...r, steps: Array.isArray(r.steps) ? (r.steps as string[]) : [],
-      })) as Routine[];
-    },
-  });
-
-  const { data: runs = [] } = useQuery({
-    queryKey: ["dash", "routine_runs", TODAY()],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("routine_runs").select("routine_id,completed_steps").eq("run_date", TODAY());
-      if (error) throw error;
-      return (data ?? []).map((r) => ({
-        ...r, completed_steps: Array.isArray(r.completed_steps) ? (r.completed_steps as number[]) : [],
-      })) as Run[];
-    },
-  });
+  // Routines were merged into recurring todos.
+  const routines: Routine[] = [];
+  const runs: Run[] = [];
 
   const overdue = todos.filter((x) => x.status !== "done" && x.due_at && isPast(parseISO(x.due_at)) && !isToday(parseISO(x.due_at)));
   const today = todos.filter((x) => x.status !== "done" && x.due_at && isToday(parseISO(x.due_at)));
   const upcoming = todos.filter((x) => x.status !== "done" && (!x.due_at || (parseISO(x.due_at).toISOString() > todayEnd))).slice(0, 5);
   const dailyRoutines = routines.filter((r) => r.frequency === "daily");
-  const routineDoneCount = dailyRoutines.reduce((acc, r) => {
-    const run = runs.find((x) => x.routine_id === r.id);
-    const done = run?.completed_steps.length ?? 0;
-    return acc + (r.steps.length > 0 && done === r.steps.length ? 1 : 0);
-  }, 0);
+  const routineDoneCount = 0;
+
 
   const { data: profile } = useQuery({
     queryKey: ["dash", "profile-role"],
