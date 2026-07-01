@@ -17,6 +17,7 @@ import { Plus, Trash2, ExternalLink, Eye, EyeOff, ShieldAlert, RefreshCw, Rss, S
 import { Link } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
 import { Switch } from "@/components/ui/switch";
+import { matchStackTags } from "@/lib/stack-match";
 
 type Source = "cve" | "cti" | "x" | "rss" | "other";
 type Severity = "info" | "low" | "medium" | "high" | "critical";
