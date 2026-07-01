@@ -218,7 +218,16 @@ export const refreshMyFeeds = createServerFn({ method: "POST" })
 
     for (const src of sources ?? []) {
       try {
-        const items = await fetchSource(src.url);
+        const rawItems = await fetchSource(src.url);
+        // Pour les sources CVE : ne garder que High/Critical (CVSS ≥ 7.5).
+        // Trop de bruit sinon. Les autres sources (CTI, RSS) passent telles quelles.
+        const items = src.source_type === "cve"
+          ? rawItems.filter((it) => {
+              if (typeof it.cvss === "number") return it.cvss >= CVSS_MIN;
+              // Pas de score (ex: CISA KEV) → on garde si severity high/critical.
+              return it.severity === "high" || it.severity === "critical";
+            })
+          : rawItems;
         if (items.length === 0) continue;
 
         const extIds = items.map((i) => i.external_id).filter(Boolean) as string[];
@@ -248,7 +257,7 @@ export const refreshMyFeeds = createServerFn({ method: "POST" })
           const rows = fresh.map((it) => ({
             user_id: userId,
             source: src.source_type,
-            severity: src.default_severity,
+            severity: it.severity ?? src.default_severity,
             title: it.title,
             summary: it.summary,
             url: it.url,
@@ -257,6 +266,7 @@ export const refreshMyFeeds = createServerFn({ method: "POST" })
             is_auto: true,
             tags: [src.name],
           }));
+
           const { error: insErr } = await supabaseAdmin.from("feed_items").insert(rows);
           if (insErr) throw new Error(insErr.message);
           inserted += rows.length;
