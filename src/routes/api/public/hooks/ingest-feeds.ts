@@ -8,9 +8,21 @@ type RssItem = {
   summary: string | null;
   external_id: string | null;
   published_at: string;
+  cvss?: number | null;
+  severity?: "low" | "medium" | "high" | "critical" | null;
 };
 
 const FEED_PAGE_SIZE = 30;
+const CVSS_MIN = 7.5;
+
+function severityFromCvss(score: number | null | undefined): "low" | "medium" | "high" | "critical" | null {
+  if (score == null) return null;
+  if (score >= 9.0) return "critical";
+  if (score >= 7.0) return "high";
+  if (score >= 4.0) return "medium";
+  return "low";
+}
+
 
 function toIsoDate(raw: string | null | undefined): string {
   if (!raw) return new Date().toISOString();
