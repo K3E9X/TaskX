@@ -18,14 +18,12 @@ const ROLES: { id: Role; icon: typeof Shield; key: string }[] = [
   { id: "other", icon: User, key: "onb.role.other" },
 ];
 
-// team_role column accepts existing enum values; map "soc" / "forensic" / "ciso" / "other" → "architect" fallback if needed
-const ROLE_DB_MAP: Record<Role, string> = {
+const PROFILE_TYPE_MAP: Partial<Record<Role, "pentester" | "architect" | "soc" | "forensic" | "ciso">> = {
   pentester: "pentester",
   architect: "architect",
-  soc: "architect",
-  forensic: "architect",
-  ciso: "architect",
-  other: "architect",
+  soc: "soc",
+  forensic: "forensic",
+  ciso: "ciso",
 };
 
 export function OnboardingDialog() {
@@ -37,11 +35,11 @@ export function OnboardingDialog() {
 
   useEffect(() => {
     if (!session?.user.id) return;
-    supabase.from("profiles").select("onboarded,team_role").eq("id", session.user.id).maybeSingle()
+    supabase.from("profiles").select("onboarded,profile_type").eq("id", session.user.id).maybeSingle()
       .then(({ data }) => {
         if (data && data.onboarded === false) {
           setOpen(true);
-          if (data.team_role) setRole(data.team_role as Role);
+          if (data.profile_type) setRole(data.profile_type as Role);
         }
       });
   }, [session?.user.id]);
@@ -53,7 +51,7 @@ export function OnboardingDialog() {
       const { PRESET_BY_ROLE } = await import("@/lib/note-templates");
       await supabase.from("profiles").update({
         onboarded: true,
-        team_role: ROLE_DB_MAP[role] as never,
+        profile_type: PROFILE_TYPE_MAP[role] ?? null,
         dashboard_widgets: PRESET_BY_ROLE[role] ?? PRESET_BY_ROLE.other,
       }).eq("id", session.user.id);
       toast.success(t("onb.done"));
