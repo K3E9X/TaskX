@@ -540,7 +540,6 @@ function parseUA(ua: string | null | undefined): { browser: string; os: string }
 }
 
 export const trackPageView = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((d) =>
     z.object({
       path: z.string().min(1).max(500),
@@ -548,8 +547,27 @@ export const trackPageView = createServerFn({ method: "POST" })
       user_agent: z.string().max(500).optional(),
     }).parse(d),
   )
-  .handler(async ({ context, data }) => {
+  .handler(async ({ data }) => {
     const { getRequestIP, getRequestHeader } = await import("@tanstack/react-start/server");
+
+    // Resolve user from bearer token if present; silently no-op otherwise.
+    let userId: string | null = null;
+    try {
+      const authHeader = getRequestHeader("authorization");
+      if (authHeader?.startsWith("Bearer ")) {
+        const token = authHeader.slice(7);
+        const { createClient } = await import("@supabase/supabase-js");
+        const anon = createClient(
+          process.env.SUPABASE_URL!,
+          process.env.SUPABASE_PUBLISHABLE_KEY!,
+          { auth: { storage: undefined, persistSession: false, autoRefreshToken: false } },
+        );
+        const { data: claimsData } = await anon.auth.getClaims(token);
+        userId = claimsData?.claims?.sub ?? null;
+      }
+    } catch { /* ignore */ }
+    if (!userId) return { ok: false };
+
     let ip: string | null = null;
     let country: string | null = null;
     try {
@@ -569,7 +587,7 @@ export const trackPageView = createServerFn({ method: "POST" })
 
     const { browser, os } = parseUA(data.user_agent);
     const { error } = await supabaseAdmin.from("page_views").insert({
-      user_id: context.userId,
+      user_id: userId,
       path: data.path,
       referrer: data.referrer ?? null,
       user_agent: data.user_agent ?? null,
@@ -578,6 +596,7 @@ export const trackPageView = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
 
 // ═════════════════ ADMIN USER NOTES ═════════════════
 export const listUserNotes = createServerFn({ method: "GET" })
