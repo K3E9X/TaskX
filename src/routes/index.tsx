@@ -160,6 +160,7 @@ function Nav({ t }: { t: T }) {
           <a href="#features" className="hover:text-foreground transition">{t("land.nav.features")}</a>
           <a href="#pricing" className="hover:text-foreground transition">{t("land.nav.pricing")}</a>
           <a href="#opensource" className="hover:text-foreground transition">{t("land.nav.opensource")}</a>
+          <a href="https://github.com/K3E9X/TaskX/blob/main/DOCUMENTATION.md" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition">{t("land.nav.docs")}</a>
           <a href="#faq" className="hover:text-foreground transition">{t("land.faq.eyebrow")}</a>
         </nav>
         <div className="flex items-center gap-2">
