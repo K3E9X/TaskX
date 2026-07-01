@@ -193,6 +193,49 @@ function ProfilePage() {
         </form>
       </section>
 
+      {/* Stack tags */}
+      <section className="rounded-lg border bg-card p-5">
+        <h2 className="text-sm font-semibold mb-1 flex items-center gap-2">
+          <Tag className="h-4 w-4 text-muted-foreground" />
+          {fr ? "Ma stack (Watch For You)" : "My stack (Watch For You)"}
+        </h2>
+        <p className="text-xs text-muted-foreground mb-3">
+          {fr
+            ? "Techs/produits que tu suis (ex: nginx, kubernetes, cisco, wordpress). Utilisé pour filtrer les CVE/CTI pertinents pour toi."
+            : "Techs/products you follow (e.g. nginx, kubernetes, cisco, wordpress). Used to filter CVEs/CTI relevant to you."}
+        </p>
+        <div className="flex flex-wrap gap-1.5 mb-3 min-h-6">
+          {stackTags.length === 0 && (
+            <span className="text-xs text-muted-foreground italic">{fr ? "Aucune tag" : "No tag"}</span>
+          )}
+          {stackTags.map((t) => (
+            <Badge key={t} variant="secondary" className="gap-1 pr-1">
+              {t}
+              <button type="button" onClick={() => removeTag(t)} className="hover:text-destructive">
+                <X className="h-3 w-3" />
+              </button>
+            </Badge>
+          ))}
+        </div>
+        <div className="flex gap-2">
+          <Input
+            value={newTag}
+            onChange={(e) => setNewTag(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addTag(); } }}
+            placeholder={fr ? "ex: nginx" : "e.g. nginx"}
+            className="h-9"
+            maxLength={40}
+          />
+          <Button type="button" variant="outline" size="sm" onClick={addTag} disabled={!newTag.trim()}>
+            {fr ? "Ajouter" : "Add"}
+          </Button>
+          <Button type="button" size="sm" onClick={saveStack} disabled={savingStack || loadingProfile}>
+            {savingStack && <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />}
+            {fr ? "Enregistrer" : "Save"}
+          </Button>
+        </div>
+      </section>
+
       {/* Email */}
       <section className="rounded-lg border bg-card p-5">
         <h2 className="text-sm font-semibold mb-1 flex items-center gap-2">
