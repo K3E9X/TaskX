@@ -753,18 +753,17 @@ function QuickAccessGrid({ t }: { t: (k: TKey) => string }) {
   const { data: counts } = useQuery({
     queryKey: ["dash", "quick-counts"],
     queryFn: async () => {
-      const [p, m, d, b, ti, s, f] = await Promise.all([
+      const [p, m, d, s, f, n] = await Promise.all([
         supabase.from("projects").select("id", { count: "exact", head: true }).in("status", ["active", "draft"]),
         supabase.from("meetings").select("id", { count: "exact", head: true }).gte("meeting_date", new Date().toISOString()),
         supabase.from("diagrams").select("id", { count: "exact", head: true }),
-        supabase.from("bookmarks").select("id", { count: "exact", head: true }),
-        supabase.from("usage_tips").select("id", { count: "exact", head: true }).eq("published", true),
         supabase.from("snippets").select("id", { count: "exact", head: true }),
         supabase.from("feed_items").select("id", { count: "exact", head: true }).eq("read", false),
+        supabase.from("notes").select("id", { count: "exact", head: true }).eq("kind", "link"),
       ]);
       return {
         projects: p.count ?? 0, meetings: m.count ?? 0, diagrams: d.count ?? 0,
-        bookmarks: b.count ?? 0, tips: ti.count ?? 0, snippets: s.count ?? 0, feeds: f.count ?? 0,
+        bookmarks: n.count ?? 0, tips: 0, snippets: s.count ?? 0, feeds: f.count ?? 0,
       };
     },
   });
