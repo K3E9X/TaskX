@@ -405,7 +405,7 @@ const dict = {
     "land.footer.signin": "Connexion",
 
     "land.personas.eyebrow": "Pour qui",
-    "land.personas.title": "Conçu pour ton métier — pas un outil de plus pour ton SOC.",
+    "land.personas.title": "Pensé pour ton métier, pas pour celui des autres.",
     "land.personas.sub": "Chaque pro cyber bricole un système maison : Notion + Obsidian + 4 flux RSS + un Trello. TaskX remplace tout ça par un workspace personnel rapide.",
     "land.personas.pentest.t": "Pentester / Red team",
     "land.personas.pentest.d": "Notes de mission, write-ups, checklists OWASP, veille exploits — sans laisser fuiter un client.",
