@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useMemo, useState, type FormEvent } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
@@ -58,6 +59,7 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [pendingEmail, setPendingEmail] = useState<string | null>(null);
   const [lastResendAt, setLastResendAt] = useState<number | null>(null);
 
@@ -153,7 +155,7 @@ function LoginPage() {
       <div className="min-h-screen flex items-center justify-center bg-background px-4 relative">
         <div className="absolute top-4 right-4"><LangToggle /></div>
         <div className="w-full max-w-sm text-center">
-          <div className="flex justify-center"><TaskXMark size={44} /></div>
+          <Link to="/" aria-label="TaskX home" className="flex justify-center"><TaskXMark size={44} /></Link>
           <h1 className="mt-6 text-2xl font-semibold tracking-tight">{t("auth.verify.title")}</h1>
           <p className="mt-3 text-sm text-muted-foreground">
             {t("auth.verify.body")} <span className="font-medium text-foreground">{pendingEmail}</span>
@@ -179,10 +181,10 @@ function LoginPage() {
       <div className="absolute top-4 right-4"><LangToggle /></div>
       <div className="w-full max-w-sm">
         <div className="mb-10 text-center">
-          <div className="flex justify-center"><TaskXMark size={44} /></div>
+          <Link to="/" aria-label="TaskX home" className="flex justify-center"><TaskXMark size={44} /></Link>
           <h1 className="mt-3 text-2xl font-semibold tracking-tight flex items-baseline justify-center">
             <span>Sign in to Task</span>
-            <span className="ml-[1px] bg-gradient-to-br from-[oklch(0.74_0.18_295)] to-[oklch(0.78_0.15_200)] bg-clip-text text-transparent font-bold">X</span>
+            <span className="ml-[1px] bg-gradient-to-br from-[oklch(0.88_0.14_195)] to-[oklch(0.72_0.15_195)] bg-clip-text text-transparent font-bold">X</span>
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">{t("app.tagline")}</p>
         </div>
@@ -217,7 +219,18 @@ function LoginPage() {
                   </Link>
                 )}
               </div>
-              <Input id="password" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} />
+              <div className="relative">
+                <Input id="password" type={showPassword ? "text" : "password"} required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} className="pr-10" />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground hover:text-foreground"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                </button>
+              </div>
             </div>
             <Button type="submit" disabled={loading} className="w-full">
               {mode === "signin" ? t("auth.signinBtn") : t("auth.signupBtn")}
