@@ -527,10 +527,10 @@ function FeatureGrid({ t }: { t: T }) {
       <div className="max-w-2xl">
         <div className="text-xs uppercase tracking-widest text-primary">{t("land.features.eyebrow")}</div>
         <h2 className="mt-3 text-3xl md:text-5xl font-semibold tracking-tight">
-          Tout ton quotidien cyber, un seul workspace.
+          {t("land.features.title")}
         </h2>
         <p className="mt-4 text-muted-foreground">
-          Pas un SIEM. Pas un outil d'équipe. Ton second cerveau perso : rapide, discret, préconfiguré.
+          {t("land.features.sub")}
         </p>
       </div>
       <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-border/60 rounded-2xl overflow-hidden border border-border/60">
