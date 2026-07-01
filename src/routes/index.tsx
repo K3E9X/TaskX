@@ -809,6 +809,7 @@ function OpenSourceSection({ t }: { t: T }) {
   );
 }
 
+function MetricsBand({ t }: { t: T }) {
   const stats = [
     { v: "<100ms", l: t("land.metrics.speed") },
     { v: "99.9%", l: t("land.metrics.uptime") },
