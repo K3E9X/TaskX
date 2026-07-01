@@ -7,11 +7,11 @@ import {
   CheckSquare,
   FileText,
   FolderKanban,
-  Repeat,
+  Command,
   CalendarClock,
   GitBranch,
   Rss,
-  Users,
+  Terminal,
   Bot,
   Mail,
   ShieldAlert,
@@ -21,9 +21,11 @@ import {
   Eye,
   Building2,
   Briefcase,
+  Search,
   Plus,
   Minus,
 } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
