@@ -41,14 +41,10 @@ const NAV: { to: string; key: TKey; icon: typeof LayoutDashboard }[] = [
   { to: "/notes", key: "nav.notes", icon: FileText },
   { to: "/templates", key: "nav.templates", icon: LayoutTemplate },
   { to: "/snippets", key: "nav.snippets", icon: Code2 },
-  { to: "/routines", key: "nav.routines", icon: Repeat },
   { to: "/projects", key: "nav.projects", icon: FolderKanban },
   { to: "/meetings", key: "nav.meetings", icon: CalendarClock },
   { to: "/diagrams", key: "nav.diagrams", icon: GitBranch },
   { to: "/feeds", key: "nav.feeds", icon: Rss },
-  { to: "/tips", key: "nav.tips", icon: Terminal },
-  { to: "/bookmarks", key: "nav.bookmarks", icon: Bookmark },
-  { to: "/team", key: "nav.team", icon: Users },
   { to: "/security", key: "nav.security", icon: ShieldCheck },
 ];
 
