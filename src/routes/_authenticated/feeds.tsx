@@ -127,12 +127,25 @@ function FeedsPage() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["feed_items"] }),
   });
 
-  const filtered = items.filter((x) => {
-    if (filterSource !== "all" && x.source !== filterSource) return false;
-    if (unreadOnly && x.read) return false;
-    if (starredOnly && !x.starred) return false;
-    return true;
-  });
+  const matchTagsFor = (x: FeedItem): string[] => {
+    if (stackTags.length === 0) return [];
+    const hay = `${x.title} ${x.summary ?? ""} ${x.tags.join(" ")}`.toLowerCase();
+    return stackTags.filter((tag) => new RegExp(`\\b${tag.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(hay));
+  };
+
+  const filtered = items
+    .map((x) => ({ x, matches: matchTagsFor(x) }))
+    .filter(({ x, matches }) => {
+      if (filterSource !== "all" && x.source !== filterSource) return false;
+      if (unreadOnly && x.read) return false;
+      if (starredOnly && !x.starred) return false;
+      if (forYouOnly && matches.length === 0) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      if (forYouOnly) return b.matches.length - a.matches.length;
+      return 0;
+    });
 
   const refreshFn = useServerFn(refreshMyFeeds);
   const refresh = async () => {
@@ -192,8 +205,17 @@ function FeedsPage() {
           >{t(`feeds.source.${s}` as TKey)}</Button>
         ))}
         <Button
+          size="sm" variant={forYouOnly ? "default" : "outline"}
+          onClick={() => setForYouOnly((v) => !v)}
+          className="h-7 text-xs ml-auto"
+          disabled={stackTags.length === 0}
+          title={stackTags.length === 0 ? "Configure your stack in /profile" : undefined}
+        >
+          <Sparkles className="h-3 w-3" /> For You{stackTags.length > 0 ? ` (${stackTags.length})` : ""}
+        </Button>
+        <Button
           size="sm" variant={starredOnly ? "default" : "outline"}
-          onClick={() => setStarredOnly((v) => !v)} className="h-7 text-xs ml-auto"
+          onClick={() => setStarredOnly((v) => !v)} className="h-7 text-xs"
         ><Star className={`h-3 w-3 ${starredOnly ? "fill-current" : ""}`} /> {t("feeds.starredOnly")}</Button>
         <Button
           size="sm" variant={unreadOnly ? "default" : "outline"}
@@ -201,16 +223,22 @@ function FeedsPage() {
         >{t("feeds.unreadOnly")}</Button>
       </div>
 
+      {forYouOnly && stackTags.length === 0 && (
+        <p className="text-xs text-muted-foreground mb-3">
+          Add stack tags in your <Link to="/profile" className="text-primary hover:underline">profile</Link> to enable For You filtering.
+        </p>
+      )}
+
       {isLoading ? (
         <p className="text-sm text-muted-foreground">{t("common.loading")}</p>
       ) : filtered.length === 0 ? (
         <p className="text-sm text-muted-foreground py-12 text-center">{t("feeds.empty")}</p>
       ) : (
         <ul className="space-y-2">
-          {filtered.map((x) => (
+          {filtered.map(({ x, matches }) => (
             <li
               key={x.id}
-              className={`rounded-lg border bg-card p-4 ${x.read ? "opacity-60" : ""}`}
+              className={`rounded-lg border bg-card p-4 ${x.read ? "opacity-60" : ""} ${matches.length > 0 ? "border-primary/40" : ""}`}
             >
               <div className="flex items-start gap-3">
                 <ShieldAlert className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
