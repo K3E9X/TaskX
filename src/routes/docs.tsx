@@ -515,17 +515,17 @@ PORT=3000`}</code></pre>
 
           <div className="mt-20 border-t border-border/60 pt-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="text-sm text-muted-foreground">
-              MIT licensed. Made for cyber pros.
+              {tr("Sous licence MIT. Fait pour les pros cyber.", "MIT licensed. Made for cyber pros.")}
             </div>
             <div className="flex gap-2">
               <a href="https://github.com/K3E9X/TaskX" target="_blank" rel="noopener noreferrer">
                 <Button variant="outline" size="sm" className="gap-1.5">
-                  <Github className="size-4" /> Star on GitHub
+                  <Github className="size-4" /> {tr("Star sur GitHub", "Star on GitHub")}
                 </Button>
               </a>
               <Link to="/login">
                 <Button size="sm" className="gap-1.5 bg-gradient-to-r from-primary to-[oklch(0.72_0.14_180)] text-primary-foreground border-0">
-                  Try TaskX <ArrowRight className="size-3.5" />
+                  {tr("Essayer TaskX", "Try TaskX")} <ArrowRight className="size-3.5" />
                 </Button>
               </Link>
             </div>
