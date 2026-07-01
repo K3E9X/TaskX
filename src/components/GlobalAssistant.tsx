@@ -86,9 +86,9 @@ export function GlobalAssistant() {
           <div className="flex-1 overflow-y-auto p-3 space-y-3 text-sm">
             {messages.length === 0 && (
               <div className="text-xs text-muted-foreground space-y-2">
-                <p>Pose une question cyber ou demande de l'aide sur cette page.</p>
+                <p>{T.hint}</p>
                 <div className="flex flex-wrap gap-1">
-                  {["Explique CVSS 4.0", "Payload XSS bypass CSP", "Différence EDR/XDR"].map((s) => (
+                  {T.suggestions.map((s) => (
                     <button
                       key={s}
                       onClick={() => setPrompt(s)}
