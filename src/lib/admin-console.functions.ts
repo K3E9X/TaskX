@@ -229,8 +229,8 @@ export const getUserDetails = createServerFn({ method: "GET" })
   .handler(async ({ context, data }) => {
     await assertAdmin(context.userId);
     const tables = [
-      "todos", "notes", "bookmarks", "projects", "meetings",
-      "diagrams", "snippets", "feed_items", "routines",
+      "todos", "notes", "projects", "meetings",
+      "diagrams", "snippets", "feed_items",
     ] as const;
     const counts: Record<string, number> = {};
     await Promise.all(tables.map(async (t) => {
