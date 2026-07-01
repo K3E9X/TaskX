@@ -56,7 +56,7 @@ export const listUsersDetailed = createServerFn({ method: "GET" })
 
     const { data: profiles } = await supabaseAdmin
       .from("profiles")
-      .select("id, display_name, first_name, last_name, team_role, avatar_url");
+      .select("id, display_name, first_name, last_name, profile_type, avatar_url");
     const { data: roles } = await supabaseAdmin.from("user_roles").select("user_id, role");
 
     const profMap = new Map(profiles?.map((p) => [p.id, p]) ?? []);
