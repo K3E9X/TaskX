@@ -54,18 +54,13 @@ export function CommandPalette() {
 
   const items: Item[] = [
     { group: "Navigation", label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
-    { group: "Navigation", label: "Cockpit", to: "/cockpit", icon: Gauge },
     { group: "Navigation", label: "Todos", to: "/todos", icon: CheckSquare },
     { group: "Navigation", label: "Notes", to: "/notes", icon: FileText },
-    { group: "Navigation", label: "Routines", to: "/routines", icon: Repeat },
     { group: "Navigation", label: "Projets", to: "/projects", icon: FolderKanban },
     { group: "Navigation", label: "Réunions", to: "/meetings", icon: CalendarClock },
     { group: "Navigation", label: "Diagrammes", to: "/diagrams", icon: GitBranch },
     { group: "Navigation", label: "Feeds", to: "/feeds", icon: Rss },
-    { group: "Navigation", label: "Tips", to: "/tips", icon: Terminal },
-    { group: "Navigation", label: "Bookmarks", to: "/bookmarks", icon: Bookmark },
     { group: "Navigation", label: "Snippets", to: "/snippets", icon: Code2 },
-    { group: "Navigation", label: "Équipe", to: "/team", icon: Users },
     { group: "Navigation", label: "Sécurité", to: "/security", icon: ShieldCheck },
     { group: "Admin", label: "Console admin", to: "/admin", icon: Shield },
     {
@@ -83,10 +78,8 @@ export function CommandPalette() {
   const SEARCH_GROUPS: { kind: string; key: string; icon: typeof FileText }[] = [
     { kind: "note", key: "search.notes", icon: FileText },
     { kind: "todo", key: "search.todos", icon: CheckSquare },
-    { kind: "bookmark", key: "search.bookmarks", icon: Bookmark },
     { kind: "diagram", key: "search.diagrams", icon: GitBranch },
     { kind: "feed", key: "search.feeds", icon: Rss },
-    { kind: "tip", key: "search.tips", icon: Terminal },
     { kind: "snippet", key: "search.snippets", icon: Code2 },
   ];
 
