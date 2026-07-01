@@ -1,65 +1,57 @@
+# Refonte Dashboard — plan en 4 étapes
 
-# Plan — Options par métier (batch 1)
+## Étape 1 — Audit & nettoyage (bugs identifiés)
 
-Les 5 features daily sont en place. On attaque maintenant le **per-rôle**, mais en **un seul angle transverse** qui sert immédiatement les 5 profils (pentester / architect / soc / forensic / ciso), plutôt que d'éparpiller 15 mini-features. On itérera ensuite.
+À la lecture du code (`src/routes/_authenticated/dashboard.tsx`, 881 lignes), plusieurs tuiles sont **mortes ou trompeuses** depuis la fusion Phase 1 :
 
-## Ce qu'on livre dans ce batch
+- **`routines-today`** : la table `routines` a été supprimée, `routines = []` est codé en dur → la tuile affiche toujours « Aucune routine ». À supprimer (les récurrences vivent dans Todos maintenant).
+- **`kpi-routines`** : affiche systématiquement `0/0`. À supprimer.
+- **`tip`** : la table `usage_tips` a été supprimée, la tuile affiche uniquement le texte fallback `dash.tipSoon`. À supprimer.
+- **`kpi-today`** duplique le titre de la tuile `today-todos` (même libellé « Todos aujourd'hui ») → confusion. Renommer le KPI en « Dus aujourd'hui ».
+- Requête `recent-notes` ne filtre pas `kind` → mélange notes, runbooks et bookmarks liens. Filtrer sur `kind IN ('note','runbook')`.
+- Le rôle par défaut pour `suggested-templates` est `architect` en dur. Le baser sur `profile_type` réel (fallback intelligent).
 
-### 1. Bibliothèque de templates de notes (scoped par métier)
+Vérification live à faire ensemble une fois signé sur le preview : chaque tuile renvoie-t-elle bien les bonnes données, les liens « Voir tout » atterrissent-ils sur la bonne page, le toggle star fonctionne-t-il ?
 
-Une note "vierge" est inutile à 8h du matin. On ajoute une **galerie de templates** déclenchée depuis `/notes` (bouton "Nouveau depuis template") et depuis Quick Capture (`N` → option "template").
+## Étape 2 — Nouvelles tuiles à valeur
 
-Templates livrés (markdown pré-rempli, FR/EN) :
+Ajouter 5 tuiles qui exploitent les phases 3-4 déjà livrées :
 
-- **Pentester** : Engagement scope, Recon notes, Finding (CVSS + repro + remediation), Daily standup pentest
-- **Forensic** : Timeline d'investigation (table chrono), Hash/IOC scratchpad, Chain of custody, Write-up incident
-- **Architect** : ADR (Architecture Decision Record), Threat model STRIDE, Design review checklist
-- **SOC analyst** : Shift handover, Alert triage notes, Runbook quick-ref
-- **CISO** : Comité sécurité (agenda + décisions), Risk register entry, Board update mensuel
-- **Universal** : Meeting notes, Daily journal, Reading notes
+- **Watch For You** : CVE/CTI filtrées par `stack_tags` du profil (highlight des tags qui matchent, comme sur `/feeds`). C'est LA tuile signature du produit.
+- **Snippets récents** : 5 derniers snippets par `updated_at`, badge si contient `{{VAR}}`, clic → copie ou ouvre le dialog variables.
+- **Diagrammes récents** : 4 derniers `diagrams`, mini-thumbnail Mermaid + titre.
+- **Projets actifs** : projets non-archivés, avec compteurs (todos ouverts, notes liées).
+- **Streak & activité 7 jours** : mini-heatmap 7 jours (basée sur `daily_activity`), + streak courant via `get_current_streak()` (déjà en DB).
 
-Les templates sont **filtrés par défaut** sur le métier de l'utilisateur (`profiles.team_role`) avec un toggle "All roles".
+Chaque tuile a un état vide utile (CTA « Créer ton premier X »).
 
-### 2. Snippet manager (pentester first, utile à tous)
+## Étape 3 — Layout hybride
 
-Nouvelle page `/snippets` + raccourci global `S` :
-- Stockage de commandes/payloads souvent réutilisées (nmap, ffuf, sqlmap, kubectl, etc.)
-- Champs : title, command, description, tags, language (bash/powershell/sql/python)
-- Copy-to-clipboard 1 clic, recherche dans Cmd+K
-- Pré-rempli avec ~15 snippets utiles par défaut au signup (selon métier)
+- **Layout figé par défaut** : 3 zones fixes bien composées → Hero + Watch/Priorité (Watch For You + Todos du jour + Overdue) / Ta journée (Snippets, Notes, Diagrammes récents) / Contexte (Meetings, Projets, Streak, KPIs compacts).
+- **Bouton « Personnaliser »** (icône engrenage discrète en haut à droite) : active le mode drag/resize/hide existant (`taskx.dashboard.layout.v2`, on bump la version pour effacer les anciens layouts pollués par les widgets morts).
+- Retire les widgets morts du `DEFAULT_LAYOUT`.
 
-### 3. Presets dashboard par métier
+## Étape 4 — Refonte visuelle Cyber Cyan
 
-Au lieu d'un seul `DEFAULT_LAYOUT`, on définit 5 presets (`PRESET_BY_ROLE`) :
-- **Pentester** : KPI overdue · today-todos · snippets récents · CVE critiques · notes récentes
-- **Forensic** : timeline du jour · notes récentes · todos · hash scratchpad
-- **CISO** : meetings semaine · digest CTI · todos haute prio · routines
-- **Architect** : diagrammes récents · ADR notes · todos · feeds
-- **SOC** : alert triage notes · runbooks · CVE feed · shift handover
+- Titres de tuile en `font-mono` (JetBrains Mono, déjà chargé), uppercase, tracking étendu.
+- Bordures teintées cyan (`border-primary/15`) + glow subtil au hover.
+- KPIs : gros chiffres mono, delta vs J-1 en vert/rouge cyan-teinté.
+- Hero : scanlines discrètes, gradient radial cyan derrière le briefing.
+- Sévérités CVE gardent leur code couleur mais critical passe en cyan-red hybrid pour cohérence.
 
-Appliqué automatiquement à l'`OnboardingDialog` (étape "choix métier" écrit aussi `dashboard_widgets`). L'utilisateur peut toujours customiser.
+## Ordre d'exécution
+
+1. Nettoyage (retirer routines-today, kpi-routines, tip ; fixer requêtes notes & KPI ; bump layout key).
+2. Nouvelles tuiles (dans l'ordre : Watch For You → Snippets récents → Diagrammes → Projets → Streak).
+3. Layout hybride + bouton Personnaliser.
+4. Passe Cyber Cyan.
+5. Vérif live ensemble sur le preview (tu te reconnectes, je pilote Playwright pour valider chaque tuile).
 
 ## Détails techniques
 
-- **Templates** : pas de table SQL, fichier `src/lib/note-templates.ts` (tableau de `{ id, role, title, body, lang }`). Renderer FR/EN par i18n.
-- **Snippets** : nouvelle table `snippets` avec RLS user-scoped (`user_id`, `title`, `command text`, `description`, `language`, `tags text[]`).
-- **Migration SQL** : seulement `snippets` + seed côté front au premier accès si table vide.
-- **Universal search** : étendre `universal-search.functions.ts` pour inclure `snippets`.
-- **Onboarding** : ajouter `setRolePresetWidgets()` qui écrit `profiles.dashboard_widgets` selon le rôle choisi.
-
-## Ordre d'implémentation
-
-1. Migration `snippets` (table + RLS)
-2. `src/lib/note-templates.ts` (catalogue FR/EN)
-3. `src/components/TemplateGalleryDialog.tsx` (modal de sélection)
-4. Wiring : bouton dans `/notes` + option "from template" dans `QuickCaptureDialog`
-5. `src/routes/_authenticated/snippets.tsx` (CRUD simple, liste + détail)
-6. Ajout `/snippets` à la sidebar + raccourci `S` dans le quick-capture hook
-7. `PRESET_BY_ROLE` dans `OnboardingDialog` + dashboard fallback
-8. Étendre universal search aux snippets
-9. i18n FR/EN
-
-## Après ce batch
-
-Batch 2 (à confirmer) : Pomodoro/engagement timer pour pentester, lien note↔diagramme pour architect, agenda visuel semaine pour CISO, hash/IOC validator scratchpad pour forensic.
-
+- Nouvelles queries via `useQuery` + client Supabase (RLS déjà en place sur snippets, diagrams, projects, feed_items, daily_activity).
+- Streak : appel `supabase.rpc('get_current_streak')` (fonction déjà déployée).
+- Watch For You : réutilise la logique de matching `stack_tags` déjà écrite dans `src/routes/_authenticated/feeds.tsx` — extraire dans `src/lib/stack-match.ts` pour partage.
+- Layout : `DEFAULT_LAYOUT_V2` + `LAYOUT_KEY = "taskx.dashboard.layout.v2"` (les anciens layouts localStorage sont ignorés, remplacés par le nouveau défaut propre).
+- i18n : nouvelles clés `dash.fg.*` en FR + EN, pas de string hardcodée.
+- Aucune migration DB nécessaire — tout existe déjà.
