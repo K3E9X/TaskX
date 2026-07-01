@@ -1,0 +1,1 @@
+DELETE FROM public.feed_items WHERE source = 'cve' AND severity IN ('medium', 'low');
