@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/command";
 import {
   LayoutDashboard, CheckSquare, FileText, FolderKanban, CalendarClock,
-  GitBranch, Rss, Shield, ShieldCheck, LogOut, Code2,
+  GitBranch, Rss, Shield, ShieldCheck, LogOut, Code2, Plus, LayoutTemplate, UserCircle2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { universalSearch } from "@/lib/universal-search.functions";
