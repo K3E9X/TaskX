@@ -13,7 +13,8 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Plus, Trash2, ExternalLink, Eye, EyeOff, ShieldAlert, RefreshCw, Rss, Star } from "lucide-react";
+import { Plus, Trash2, ExternalLink, Eye, EyeOff, ShieldAlert, RefreshCw, Rss, Star, Sparkles } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
 import { Switch } from "@/components/ui/switch";
 
@@ -77,7 +78,17 @@ function FeedsPage() {
   const [filterSource, setFilterSource] = useState<Source | "all">("all");
   const [unreadOnly, setUnreadOnly] = useState(false);
   const [starredOnly, setStarredOnly] = useState(false);
+  const [forYouOnly, setForYouOnly] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+
+  const { data: stackTags = [] } = useQuery({
+    queryKey: ["profile_stack_tags"],
+    queryFn: async () => {
+      const { data } = await supabase.from("profiles").select("stack_tags").maybeSingle();
+      return ((data?.stack_tags as string[] | null) ?? []).map((t) => t.toLowerCase());
+    },
+    staleTime: 60_000,
+  });
 
   const { data: items = [], isLoading } = useQuery({
     queryKey: ["feed_items"],
