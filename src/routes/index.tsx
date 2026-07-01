@@ -118,16 +118,17 @@ function BackgroundFX() {
         className="absolute -top-40 left-1/2 h-[600px] w-[1100px] -translate-x-1/2 rounded-full opacity-40 blur-3xl"
         style={{
           background:
-            "radial-gradient(closest-side, oklch(0.68 0.16 270 / 0.55), transparent)",
+            "radial-gradient(closest-side, oklch(0.78 0.15 195 / 0.55), transparent)",
         }}
       />
       <div
         className="absolute top-[40%] -left-32 h-[420px] w-[420px] rounded-full opacity-30 blur-3xl"
         style={{
           background:
-            "radial-gradient(closest-side, oklch(0.7 0.18 200 / 0.5), transparent)",
+            "radial-gradient(closest-side, oklch(0.72 0.14 180 / 0.5), transparent)",
         }}
       />
+
       <div
         className="absolute inset-0 opacity-[0.035]"
         style={{
