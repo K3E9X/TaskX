@@ -501,30 +501,68 @@ function PersonasSection({ t }: { t: T }) {
 }
 
 function FeatureGrid({ t }: { t: T }) {
-  const FEATURES = [
-    { icon: Rss, t: t("land.f.feeds.t"), d: t("land.f.feeds.d") },
-    { icon: GitBranch, t: t("land.f.diagrams.t"), d: t("land.f.diagrams.d") },
-    { icon: Users, t: t("land.f.team.t"), d: t("land.f.team.d") },
-    { icon: FolderKanban, t: t("land.f.projects.t"), d: t("land.f.projects.d") },
-    { icon: CheckSquare, t: t("land.f.todos.t"), d: t("land.f.todos.d") },
-    { icon: FileText, t: t("land.f.notes.t"), d: t("land.f.notes.d") },
-    { icon: CalendarClock, t: t("land.f.meetings.t"), d: t("land.f.meetings.d") },
-    { icon: Repeat, t: t("land.f.routines.t"), d: t("land.f.routines.d") },
-    { icon: Bot, t: t("land.f.ai.t"), d: t("land.f.ai.d") },
+  const FEATURES: Array<{ icon: typeof Rss; title: string; desc: string }> = [
+    {
+      icon: Rss,
+      title: "Watch For You",
+      desc: "Veille CVE/CTI filtrée par ta stack (nginx, k8s, cisco…). Fini le bruit — que ce qui te concerne.",
+    },
+    {
+      icon: Terminal,
+      title: "Snippets à variables",
+      desc: "Commandes réutilisables avec {{HOST}}, {{USER}} — remplis, copie, exécute. Ton arsenal offensif ou défensif.",
+    },
+    {
+      icon: FileText,
+      title: "Runbooks & notes",
+      desc: "Markdown, tags, liens externes. Procédures IR, write-ups, cheat-sheets, tout recherchable.",
+    },
+    {
+      icon: GitBranch,
+      title: "Diagrammes Mermaid + IA",
+      desc: "Génère l'archi, le flow réseau ou un STRIDE via chat. Preview zoomable, versionnée.",
+    },
+    {
+      icon: Command,
+      title: "Palette ⌘K",
+      desc: "Créer, chercher, naviguer sans la souris. Une commande, tout va vite.",
+    },
+    {
+      icon: FolderKanban,
+      title: "Projets & missions",
+      desc: "Audits, missions RT, recherches, certifs — un endroit pour chaque contexte.",
+    },
+    {
+      icon: CheckSquare,
+      title: "Todos récurrents",
+      desc: "Snooze, tags, priorité, récurrence — tes rituels et tickets du jour au même endroit.",
+    },
+    {
+      icon: CalendarClock,
+      title: "Meetings",
+      desc: "Notes de réunion, décisions, points d'action — consignés, retrouvables.",
+    },
+    {
+      icon: Bot,
+      title: "Assistant IA contextuel",
+      desc: "Un chat global qui connaît la page où tu es. Réponses en markdown, prompts métier.",
+    },
   ];
   return (
     <section id="features" className="mx-auto max-w-7xl px-6 py-24 md:py-32">
       <div className="max-w-2xl">
         <div className="text-xs uppercase tracking-widest text-primary">{t("land.features.eyebrow")}</div>
         <h2 className="mt-3 text-3xl md:text-5xl font-semibold tracking-tight">
-          {t("land.features.title")}
+          Tout ton quotidien cyber, un seul workspace.
         </h2>
-        <p className="mt-4 text-muted-foreground">{t("land.features.sub")}</p>
+        <p className="mt-4 text-muted-foreground">
+          Pas un SIEM. Pas un outil d'équipe. Ton second cerveau perso : rapide, discret, préconfiguré.
+        </p>
       </div>
       <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-border/60 rounded-2xl overflow-hidden border border-border/60">
         {FEATURES.map((f, i) => (
           <motion.div
-            key={f.t}
+            key={f.title}
             initial={{ opacity: 0, y: 12 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-60px" }}
@@ -534,14 +572,15 @@ function FeatureGrid({ t }: { t: T }) {
             <div className="size-9 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary group-hover:bg-primary/20 transition-colors">
               <f.icon className="size-4" />
             </div>
-            <h3 className="mt-4 font-semibold tracking-tight">{f.t}</h3>
-            <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">{f.d}</p>
+            <h3 className="mt-4 font-semibold tracking-tight">{f.title}</h3>
+            <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
           </motion.div>
         ))}
       </div>
     </section>
   );
 }
+
 
 function CockpitShowcase({ t }: { t: T }) {
   const bullets = [t("land.show.b1"), t("land.show.b2"), t("land.show.b3"), t("land.show.b4")];
