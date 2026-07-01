@@ -19,7 +19,7 @@ import { formatDistanceToNow } from "date-fns";
 import { Switch } from "@/components/ui/switch";
 import { matchStackTags } from "@/lib/stack-match";
 
-type Source = "cve" | "cti" | "x" | "rss" | "other";
+type Source = "cve" | "cti";
 type Severity = "info" | "low" | "medium" | "high" | "critical";
 
 type FeedItem = {
@@ -68,7 +68,7 @@ const SEV_VARIANT: Record<Severity, "default" | "secondary" | "destructive" | "o
   critical: "destructive",
 };
 
-const SOURCES: Source[] = ["cve", "cti", "x", "rss", "other"];
+const SOURCES: Source[] = ["cve", "cti"];
 const SEVERITIES: Severity[] = ["info", "low", "medium", "high", "critical"];
 
 function FeedsPage() {
@@ -364,7 +364,7 @@ function SourcesPanel() {
   const qc = useQueryClient();
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
-  const [type, setType] = useState<Source>("rss");
+  const [type, setType] = useState<Source>("cti");
 
   const { data: sources = [] } = useQuery({
     queryKey: ["rss_sources"],
