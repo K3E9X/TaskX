@@ -453,7 +453,17 @@ function PersonasSection({ t }: { t: T }) {
       desc: t("land.personas.ciso.d"),
       uses: [t("land.personas.ciso.u1"), t("land.personas.ciso.u2")],
     },
+    {
+      icon: Search,
+      title: "Forensic / DFIR",
+      desc: "Chronologies d'incident, chaîne de garde, snippets de collecte — sans quitter ton second cerveau.",
+      uses: [
+        "Runbooks IR versionnés (triage, mémoire, disque)",
+        "Snippets Volatility / KAPE / plaso avec variables",
+      ],
+    },
   ];
+
 
   return (
     <section id="personas" className="border-t border-border/60 bg-card/20">
