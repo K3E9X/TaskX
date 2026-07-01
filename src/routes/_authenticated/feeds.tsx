@@ -408,9 +408,54 @@ function SourcesPanel() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["rss_sources"] }),
   });
 
+  const REDDIT_PRESETS: Array<{ name: string; url: string; severity: Severity }> = [
+    { name: "r/netsec",          url: "https://www.reddit.com/r/netsec/.rss",          severity: "medium" },
+    { name: "r/cybersecurity",   url: "https://www.reddit.com/r/cybersecurity/.rss",   severity: "medium" },
+    { name: "r/blueteamsec",     url: "https://www.reddit.com/r/blueteamsec/.rss",     severity: "medium" },
+    { name: "r/AskNetsec",       url: "https://www.reddit.com/r/AskNetsec/.rss",       severity: "low"    },
+    { name: "r/Malware",         url: "https://www.reddit.com/r/Malware/.rss",         severity: "high"   },
+    { name: "r/purpleteamsec",   url: "https://www.reddit.com/r/purpleteamsec/.rss",   severity: "medium" },
+    { name: "r/ReverseEngineering", url: "https://www.reddit.com/r/ReverseEngineering/.rss", severity: "medium" },
+    { name: "r/hacking",         url: "https://www.reddit.com/r/hacking/.rss",         severity: "medium" },
+  ];
+
+  const addRedditPresets = useMutation({
+    mutationFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not signed in");
+      const existingUrls = new Set(sources.map((s) => s.url));
+      const rows = REDDIT_PRESETS
+        .filter((p) => !existingUrls.has(p.url))
+        .map((p) => ({
+          user_id: user.id,
+          name: p.name,
+          url: p.url,
+          source_type: "cti" as Source,
+          default_severity: p.severity,
+        }));
+      if (rows.length === 0) return { inserted: 0 };
+      const { error } = await supabase.from("rss_sources").insert(rows);
+      if (error) throw error;
+      return { inserted: rows.length };
+    },
+    onSuccess: ({ inserted }) => {
+      qc.invalidateQueries({ queryKey: ["rss_sources"] });
+      toast.success(inserted === 0 ? "Reddit presets already added" : `Added ${inserted} Reddit source${inserted > 1 ? "s" : ""}`);
+    },
+    onError: (e) => toast.error(e.message),
+  });
+
   return (
     <div className="rounded-lg border bg-card p-4 mb-4">
-      <p className="text-xs text-muted-foreground mb-3">{t("feeds.sourcesDesc")}</p>
+      <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
+        <p className="text-xs text-muted-foreground">{t("feeds.sourcesDesc")}</p>
+        <div className="flex items-center gap-2">
+          <Button size="sm" variant="outline" onClick={() => addRedditPresets.mutate()} disabled={addRedditPresets.isPending}>
+            <Plus className="h-3.5 w-3.5" /> Reddit cyber presets
+          </Button>
+        </div>
+      </div>
+
       <ul className="space-y-2 mb-4">
         {sources.map((s) => (
           <li key={s.id} className="flex items-center gap-2 text-sm">
