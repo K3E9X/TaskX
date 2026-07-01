@@ -7,11 +7,11 @@ import {
   CheckSquare,
   FileText,
   FolderKanban,
-  Repeat,
+  Command,
   CalendarClock,
   GitBranch,
   Rss,
-  Users,
+  Terminal,
   Bot,
   Mail,
   ShieldAlert,
@@ -21,9 +21,11 @@ import {
   Eye,
   Building2,
   Briefcase,
+  Search,
   Plus,
   Minus,
 } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -37,17 +39,17 @@ import { useI18n, LangToggle, type TKey } from "@/lib/i18n";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "TaskX — Le workspace quotidien des pros cyber (CVE, notes, runbooks)" },
+      { title: "TaskX — Le second cerveau des pros cyber (CVE, snippets, runbooks, IA)" },
       {
         name: "description",
         content:
-          "TaskX est le workspace personnel des pros cyber : veille CVE auto, notes, runbooks, todos et fil X — préconfiguré dès l'inscription. Gratuit, sans CB.",
+          "Le workspace personnel des pros cyber : veille CVE filtrée par ta stack, snippets à variables, runbooks, diagrammes Mermaid, palette ⌘K et assistant IA contextuel. Gratuit, sans CB.",
       },
-      { property: "og:title", content: "TaskX — Le workspace quotidien des pros cyber" },
+      { property: "og:title", content: "TaskX — Le second cerveau des pros cyber" },
       {
         property: "og:description",
         content:
-          "Veille CVE auto, notes, runbooks, todos et fil X. Préconfiguré dès l'inscription. Gratuit, sans CB.",
+          "Veille CVE For You, snippets à variables {{VAR}}, runbooks, diagrammes, palette ⌘K et IA contextuelle. Gratuit, sans CB.",
       },
       { property: "og:url", content: "https://taskx.tech/" },
       { property: "og:type", content: "website" },
@@ -62,7 +64,7 @@ export const Route = createFileRoute("/")({
           name: "TaskX",
           url: "https://taskx.tech/",
           description:
-            "Workspace quotidien personnel pour les pros cyber : veille CVE, notes, runbooks, todos, RSS et fil X.",
+            "Second cerveau quotidien pour les pros cyber : veille CVE personnalisée, snippets à variables, runbooks, diagrammes Mermaid et IA contextuelle.",
         }),
       },
       {
@@ -76,6 +78,7 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
+
   component: LandingPage,
 });
 
@@ -115,16 +118,17 @@ function BackgroundFX() {
         className="absolute -top-40 left-1/2 h-[600px] w-[1100px] -translate-x-1/2 rounded-full opacity-40 blur-3xl"
         style={{
           background:
-            "radial-gradient(closest-side, oklch(0.68 0.16 270 / 0.55), transparent)",
+            "radial-gradient(closest-side, oklch(0.78 0.15 195 / 0.55), transparent)",
         }}
       />
       <div
         className="absolute top-[40%] -left-32 h-[420px] w-[420px] rounded-full opacity-30 blur-3xl"
         style={{
           background:
-            "radial-gradient(closest-side, oklch(0.7 0.18 200 / 0.5), transparent)",
+            "radial-gradient(closest-side, oklch(0.72 0.14 180 / 0.5), transparent)",
         }}
       />
+
       <div
         className="absolute inset-0 opacity-[0.035]"
         style={{
@@ -158,7 +162,7 @@ function Nav({ t }: { t: T }) {
             <Button variant="ghost" size="sm">{t("land.nav.signin")}</Button>
           </Link>
           <Link to="/login">
-            <Button size="sm" className="gap-1.5 bg-gradient-to-r from-[oklch(0.62_0.2_290)] to-[oklch(0.7_0.16_210)] text-white hover:opacity-90 border-0">
+            <Button size="sm" className="gap-1.5 bg-gradient-to-r from-primary to-[oklch(0.72_0.14_180)] text-primary-foreground hover:opacity-90 border-0 shadow-[0_0_24px_-8px_oklch(0.78_0.15_195/60%)]">
               {t("land.nav.start")} <ArrowRight className="size-3.5" />
             </Button>
           </Link>
@@ -184,16 +188,17 @@ function Hero({ t }: { t: T }) {
         <h1 className="mt-6 text-5xl md:text-7xl font-semibold tracking-tight leading-[1.02]">
           {t("land.hero.t1")}
           <br />
-          <span className="bg-gradient-to-r from-[oklch(0.74_0.18_295)] via-[oklch(0.82_0.14_240)] to-[oklch(0.78_0.15_200)] bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-primary via-[oklch(0.85_0.14_190)] to-[oklch(0.72_0.14_180)] bg-clip-text text-transparent">
             {t("land.hero.t2")}
           </span>
         </h1>
         <p className="mt-6 text-lg text-muted-foreground max-w-2xl leading-relaxed">
-          {t("land.hero.sub")}
+          Veille CVE filtrée par ta stack, snippets à variables <span className="font-mono text-primary">{"{{VAR}}"}</span>, runbooks Markdown, diagrammes Mermaid, palette <kbd className="rounded border border-border/70 bg-card/70 px-1.5 py-0.5 font-mono text-xs">⌘K</kbd> et assistant IA contextuel. Le second cerveau des pros cyber.
         </p>
+
         <div className="mt-8 flex flex-wrap items-center gap-3">
           <Link to="/login">
-            <Button size="lg" className="gap-2 bg-gradient-to-r from-[oklch(0.62_0.2_290)] to-[oklch(0.7_0.16_210)] text-white hover:opacity-90 border-0">
+            <Button size="lg" className="gap-2 bg-gradient-to-r from-primary to-[oklch(0.72_0.14_180)] text-primary-foreground hover:opacity-90 border-0 shadow-[0_0_24px_-8px_oklch(0.78_0.15_195/60%)]">
               {t("land.cta.primary")} <ArrowRight className="size-4" />
             </Button>
           </Link>
@@ -392,11 +397,12 @@ function HeroPreview({ t }: { t: T }) {
                     key={i}
                     className={`flex-1 h-5 rounded-sm ${
                       i < 12
-                        ? "bg-gradient-to-t from-[oklch(0.55_0.18_290)] to-[oklch(0.7_0.16_210)]"
+                        ? "bg-gradient-to-t from-primary to-[oklch(0.72_0.14_180)]"
                         : "bg-border/40"
                     }`}
                   />
                 ))}
+
               </div>
             </div>
           </div>
@@ -447,7 +453,17 @@ function PersonasSection({ t }: { t: T }) {
       desc: t("land.personas.ciso.d"),
       uses: [t("land.personas.ciso.u1"), t("land.personas.ciso.u2")],
     },
+    {
+      icon: Search,
+      title: "Forensic / DFIR",
+      desc: "Chronologies d'incident, chaîne de garde, snippets de collecte — sans quitter ton second cerveau.",
+      uses: [
+        "Runbooks IR versionnés (triage, mémoire, disque)",
+        "Snippets Volatility / KAPE / plaso avec variables",
+      ],
+    },
   ];
+
 
   return (
     <section id="personas" className="border-t border-border/60 bg-card/20">
@@ -495,30 +511,68 @@ function PersonasSection({ t }: { t: T }) {
 }
 
 function FeatureGrid({ t }: { t: T }) {
-  const FEATURES = [
-    { icon: Rss, t: t("land.f.feeds.t"), d: t("land.f.feeds.d") },
-    { icon: GitBranch, t: t("land.f.diagrams.t"), d: t("land.f.diagrams.d") },
-    { icon: Users, t: t("land.f.team.t"), d: t("land.f.team.d") },
-    { icon: FolderKanban, t: t("land.f.projects.t"), d: t("land.f.projects.d") },
-    { icon: CheckSquare, t: t("land.f.todos.t"), d: t("land.f.todos.d") },
-    { icon: FileText, t: t("land.f.notes.t"), d: t("land.f.notes.d") },
-    { icon: CalendarClock, t: t("land.f.meetings.t"), d: t("land.f.meetings.d") },
-    { icon: Repeat, t: t("land.f.routines.t"), d: t("land.f.routines.d") },
-    { icon: Bot, t: t("land.f.ai.t"), d: t("land.f.ai.d") },
+  const FEATURES: Array<{ icon: typeof Rss; title: string; desc: string }> = [
+    {
+      icon: Rss,
+      title: "Watch For You",
+      desc: "Veille CVE/CTI filtrée par ta stack (nginx, k8s, cisco…). Fini le bruit — que ce qui te concerne.",
+    },
+    {
+      icon: Terminal,
+      title: "Snippets à variables",
+      desc: "Commandes réutilisables avec {{HOST}}, {{USER}} — remplis, copie, exécute. Ton arsenal offensif ou défensif.",
+    },
+    {
+      icon: FileText,
+      title: "Runbooks & notes",
+      desc: "Markdown, tags, liens externes. Procédures IR, write-ups, cheat-sheets, tout recherchable.",
+    },
+    {
+      icon: GitBranch,
+      title: "Diagrammes Mermaid + IA",
+      desc: "Génère l'archi, le flow réseau ou un STRIDE via chat. Preview zoomable, versionnée.",
+    },
+    {
+      icon: Command,
+      title: "Palette ⌘K",
+      desc: "Créer, chercher, naviguer sans la souris. Une commande, tout va vite.",
+    },
+    {
+      icon: FolderKanban,
+      title: "Projets & missions",
+      desc: "Audits, missions RT, recherches, certifs — un endroit pour chaque contexte.",
+    },
+    {
+      icon: CheckSquare,
+      title: "Todos récurrents",
+      desc: "Snooze, tags, priorité, récurrence — tes rituels et tickets du jour au même endroit.",
+    },
+    {
+      icon: CalendarClock,
+      title: "Meetings",
+      desc: "Notes de réunion, décisions, points d'action — consignés, retrouvables.",
+    },
+    {
+      icon: Bot,
+      title: "Assistant IA contextuel",
+      desc: "Un chat global qui connaît la page où tu es. Réponses en markdown, prompts métier.",
+    },
   ];
   return (
     <section id="features" className="mx-auto max-w-7xl px-6 py-24 md:py-32">
       <div className="max-w-2xl">
         <div className="text-xs uppercase tracking-widest text-primary">{t("land.features.eyebrow")}</div>
         <h2 className="mt-3 text-3xl md:text-5xl font-semibold tracking-tight">
-          {t("land.features.title")}
+          Tout ton quotidien cyber, un seul workspace.
         </h2>
-        <p className="mt-4 text-muted-foreground">{t("land.features.sub")}</p>
+        <p className="mt-4 text-muted-foreground">
+          Pas un SIEM. Pas un outil d'équipe. Ton second cerveau perso : rapide, discret, préconfiguré.
+        </p>
       </div>
       <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-border/60 rounded-2xl overflow-hidden border border-border/60">
         {FEATURES.map((f, i) => (
           <motion.div
-            key={f.t}
+            key={f.title}
             initial={{ opacity: 0, y: 12 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-60px" }}
@@ -528,14 +582,15 @@ function FeatureGrid({ t }: { t: T }) {
             <div className="size-9 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary group-hover:bg-primary/20 transition-colors">
               <f.icon className="size-4" />
             </div>
-            <h3 className="mt-4 font-semibold tracking-tight">{f.t}</h3>
-            <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">{f.d}</p>
+            <h3 className="mt-4 font-semibold tracking-tight">{f.title}</h3>
+            <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
           </motion.div>
         ))}
       </div>
     </section>
   );
 }
+
 
 function CockpitShowcase({ t }: { t: T }) {
   const bullets = [t("land.show.b1"), t("land.show.b2"), t("land.show.b3"), t("land.show.b4")];
@@ -598,7 +653,7 @@ function CockpitShowcase({ t }: { t: T }) {
             <div className="mt-4 space-y-1.5">
               {[
                 `${t("nav.feeds")} · ingest auto · 14:02 · ok`,
-                `${t("nav.routines")} · daily review · 08:00 · ok`,
+                `snippets · exec kubectl-drain · 08:00 · copié`,
                 `${t("nav.meetings")} · revue archi · 16:30 · planifié`,
               ].map((l) => (
                 <div key={l} className="flex items-center gap-2 font-mono text-[11px] text-muted-foreground">
@@ -663,7 +718,7 @@ function PricingSection({ t }: { t: T }) {
               ))}
             </ul>
             <Link to="/login" className="block mt-8">
-              <Button size="lg" className="w-full gap-2 bg-gradient-to-r from-[oklch(0.62_0.2_290)] to-[oklch(0.7_0.16_210)] text-white hover:opacity-90 border-0">
+              <Button size="lg" className="w-full gap-2 bg-gradient-to-r from-primary to-[oklch(0.72_0.14_180)] text-primary-foreground hover:opacity-90 border-0 shadow-[0_0_24px_-8px_oklch(0.78_0.15_195/60%)]">
                 {t("land.pricing.cta")} <ArrowRight className="size-4" />
               </Button>
             </Link>
@@ -765,7 +820,7 @@ function CTA({ t }: { t: T }) {
         <p className="mt-5 text-muted-foreground max-w-xl mx-auto">{t("land.cta.sub")}</p>
         <div className="mt-8 flex items-center justify-center gap-3 flex-wrap">
           <Link to="/login">
-            <Button size="lg" className="gap-2 bg-gradient-to-r from-[oklch(0.62_0.2_290)] to-[oklch(0.7_0.16_210)] text-white hover:opacity-90 border-0">
+            <Button size="lg" className="gap-2 bg-gradient-to-r from-primary to-[oklch(0.72_0.14_180)] text-primary-foreground hover:opacity-90 border-0 shadow-[0_0_24px_-8px_oklch(0.78_0.15_195/60%)]">
               {t("land.cta.create")} <ArrowRight className="size-4" />
             </Button>
           </Link>
@@ -871,7 +926,7 @@ function ContactSection({ t }: { t: T }) {
             {sent ? (
               <span className="text-xs text-primary">{t("land.contact.success")}</span>
             ) : <span />}
-            <Button type="submit" disabled={loading} className="gap-2 bg-gradient-to-r from-[oklch(0.62_0.2_290)] to-[oklch(0.7_0.16_210)] text-white hover:opacity-90 border-0">
+            <Button type="submit" disabled={loading} className="gap-2 bg-gradient-to-r from-primary to-[oklch(0.72_0.14_180)] text-primary-foreground hover:opacity-90 border-0 shadow-[0_0_24px_-8px_oklch(0.78_0.15_195/60%)]">
               {loading ? t("land.contact.sending") : t("land.contact.send")} <ArrowRight className="size-4" />
             </Button>
           </div>
