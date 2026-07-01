@@ -397,11 +397,12 @@ function HeroPreview({ t }: { t: T }) {
                     key={i}
                     className={`flex-1 h-5 rounded-sm ${
                       i < 12
-                        ? "bg-gradient-to-t from-[oklch(0.55_0.18_290)] to-[oklch(0.7_0.16_210)]"
+                        ? "bg-gradient-to-t from-primary to-[oklch(0.72_0.14_180)]"
                         : "bg-border/40"
                     }`}
                   />
                 ))}
+
               </div>
             </div>
           </div>
