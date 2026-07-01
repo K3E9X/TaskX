@@ -14,7 +14,8 @@ import {
   AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { UserCircle2, Mail, KeyRound, Trash2, Loader2 } from "lucide-react";
+import { UserCircle2, Mail, KeyRound, Trash2, Loader2, Tag, X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   component: ProfilePage,
@@ -32,6 +33,11 @@ function ProfilePage() {
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [savingName, setSavingName] = useState(false);
 
+  // Stack tags (Watch For You)
+  const [stackTags, setStackTags] = useState<string[]>([]);
+  const [newTag, setNewTag] = useState("");
+  const [savingStack, setSavingStack] = useState(false);
+
   // Email
   const [newEmail, setNewEmail] = useState("");
   const [savingEmail, setSavingEmail] = useState(false);
@@ -47,11 +53,33 @@ function ProfilePage() {
   const deleteFn = useServerFn(deleteMyAccount);
 
   useEffect(() => {
-    supabase.from("profiles").select("display_name").maybeSingle().then(({ data }) => {
+    supabase.from("profiles").select("display_name,stack_tags").maybeSingle().then(({ data }) => {
       setDisplayName((data?.display_name as string | null) ?? "");
+      setStackTags(((data?.stack_tags as string[] | null) ?? []));
       setLoadingProfile(false);
     });
   }, []);
+
+  const addTag = () => {
+    const t = newTag.trim().toLowerCase();
+    if (!t || stackTags.includes(t)) return;
+    setStackTags([...stackTags, t]);
+    setNewTag("");
+  };
+  const removeTag = (t: string) => setStackTags(stackTags.filter((x) => x !== t));
+  const saveStack = async () => {
+    if (!session) return;
+    setSavingStack(true);
+    try {
+      const { error } = await supabase.from("profiles").update({ stack_tags: stackTags }).eq("id", session.user.id);
+      if (error) throw error;
+      toast.success(fr ? "Stack enregistrée" : "Stack saved");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Error");
+    } finally {
+      setSavingStack(false);
+    }
+  };
 
   const saveName = async (e: FormEvent) => {
     e.preventDefault();
