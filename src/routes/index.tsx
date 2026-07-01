@@ -152,9 +152,20 @@ function Nav({ t }: { t: T }) {
   return (
     <header className="sticky top-0 z-30 backdrop-blur-md bg-background/60 border-b border-border/60">
       <div className="mx-auto max-w-7xl px-6 h-14 flex items-center justify-between">
-        <Link to="/" className="flex items-center">
-          <TaskXLogo />
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link to="/" className="flex items-center">
+            <TaskXLogo />
+          </Link>
+          <a
+            href="https://github.com/K3E9X/TaskX"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden md:inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/60 hover:bg-card hover:border-primary/60 px-3 py-1 text-[11px] font-semibold tracking-wider text-muted-foreground hover:text-foreground transition"
+          >
+            <Github className="size-3.5" />
+            {t("land.nav.opensource.badge")}
+          </a>
+        </div>
         <nav className="hidden md:flex items-center gap-7 text-sm text-muted-foreground">
           <a href="#personas" className="hover:text-foreground transition">{t("land.personas.eyebrow")}</a>
           <a href="#features" className="hover:text-foreground transition">{t("land.nav.features")}</a>
@@ -191,12 +202,12 @@ function Nav({ t }: { t: T }) {
 
 function Hero({ t }: { t: T }) {
   return (
-    <section className="relative mx-auto max-w-7xl px-6 pt-20 pb-24 md:pt-32 md:pb-32">
+    <section className="relative mx-auto max-w-7xl px-6 pt-20 pb-24 md:pt-28 md:pb-24">
       <motion.div
         initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: "easeOut" }}
-        className="max-w-3xl"
+        className="mx-auto flex flex-col items-center text-center max-w-4xl"
       >
         <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/60 px-3 py-1 text-xs text-muted-foreground">
           <span className="size-1.5 rounded-full bg-primary" />
@@ -210,52 +221,38 @@ function Hero({ t }: { t: T }) {
           </span>
         </h1>
 
-        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xl">
-          <Link
-            to="/login"
-            className="group flex items-center gap-3 rounded-xl border border-border/70 bg-card/60 hover:bg-card hover:border-primary/60 px-4 py-3 transition"
-          >
-            <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+        <p className="mt-6 text-lg text-muted-foreground max-w-2xl leading-relaxed">
+          {t("land.hero.sub")}
+        </p>
+
+        <div className="mt-10 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 w-full max-w-2xl">
+          <Link to="/login" className="flex-1">
+            <Button
+              size="lg"
+              className="w-full h-14 gap-2 text-base bg-gradient-to-r from-primary to-[oklch(0.72_0.14_180)] text-primary-foreground hover:opacity-90 border-0 shadow-[0_0_40px_-8px_oklch(0.78_0.15_195/60%)]"
+            >
               <Cloud className="size-4" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="text-sm font-medium">{t("land.hero.deploy.cloud.t")}</div>
-              <div className="text-xs text-muted-foreground truncate">{t("land.hero.deploy.cloud.d")}</div>
-            </div>
-            <ArrowRight className="size-4 text-muted-foreground group-hover:text-primary transition" />
+              {t("land.hero.cta.cloud")}
+            </Button>
           </Link>
           <a
             href="https://github.com/K3E9X/TaskX"
             target="_blank"
             rel="noopener noreferrer"
-            className="group flex items-center gap-3 rounded-xl border border-border/70 bg-card/60 hover:bg-card hover:border-primary/60 px-4 py-3 transition"
+            className="flex-1"
           >
-            <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <Button
+              size="lg"
+              variant="outline"
+              className="w-full h-14 gap-2 text-base border-border/70 bg-card/40 hover:bg-card"
+            >
               <Server className="size-4" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="text-sm font-medium">{t("land.hero.deploy.self.t")}</div>
-              <div className="text-xs text-muted-foreground truncate">{t("land.hero.deploy.self.d")}</div>
-            </div>
-            <Github className="size-4 text-muted-foreground group-hover:text-primary transition" />
-          </a>
-        </div>
-
-        <p className="mt-6 text-lg text-muted-foreground max-w-2xl leading-relaxed">
-          {t("land.hero.sub")}
-        </p>
-
-        <div className="mt-8 flex flex-wrap items-center gap-3">
-          <Link to="/login">
-            <Button size="lg" className="gap-2 bg-gradient-to-r from-primary to-[oklch(0.72_0.14_180)] text-primary-foreground hover:opacity-90 border-0 shadow-[0_0_24px_-8px_oklch(0.78_0.15_195/60%)]">
-              {t("land.cta.primary")} <ArrowRight className="size-4" />
+              {t("land.hero.cta.self")}
             </Button>
-          </Link>
-          <a href="#preview">
-            <Button size="lg" variant="outline">{t("land.cta.secondary")}</Button>
           </a>
         </div>
-        <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
+
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
           <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="size-3.5 text-primary" /> {t("land.bullet.free")}</span>
           <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="size-3.5 text-primary" /> {t("land.bullet.team")}</span>
           <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="size-3.5 text-primary" /> {t("land.bullet.secure")}</span>
