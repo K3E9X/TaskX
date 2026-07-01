@@ -812,7 +812,7 @@ const dict = {
     "feeds.deleteConfirm": "Delete this item?",
     "feeds.empty": "No watch items yet. Add your first CVE, CTI alert or tweet to track.",
     "feeds.sources": "Sources",
-    "feeds.sourcesDesc": "RSS / JSON feeds pulled automatically every 30 min + 10:00, 15:00, 18:00. Items older than 7 days are purged.",
+    "feeds.sourcesDesc": "CVE/CTI sources pulled automatically every 30 min. Items older than 7 days are purged.",
     "feeds.addSource": "Add source",
     "feeds.sourceNamePh": "Name (e.g. Krebs on Security)",
     "feeds.sourceUrlPh": "Feed URL (RSS, Atom, JSON)",
