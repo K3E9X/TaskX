@@ -124,6 +124,7 @@ function AuthenticatedLayout() {
         className={`fixed inset-y-0 left-0 z-40 ${sideW} border-r bg-sidebar text-sidebar-foreground transform transition-[width,transform] duration-200 md:static md:translate-x-0 ${open ? "translate-x-0 w-60" : "-translate-x-full"}`}
       >
         <div className={`h-14 flex items-center border-b ${collapsed ? "justify-center px-0" : "gap-2 px-4"}`}>
+        <Link to="/dashboard" className={`h-14 flex items-center border-b hover:bg-sidebar-accent/50 transition-colors ${collapsed ? "justify-center px-0" : "gap-2 px-4"}`} aria-label="Dashboard">
           <TaskXMark size={26} />
           {!collapsed && (
             <div className="flex flex-col leading-none min-w-0">
@@ -134,7 +135,8 @@ function AuthenticatedLayout() {
               <span className="mt-1 text-[10px] text-muted-foreground truncate">{t("app.tagline")}</span>
             </div>
           )}
-        </div>
+        </Link>
+
         <nav className={`p-2 space-y-0.5 text-sm`}>
           {NAV.map((item) => {
             const active = pathname === item.to || pathname.startsWith(item.to + "/");
