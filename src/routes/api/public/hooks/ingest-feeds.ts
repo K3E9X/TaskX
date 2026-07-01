@@ -306,7 +306,7 @@ export const Route = createFileRoute("/api/public/hooks/ingest-feeds")({
               const rows = fresh.map((it) => ({
                 user_id: src.user_id,
                 source: src.source_type,
-                severity: src.default_severity,
+                severity: it.severity ?? src.default_severity,
                 title: it.title,
                 summary: it.summary,
                 url: it.url,
