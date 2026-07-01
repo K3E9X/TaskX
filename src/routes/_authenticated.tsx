@@ -9,7 +9,7 @@ import { trackPageView } from "@/lib/admin-console.functions";
 import {
   LayoutDashboard, CheckSquare, FileText, FolderKanban,
   CalendarClock, GitBranch, Rss, LogOut, Shield,
-  PanelLeftClose, PanelLeftOpen, ShieldCheck, Code2, LayoutTemplate, UserCircle2,
+  PanelLeftClose, PanelLeftOpen, ShieldCheck, Code2, LayoutTemplate, UserCircle2, Package,
 } from "lucide-react";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
