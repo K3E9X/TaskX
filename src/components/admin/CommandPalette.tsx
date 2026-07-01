@@ -7,8 +7,8 @@ import {
   CommandGroup, CommandItem, CommandShortcut,
 } from "@/components/ui/command";
 import {
-  LayoutDashboard, CheckSquare, FileText, Repeat, FolderKanban, CalendarClock,
-  GitBranch, Rss, Terminal, Bookmark, Users, Shield, Gauge, ShieldCheck, LogOut, Code2,
+  LayoutDashboard, CheckSquare, FileText, FolderKanban, CalendarClock,
+  GitBranch, Rss, Shield, ShieldCheck, LogOut, Code2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { universalSearch } from "@/lib/universal-search.functions";
@@ -17,8 +17,8 @@ import { useI18n } from "@/lib/i18n";
 type Item = { label: string; to?: string; icon: typeof LayoutDashboard; action?: () => void; group: string };
 
 const KIND_ROUTE: Record<string, string> = {
-  note: "/notes", todo: "/todos", bookmark: "/bookmarks",
-  diagram: "/diagrams", feed: "/feeds", tip: "/tips", snippet: "/snippets",
+  note: "/notes", todo: "/todos",
+  diagram: "/diagrams", feed: "/feeds", snippet: "/snippets",
 };
 
 export function CommandPalette() {
