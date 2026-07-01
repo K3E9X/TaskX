@@ -263,11 +263,20 @@ export const Route = createFileRoute("/api/public/hooks/ingest-feeds")({
 
         for (const src of sources ?? []) {
           try {
-            const items = await fetchSource(src.url);
+            const rawItems = await fetchSource(src.url);
+            // Pour CVE: filtre CVSS ≥ 7.5 (High/Critical). Autres sources: pas de filtre.
+            const items = src.source_type === "cve"
+              ? rawItems.filter((it) =>
+                  typeof it.cvss === "number"
+                    ? it.cvss >= CVSS_MIN
+                    : it.severity === "high" || it.severity === "critical"
+                )
+              : rawItems;
             if (items.length === 0) {
               results.push({ source: src.name, count: 0 });
               continue;
             }
+
 
             // Dedup: find existing external_ids / urls for this user
             const extIds = items.map((i) => i.external_id).filter(Boolean) as string[];
