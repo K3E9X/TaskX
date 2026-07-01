@@ -53,10 +53,10 @@ export function GlobalAssistant() {
     setLoading(true);
     try {
       const history = next.slice(-10).map((m) => ({ role: m.role, content: m.content }));
-      const res = await ask({ data: { prompt: p, context: path, history } });
+      const res = await ask({ data: { prompt: p, context: path, lang, history } });
       setMessages((m) => [...m, { role: "assistant", content: res.content }]);
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "AI error";
+      const msg = e instanceof Error ? e.message : T.aiError;
       toast.error(msg);
       setMessages((m) => [...m, { role: "assistant", content: `⚠️ ${msg}` }]);
     } finally {
