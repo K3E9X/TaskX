@@ -26,7 +26,7 @@ export const generateMorningBrief = createServerFn({ method: "POST" })
         .eq("read", false).in("severity", ["high", "critical"])
         .gte("published_at", dayAgo.toISOString())
         .order("published_at", { ascending: false }).limit(5),
-      supabase.from("profiles").select("first_name,display_name,team_role").eq("id", userId).maybeSingle(),
+      supabase.from("profiles").select("first_name,display_name,profile_type").eq("id", userId).maybeSingle(),
       supabase.rpc("get_current_streak"),
       supabase.from("notes").select("id,title,updated_at").order("updated_at", { ascending: false }).limit(1),
     ]);
@@ -47,7 +47,7 @@ export const generateMorningBrief = createServerFn({ method: "POST" })
 
     // Build AI prompt
     const firstName = profile?.first_name || profile?.display_name || "";
-    const role = profile?.team_role ?? "architect";
+    const role = profile?.profile_type ?? "architect";
     const lang = data.lang;
 
     const factSheet = JSON.stringify({

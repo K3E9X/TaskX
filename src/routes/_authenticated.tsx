@@ -7,8 +7,8 @@ import { useI18n, LangToggle, type TKey } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { trackPageView } from "@/lib/admin-console.functions";
 import {
-  LayoutDashboard, CheckSquare, FileText, Repeat, FolderKanban,
-  CalendarClock, GitBranch, Rss, Terminal, Bookmark, Users, LogOut, Shield,
+  LayoutDashboard, CheckSquare, FileText, FolderKanban,
+  CalendarClock, GitBranch, Rss, LogOut, Shield,
   PanelLeftClose, PanelLeftOpen, ShieldCheck, Code2, LayoutTemplate, UserCircle2,
 } from "lucide-react";
 import {
@@ -41,14 +41,10 @@ const NAV: { to: string; key: TKey; icon: typeof LayoutDashboard }[] = [
   { to: "/notes", key: "nav.notes", icon: FileText },
   { to: "/templates", key: "nav.templates", icon: LayoutTemplate },
   { to: "/snippets", key: "nav.snippets", icon: Code2 },
-  { to: "/routines", key: "nav.routines", icon: Repeat },
   { to: "/projects", key: "nav.projects", icon: FolderKanban },
   { to: "/meetings", key: "nav.meetings", icon: CalendarClock },
   { to: "/diagrams", key: "nav.diagrams", icon: GitBranch },
   { to: "/feeds", key: "nav.feeds", icon: Rss },
-  { to: "/tips", key: "nav.tips", icon: Terminal },
-  { to: "/bookmarks", key: "nav.bookmarks", icon: Bookmark },
-  { to: "/team", key: "nav.team", icon: Users },
   { to: "/security", key: "nav.security", icon: ShieldCheck },
 ];
 

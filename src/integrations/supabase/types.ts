@@ -125,42 +125,6 @@ export type Database = {
         }
         Relationships: []
       }
-      bookmarks: {
-        Row: {
-          category: string
-          created_at: string
-          description: string | null
-          id: string
-          tags: string[]
-          title: string
-          updated_at: string
-          url: string
-          user_id: string
-        }
-        Insert: {
-          category?: string
-          created_at?: string
-          description?: string | null
-          id?: string
-          tags?: string[]
-          title: string
-          updated_at?: string
-          url: string
-          user_id: string
-        }
-        Update: {
-          category?: string
-          created_at?: string
-          description?: string | null
-          id?: string
-          tags?: string[]
-          title?: string
-          updated_at?: string
-          url?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       contact_submissions: {
         Row: {
           created_at: string
@@ -472,6 +436,8 @@ export type Database = {
           content: string
           created_at: string
           id: string
+          kind: string
+          link_url: string | null
           tags: string[]
           title: string
           updated_at: string
@@ -481,6 +447,8 @@ export type Database = {
           content?: string
           created_at?: string
           id?: string
+          kind?: string
+          link_url?: string | null
           tags?: string[]
           title?: string
           updated_at?: string
@@ -490,6 +458,8 @@ export type Database = {
           content?: string
           created_at?: string
           id?: string
+          kind?: string
+          link_url?: string | null
           tags?: string[]
           title?: string
           updated_at?: string
@@ -546,7 +516,8 @@ export type Database = {
           id: string
           last_name: string
           onboarded: boolean
-          team_role: Database["public"]["Enums"]["team_role"]
+          profile_type: Database["public"]["Enums"]["profile_type"] | null
+          stack_tags: string[] | null
           updated_at: string
         }
         Insert: {
@@ -558,7 +529,8 @@ export type Database = {
           id: string
           last_name?: string
           onboarded?: boolean
-          team_role?: Database["public"]["Enums"]["team_role"]
+          profile_type?: Database["public"]["Enums"]["profile_type"] | null
+          stack_tags?: string[] | null
           updated_at?: string
         }
         Update: {
@@ -570,7 +542,8 @@ export type Database = {
           id?: string
           last_name?: string
           onboarded?: boolean
-          team_role?: Database["public"]["Enums"]["team_role"]
+          profile_type?: Database["public"]["Enums"]["profile_type"] | null
+          stack_tags?: string[] | null
           updated_at?: string
         }
         Relationships: []
@@ -615,77 +588,6 @@ export type Database = {
           security_controls?: string | null
           status?: Database["public"]["Enums"]["project_status"]
           threat_model?: string | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      routine_runs: {
-        Row: {
-          completed_steps: Json
-          created_at: string
-          id: string
-          routine_id: string
-          run_date: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          completed_steps?: Json
-          created_at?: string
-          id?: string
-          routine_id: string
-          run_date?: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          completed_steps?: Json
-          created_at?: string
-          id?: string
-          routine_id?: string
-          run_date?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "routine_runs_routine_id_fkey"
-            columns: ["routine_id"]
-            isOneToOne: false
-            referencedRelation: "routines"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      routines: {
-        Row: {
-          created_at: string
-          description: string | null
-          frequency: Database["public"]["Enums"]["routine_frequency"]
-          id: string
-          name: string
-          steps: Json
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          frequency?: Database["public"]["Enums"]["routine_frequency"]
-          id?: string
-          name: string
-          steps?: Json
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          frequency?: Database["public"]["Enums"]["routine_frequency"]
-          id?: string
-          name?: string
-          steps?: Json
           updated_at?: string
           user_id?: string
         }
@@ -799,7 +701,10 @@ export type Database = {
           description: string | null
           due_at: string | null
           id: string
+          last_completed_at: string | null
           priority: Database["public"]["Enums"]["todo_priority"]
+          recurrence: string | null
+          recurrence_interval: number | null
           status: Database["public"]["Enums"]["todo_status"]
           tags: string[]
           title: string
@@ -811,7 +716,10 @@ export type Database = {
           description?: string | null
           due_at?: string | null
           id?: string
+          last_completed_at?: string | null
           priority?: Database["public"]["Enums"]["todo_priority"]
+          recurrence?: string | null
+          recurrence_interval?: number | null
           status?: Database["public"]["Enums"]["todo_status"]
           tags?: string[]
           title: string
@@ -823,54 +731,15 @@ export type Database = {
           description?: string | null
           due_at?: string | null
           id?: string
+          last_completed_at?: string | null
           priority?: Database["public"]["Enums"]["todo_priority"]
+          recurrence?: string | null
+          recurrence_interval?: number | null
           status?: Database["public"]["Enums"]["todo_status"]
           tags?: string[]
           title?: string
           updated_at?: string
           user_id?: string
-        }
-        Relationships: []
-      }
-      usage_tips: {
-        Row: {
-          body: string
-          created_at: string
-          icon: string | null
-          id: string
-          link: string | null
-          module: string
-          published: boolean
-          published_at: string
-          shortcut: string | null
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          body?: string
-          created_at?: string
-          icon?: string | null
-          id?: string
-          link?: string | null
-          module?: string
-          published?: boolean
-          published_at?: string
-          shortcut?: string | null
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          body?: string
-          created_at?: string
-          icon?: string | null
-          id?: string
-          link?: string | null
-          module?: string
-          published?: boolean
-          published_at?: string
-          shortcut?: string | null
-          title?: string
-          updated_at?: string
         }
         Relationships: []
       }
@@ -894,32 +763,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
-      }
-      user_tip_views: {
-        Row: {
-          tip_id: string
-          user_id: string
-          viewed_at: string
-        }
-        Insert: {
-          tip_id: string
-          user_id: string
-          viewed_at?: string
-        }
-        Update: {
-          tip_id?: string
-          user_id?: string
-          viewed_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_tip_views_tip_id_fkey"
-            columns: ["tip_id"]
-            isOneToOne: false
-            referencedRelation: "usage_tips"
-            referencedColumns: ["id"]
-          },
-        ]
       }
     }
     Views: {
@@ -984,10 +827,10 @@ export type Database = {
         | "other"
       feed_severity: "info" | "low" | "medium" | "high" | "critical"
       feed_source: "cve" | "cti" | "x" | "rss" | "other"
+      profile_type: "pentester" | "soc" | "ciso" | "architect" | "forensic"
       project_status: "draft" | "active" | "on_hold" | "done"
       risk_level: "low" | "medium" | "high" | "critical"
       routine_frequency: "daily" | "weekly"
-      team_role: "architect" | "pentester" | "forensic" | "analyst"
       todo_priority: "low" | "med" | "high" | "urgent"
       todo_status: "todo" | "doing" | "done"
     }
@@ -1128,10 +971,10 @@ export const Constants = {
       ],
       feed_severity: ["info", "low", "medium", "high", "critical"],
       feed_source: ["cve", "cti", "x", "rss", "other"],
+      profile_type: ["pentester", "soc", "ciso", "architect", "forensic"],
       project_status: ["draft", "active", "on_hold", "done"],
       risk_level: ["low", "medium", "high", "critical"],
       routine_frequency: ["daily", "weekly"],
-      team_role: ["architect", "pentester", "forensic", "analyst"],
       todo_priority: ["low", "med", "high", "urgent"],
       todo_status: ["todo", "doing", "done"],
     },

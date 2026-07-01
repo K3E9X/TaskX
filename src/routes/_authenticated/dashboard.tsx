@@ -281,47 +281,25 @@ function DashboardPage() {
     },
   });
 
-  const { data: routines = [] } = useQuery({
-    queryKey: ["dash", "routines"],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("routines").select("id,name,steps,frequency");
-      if (error) throw error;
-      return (data ?? []).map((r) => ({
-        ...r, steps: Array.isArray(r.steps) ? (r.steps as string[]) : [],
-      })) as Routine[];
-    },
-  });
-
-  const { data: runs = [] } = useQuery({
-    queryKey: ["dash", "routine_runs", TODAY()],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("routine_runs").select("routine_id,completed_steps").eq("run_date", TODAY());
-      if (error) throw error;
-      return (data ?? []).map((r) => ({
-        ...r, completed_steps: Array.isArray(r.completed_steps) ? (r.completed_steps as number[]) : [],
-      })) as Run[];
-    },
-  });
+  // Routines were merged into recurring todos.
+  const routines: Routine[] = [];
+  const runs: Run[] = [];
 
   const overdue = todos.filter((x) => x.status !== "done" && x.due_at && isPast(parseISO(x.due_at)) && !isToday(parseISO(x.due_at)));
   const today = todos.filter((x) => x.status !== "done" && x.due_at && isToday(parseISO(x.due_at)));
   const upcoming = todos.filter((x) => x.status !== "done" && (!x.due_at || (parseISO(x.due_at).toISOString() > todayEnd))).slice(0, 5);
   const dailyRoutines = routines.filter((r) => r.frequency === "daily");
-  const routineDoneCount = dailyRoutines.reduce((acc, r) => {
-    const run = runs.find((x) => x.routine_id === r.id);
-    const done = run?.completed_steps.length ?? 0;
-    return acc + (r.steps.length > 0 && done === r.steps.length ? 1 : 0);
-  }, 0);
+  const routineDoneCount = 0;
+
 
   const { data: profile } = useQuery({
     queryKey: ["dash", "profile-role"],
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("team_role").maybeSingle();
+      const { data } = await supabase.from("profiles").select("profile_type").maybeSingle();
       return data;
     },
   });
-  const role = (profile?.team_role ?? "architect") as TemplateRole;
+  const role = (profile?.profile_type ?? "architect") as TemplateRole;
   const suggestedTemplates = useMemo(() => {
     const mine = NOTE_TEMPLATES.filter((tpl) => tpl.role === role);
     const universal = NOTE_TEMPLATES.filter((tpl) => tpl.role === "universal");
@@ -418,7 +396,7 @@ function DashboardPage() {
       case "routines-today":
         return (
           <Tile key={item.id} {...common} title={t("dash.routinesToday")}
-            action={<Link to="/routines" className="text-xs text-muted-foreground hover:text-foreground">{t("dash.viewAll")} →</Link>}>
+            action={<Link to="/todos" className="text-xs text-muted-foreground hover:text-foreground">{t("dash.viewAll")} →</Link>}>
             {dailyRoutines.length === 0 ? (
               <p className="text-sm text-muted-foreground py-4">{t("dash.noRoutines")}</p>
             ) : (
@@ -681,7 +659,7 @@ function HeroBrief({
   const { data: profile } = useQuery({
     queryKey: ["dash", "hero-profile"],
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("display_name,team_role").maybeSingle();
+      const { data } = await supabase.from("profiles").select("display_name,profile_type").maybeSingle();
       return data;
     },
   });
@@ -775,18 +753,17 @@ function QuickAccessGrid({ t }: { t: (k: TKey) => string }) {
   const { data: counts } = useQuery({
     queryKey: ["dash", "quick-counts"],
     queryFn: async () => {
-      const [p, m, d, b, ti, s, f] = await Promise.all([
+      const [p, m, d, s, f, n] = await Promise.all([
         supabase.from("projects").select("id", { count: "exact", head: true }).in("status", ["active", "draft"]),
         supabase.from("meetings").select("id", { count: "exact", head: true }).gte("meeting_date", new Date().toISOString()),
         supabase.from("diagrams").select("id", { count: "exact", head: true }),
-        supabase.from("bookmarks").select("id", { count: "exact", head: true }),
-        supabase.from("usage_tips").select("id", { count: "exact", head: true }).eq("published", true),
         supabase.from("snippets").select("id", { count: "exact", head: true }),
         supabase.from("feed_items").select("id", { count: "exact", head: true }).eq("read", false),
+        supabase.from("notes").select("id", { count: "exact", head: true }).eq("kind", "link"),
       ]);
       return {
         projects: p.count ?? 0, meetings: m.count ?? 0, diagrams: d.count ?? 0,
-        bookmarks: b.count ?? 0, tips: ti.count ?? 0, snippets: s.count ?? 0, feeds: f.count ?? 0,
+        bookmarks: n.count ?? 0, tips: 0, snippets: s.count ?? 0, feeds: f.count ?? 0,
       };
     },
   });

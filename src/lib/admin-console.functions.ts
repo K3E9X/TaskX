@@ -56,7 +56,7 @@ export const listUsersDetailed = createServerFn({ method: "GET" })
 
     const { data: profiles } = await supabaseAdmin
       .from("profiles")
-      .select("id, display_name, first_name, last_name, team_role, avatar_url");
+      .select("id, display_name, first_name, last_name, profile_type, avatar_url");
     const { data: roles } = await supabaseAdmin.from("user_roles").select("user_id, role");
 
     const profMap = new Map(profiles?.map((p) => [p.id, p]) ?? []);
@@ -100,8 +100,8 @@ export const listUsersDetailed = createServerFn({ method: "GET" })
         display_name: p?.display_name ?? "",
         first_name: p?.first_name ?? "",
         last_name: p?.last_name ?? "",
-        team_role: (p?.team_role ?? "architect") as
-          | "architect" | "pentester" | "forensic" | "analyst",
+        profile_type: (p?.profile_type ?? null) as
+          | "architect" | "pentester" | "forensic" | "soc" | "ciso" | null,
         avatar_url: p?.avatar_url ?? null,
         app_role: roleMap.get(u.id) ?? "member",
         last_ip: lastIp?.ip ?? null,
@@ -229,8 +229,8 @@ export const getUserDetails = createServerFn({ method: "GET" })
   .handler(async ({ context, data }) => {
     await assertAdmin(context.userId);
     const tables = [
-      "todos", "notes", "bookmarks", "projects", "meetings",
-      "diagrams", "snippets", "feed_items", "routines",
+      "todos", "notes", "projects", "meetings",
+      "diagrams", "snippets", "feed_items",
     ] as const;
     const counts: Record<string, number> = {};
     await Promise.all(tables.map(async (t) => {
@@ -387,7 +387,7 @@ export const listAllContent = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) =>
     z.object({
-      table: z.enum(["notes", "bookmarks", "feed_items", "todos"]),
+      table: z.enum(["notes", "feed_items", "todos"]),
       limit: z.number().int().min(1).max(200).default(50),
     }).parse(d),
   )
@@ -406,7 +406,7 @@ export const deleteContent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) =>
     z.object({
-      table: z.enum(["notes", "bookmarks", "feed_items", "todos"]),
+      table: z.enum(["notes", "feed_items", "todos"]),
       id: z.string().uuid(),
     }).parse(d),
   )

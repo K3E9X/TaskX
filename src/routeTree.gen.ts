@@ -19,12 +19,9 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as AuthenticatedTodosRouteImport } from './routes/_authenticated/todos'
-import { Route as AuthenticatedTipsRouteImport } from './routes/_authenticated/tips'
 import { Route as AuthenticatedTemplatesRouteImport } from './routes/_authenticated/templates'
-import { Route as AuthenticatedTeamRouteImport } from './routes/_authenticated/team'
 import { Route as AuthenticatedSnippetsRouteImport } from './routes/_authenticated/snippets'
 import { Route as AuthenticatedSecurityRouteImport } from './routes/_authenticated/security'
-import { Route as AuthenticatedRoutinesRouteImport } from './routes/_authenticated/routines'
 import { Route as AuthenticatedProjectsRouteImport } from './routes/_authenticated/projects'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedNotesRouteImport } from './routes/_authenticated/notes'
@@ -33,7 +30,6 @@ import { Route as AuthenticatedFeedsRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedDiagramsRouteImport } from './routes/_authenticated/diagrams'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCockpitRouteImport } from './routes/_authenticated/cockpit'
-import { Route as AuthenticatedBookmarksRouteImport } from './routes/_authenticated/bookmarks'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as ApiPublicContactRouteImport } from './routes/api/public/contact'
@@ -42,7 +38,6 @@ import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/l
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
-import { Route as ApiPublicHooksMonthlyTipRouteImport } from './routes/api/public/hooks/monthly-tip'
 import { Route as ApiPublicHooksIngestFeedsRouteImport } from './routes/api/public/hooks/ingest-feeds'
 import { Route as ApiPublicHooksDailyDigestRouteImport } from './routes/api/public/hooks/daily-digest'
 import { Route as ApiPublicHooksDailyDigestStatusRouteImport } from './routes/api/public/hooks/daily-digest.status'
@@ -96,19 +91,9 @@ const AuthenticatedTodosRoute = AuthenticatedTodosRouteImport.update({
   path: '/todos',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedTipsRoute = AuthenticatedTipsRouteImport.update({
-  id: '/tips',
-  path: '/tips',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
 const AuthenticatedTemplatesRoute = AuthenticatedTemplatesRouteImport.update({
   id: '/templates',
   path: '/templates',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedTeamRoute = AuthenticatedTeamRouteImport.update({
-  id: '/team',
-  path: '/team',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedSnippetsRoute = AuthenticatedSnippetsRouteImport.update({
@@ -119,11 +104,6 @@ const AuthenticatedSnippetsRoute = AuthenticatedSnippetsRouteImport.update({
 const AuthenticatedSecurityRoute = AuthenticatedSecurityRouteImport.update({
   id: '/security',
   path: '/security',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedRoutinesRoute = AuthenticatedRoutinesRouteImport.update({
-  id: '/routines',
-  path: '/routines',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedProjectsRoute = AuthenticatedProjectsRouteImport.update({
@@ -164,11 +144,6 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
 const AuthenticatedCockpitRoute = AuthenticatedCockpitRouteImport.update({
   id: '/cockpit',
   path: '/cockpit',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedBookmarksRoute = AuthenticatedBookmarksRouteImport.update({
-  id: '/bookmarks',
-  path: '/bookmarks',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
@@ -214,12 +189,6 @@ const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
   path: '/lovable/email/auth/preview',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicHooksMonthlyTipRoute =
-  ApiPublicHooksMonthlyTipRouteImport.update({
-    id: '/api/public/hooks/monthly-tip',
-    path: '/api/public/hooks/monthly-tip',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const ApiPublicHooksIngestFeedsRoute =
   ApiPublicHooksIngestFeedsRouteImport.update({
     id: '/api/public/hooks/ingest-feeds',
@@ -248,7 +217,6 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/admin': typeof AuthenticatedAdminRoute
-  '/bookmarks': typeof AuthenticatedBookmarksRoute
   '/cockpit': typeof AuthenticatedCockpitRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/diagrams': typeof AuthenticatedDiagramsRoute
@@ -257,19 +225,15 @@ export interface FileRoutesByFullPath {
   '/notes': typeof AuthenticatedNotesRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/projects': typeof AuthenticatedProjectsRoute
-  '/routines': typeof AuthenticatedRoutinesRoute
   '/security': typeof AuthenticatedSecurityRoute
   '/snippets': typeof AuthenticatedSnippetsRoute
-  '/team': typeof AuthenticatedTeamRoute
   '/templates': typeof AuthenticatedTemplatesRoute
-  '/tips': typeof AuthenticatedTipsRoute
   '/todos': typeof AuthenticatedTodosRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/api/public/contact': typeof ApiPublicContactRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/api/public/hooks/daily-digest': typeof ApiPublicHooksDailyDigestRouteWithChildren
   '/api/public/hooks/ingest-feeds': typeof ApiPublicHooksIngestFeedsRoute
-  '/api/public/hooks/monthly-tip': typeof ApiPublicHooksMonthlyTipRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -286,7 +250,6 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/admin': typeof AuthenticatedAdminRoute
-  '/bookmarks': typeof AuthenticatedBookmarksRoute
   '/cockpit': typeof AuthenticatedCockpitRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/diagrams': typeof AuthenticatedDiagramsRoute
@@ -295,19 +258,15 @@ export interface FileRoutesByTo {
   '/notes': typeof AuthenticatedNotesRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/projects': typeof AuthenticatedProjectsRoute
-  '/routines': typeof AuthenticatedRoutinesRoute
   '/security': typeof AuthenticatedSecurityRoute
   '/snippets': typeof AuthenticatedSnippetsRoute
-  '/team': typeof AuthenticatedTeamRoute
   '/templates': typeof AuthenticatedTemplatesRoute
-  '/tips': typeof AuthenticatedTipsRoute
   '/todos': typeof AuthenticatedTodosRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/api/public/contact': typeof ApiPublicContactRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/api/public/hooks/daily-digest': typeof ApiPublicHooksDailyDigestRouteWithChildren
   '/api/public/hooks/ingest-feeds': typeof ApiPublicHooksIngestFeedsRoute
-  '/api/public/hooks/monthly-tip': typeof ApiPublicHooksMonthlyTipRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -326,7 +285,6 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
-  '/_authenticated/bookmarks': typeof AuthenticatedBookmarksRoute
   '/_authenticated/cockpit': typeof AuthenticatedCockpitRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/diagrams': typeof AuthenticatedDiagramsRoute
@@ -335,19 +293,15 @@ export interface FileRoutesById {
   '/_authenticated/notes': typeof AuthenticatedNotesRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/projects': typeof AuthenticatedProjectsRoute
-  '/_authenticated/routines': typeof AuthenticatedRoutinesRoute
   '/_authenticated/security': typeof AuthenticatedSecurityRoute
   '/_authenticated/snippets': typeof AuthenticatedSnippetsRoute
-  '/_authenticated/team': typeof AuthenticatedTeamRoute
   '/_authenticated/templates': typeof AuthenticatedTemplatesRoute
-  '/_authenticated/tips': typeof AuthenticatedTipsRoute
   '/_authenticated/todos': typeof AuthenticatedTodosRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/api/public/contact': typeof ApiPublicContactRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/api/public/hooks/daily-digest': typeof ApiPublicHooksDailyDigestRouteWithChildren
   '/api/public/hooks/ingest-feeds': typeof ApiPublicHooksIngestFeedsRoute
-  '/api/public/hooks/monthly-tip': typeof ApiPublicHooksMonthlyTipRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -366,7 +320,6 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/unsubscribe'
     | '/admin'
-    | '/bookmarks'
     | '/cockpit'
     | '/dashboard'
     | '/diagrams'
@@ -375,19 +328,15 @@ export interface FileRouteTypes {
     | '/notes'
     | '/profile'
     | '/projects'
-    | '/routines'
     | '/security'
     | '/snippets'
-    | '/team'
     | '/templates'
-    | '/tips'
     | '/todos'
     | '/email/unsubscribe'
     | '/api/public/contact'
     | '/lovable/email/suppression'
     | '/api/public/hooks/daily-digest'
     | '/api/public/hooks/ingest-feeds'
-    | '/api/public/hooks/monthly-tip'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -404,7 +353,6 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/unsubscribe'
     | '/admin'
-    | '/bookmarks'
     | '/cockpit'
     | '/dashboard'
     | '/diagrams'
@@ -413,19 +361,15 @@ export interface FileRouteTypes {
     | '/notes'
     | '/profile'
     | '/projects'
-    | '/routines'
     | '/security'
     | '/snippets'
-    | '/team'
     | '/templates'
-    | '/tips'
     | '/todos'
     | '/email/unsubscribe'
     | '/api/public/contact'
     | '/lovable/email/suppression'
     | '/api/public/hooks/daily-digest'
     | '/api/public/hooks/ingest-feeds'
-    | '/api/public/hooks/monthly-tip'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -443,7 +387,6 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/unsubscribe'
     | '/_authenticated/admin'
-    | '/_authenticated/bookmarks'
     | '/_authenticated/cockpit'
     | '/_authenticated/dashboard'
     | '/_authenticated/diagrams'
@@ -452,19 +395,15 @@ export interface FileRouteTypes {
     | '/_authenticated/notes'
     | '/_authenticated/profile'
     | '/_authenticated/projects'
-    | '/_authenticated/routines'
     | '/_authenticated/security'
     | '/_authenticated/snippets'
-    | '/_authenticated/team'
     | '/_authenticated/templates'
-    | '/_authenticated/tips'
     | '/_authenticated/todos'
     | '/email/unsubscribe'
     | '/api/public/contact'
     | '/lovable/email/suppression'
     | '/api/public/hooks/daily-digest'
     | '/api/public/hooks/ingest-feeds'
-    | '/api/public/hooks/monthly-tip'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -487,7 +426,6 @@ export interface RootRouteChildren {
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   ApiPublicHooksDailyDigestRoute: typeof ApiPublicHooksDailyDigestRouteWithChildren
   ApiPublicHooksIngestFeedsRoute: typeof ApiPublicHooksIngestFeedsRoute
-  ApiPublicHooksMonthlyTipRoute: typeof ApiPublicHooksMonthlyTipRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
@@ -567,25 +505,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTodosRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/tips': {
-      id: '/_authenticated/tips'
-      path: '/tips'
-      fullPath: '/tips'
-      preLoaderRoute: typeof AuthenticatedTipsRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/templates': {
       id: '/_authenticated/templates'
       path: '/templates'
       fullPath: '/templates'
       preLoaderRoute: typeof AuthenticatedTemplatesRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/team': {
-      id: '/_authenticated/team'
-      path: '/team'
-      fullPath: '/team'
-      preLoaderRoute: typeof AuthenticatedTeamRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/snippets': {
@@ -600,13 +524,6 @@ declare module '@tanstack/react-router' {
       path: '/security'
       fullPath: '/security'
       preLoaderRoute: typeof AuthenticatedSecurityRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/routines': {
-      id: '/_authenticated/routines'
-      path: '/routines'
-      fullPath: '/routines'
-      preLoaderRoute: typeof AuthenticatedRoutinesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/projects': {
@@ -665,13 +582,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCockpitRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/bookmarks': {
-      id: '/_authenticated/bookmarks'
-      path: '/bookmarks'
-      fullPath: '/bookmarks'
-      preLoaderRoute: typeof AuthenticatedBookmarksRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
       path: '/admin'
@@ -728,13 +638,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/hooks/monthly-tip': {
-      id: '/api/public/hooks/monthly-tip'
-      path: '/api/public/hooks/monthly-tip'
-      fullPath: '/api/public/hooks/monthly-tip'
-      preLoaderRoute: typeof ApiPublicHooksMonthlyTipRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/public/hooks/ingest-feeds': {
       id: '/api/public/hooks/ingest-feeds'
       path: '/api/public/hooks/ingest-feeds'
@@ -761,7 +664,6 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
-  AuthenticatedBookmarksRoute: typeof AuthenticatedBookmarksRoute
   AuthenticatedCockpitRoute: typeof AuthenticatedCockpitRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDiagramsRoute: typeof AuthenticatedDiagramsRoute
@@ -770,18 +672,14 @@ interface AuthenticatedRouteChildren {
   AuthenticatedNotesRoute: typeof AuthenticatedNotesRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedProjectsRoute: typeof AuthenticatedProjectsRoute
-  AuthenticatedRoutinesRoute: typeof AuthenticatedRoutinesRoute
   AuthenticatedSecurityRoute: typeof AuthenticatedSecurityRoute
   AuthenticatedSnippetsRoute: typeof AuthenticatedSnippetsRoute
-  AuthenticatedTeamRoute: typeof AuthenticatedTeamRoute
   AuthenticatedTemplatesRoute: typeof AuthenticatedTemplatesRoute
-  AuthenticatedTipsRoute: typeof AuthenticatedTipsRoute
   AuthenticatedTodosRoute: typeof AuthenticatedTodosRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
-  AuthenticatedBookmarksRoute: AuthenticatedBookmarksRoute,
   AuthenticatedCockpitRoute: AuthenticatedCockpitRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDiagramsRoute: AuthenticatedDiagramsRoute,
@@ -790,12 +688,9 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedNotesRoute: AuthenticatedNotesRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedProjectsRoute: AuthenticatedProjectsRoute,
-  AuthenticatedRoutinesRoute: AuthenticatedRoutinesRoute,
   AuthenticatedSecurityRoute: AuthenticatedSecurityRoute,
   AuthenticatedSnippetsRoute: AuthenticatedSnippetsRoute,
-  AuthenticatedTeamRoute: AuthenticatedTeamRoute,
   AuthenticatedTemplatesRoute: AuthenticatedTemplatesRoute,
-  AuthenticatedTipsRoute: AuthenticatedTipsRoute,
   AuthenticatedTodosRoute: AuthenticatedTodosRoute,
 }
 
@@ -831,7 +726,6 @@ const rootRouteChildren: RootRouteChildren = {
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   ApiPublicHooksDailyDigestRoute: ApiPublicHooksDailyDigestRouteWithChildren,
   ApiPublicHooksIngestFeedsRoute: ApiPublicHooksIngestFeedsRoute,
-  ApiPublicHooksMonthlyTipRoute: ApiPublicHooksMonthlyTipRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
@@ -841,13 +735,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
