@@ -161,7 +161,7 @@ function Nav({ t }: { t: T }) {
             <Button variant="ghost" size="sm">{t("land.nav.signin")}</Button>
           </Link>
           <Link to="/login">
-            <Button size="sm" className="gap-1.5 bg-gradient-to-r from-[oklch(0.62_0.2_290)] to-[oklch(0.7_0.16_210)] text-white hover:opacity-90 border-0">
+            <Button size="sm" className="gap-1.5 bg-gradient-to-r from-primary to-[oklch(0.72_0.14_180)] text-primary-foreground hover:opacity-90 border-0 shadow-[0_0_24px_-8px_oklch(0.78_0.15_195/60%)]">
               {t("land.nav.start")} <ArrowRight className="size-3.5" />
             </Button>
           </Link>
@@ -196,7 +196,7 @@ function Hero({ t }: { t: T }) {
         </p>
         <div className="mt-8 flex flex-wrap items-center gap-3">
           <Link to="/login">
-            <Button size="lg" className="gap-2 bg-gradient-to-r from-[oklch(0.62_0.2_290)] to-[oklch(0.7_0.16_210)] text-white hover:opacity-90 border-0">
+            <Button size="lg" className="gap-2 bg-gradient-to-r from-primary to-[oklch(0.72_0.14_180)] text-primary-foreground hover:opacity-90 border-0 shadow-[0_0_24px_-8px_oklch(0.78_0.15_195/60%)]">
               {t("land.cta.primary")} <ArrowRight className="size-4" />
             </Button>
           </Link>
@@ -666,7 +666,7 @@ function PricingSection({ t }: { t: T }) {
               ))}
             </ul>
             <Link to="/login" className="block mt-8">
-              <Button size="lg" className="w-full gap-2 bg-gradient-to-r from-[oklch(0.62_0.2_290)] to-[oklch(0.7_0.16_210)] text-white hover:opacity-90 border-0">
+              <Button size="lg" className="w-full gap-2 bg-gradient-to-r from-primary to-[oklch(0.72_0.14_180)] text-primary-foreground hover:opacity-90 border-0 shadow-[0_0_24px_-8px_oklch(0.78_0.15_195/60%)]">
                 {t("land.pricing.cta")} <ArrowRight className="size-4" />
               </Button>
             </Link>
@@ -768,7 +768,7 @@ function CTA({ t }: { t: T }) {
         <p className="mt-5 text-muted-foreground max-w-xl mx-auto">{t("land.cta.sub")}</p>
         <div className="mt-8 flex items-center justify-center gap-3 flex-wrap">
           <Link to="/login">
-            <Button size="lg" className="gap-2 bg-gradient-to-r from-[oklch(0.62_0.2_290)] to-[oklch(0.7_0.16_210)] text-white hover:opacity-90 border-0">
+            <Button size="lg" className="gap-2 bg-gradient-to-r from-primary to-[oklch(0.72_0.14_180)] text-primary-foreground hover:opacity-90 border-0 shadow-[0_0_24px_-8px_oklch(0.78_0.15_195/60%)]">
               {t("land.cta.create")} <ArrowRight className="size-4" />
             </Button>
           </Link>
@@ -874,7 +874,7 @@ function ContactSection({ t }: { t: T }) {
             {sent ? (
               <span className="text-xs text-primary">{t("land.contact.success")}</span>
             ) : <span />}
-            <Button type="submit" disabled={loading} className="gap-2 bg-gradient-to-r from-[oklch(0.62_0.2_290)] to-[oklch(0.7_0.16_210)] text-white hover:opacity-90 border-0">
+            <Button type="submit" disabled={loading} className="gap-2 bg-gradient-to-r from-primary to-[oklch(0.72_0.14_180)] text-primary-foreground hover:opacity-90 border-0 shadow-[0_0_24px_-8px_oklch(0.78_0.15_195/60%)]">
               {loading ? t("land.contact.sending") : t("land.contact.send")} <ArrowRight className="size-4" />
             </Button>
           </div>
