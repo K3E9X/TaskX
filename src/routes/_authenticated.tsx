@@ -7,8 +7,8 @@ import { useI18n, LangToggle, type TKey } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { trackPageView } from "@/lib/admin-console.functions";
 import {
-  LayoutDashboard, CheckSquare, FileText, Repeat, FolderKanban,
-  CalendarClock, GitBranch, Rss, Terminal, Bookmark, Users, LogOut, Shield,
+  LayoutDashboard, CheckSquare, FileText, FolderKanban,
+  CalendarClock, GitBranch, Rss, LogOut, Shield,
   PanelLeftClose, PanelLeftOpen, ShieldCheck, Code2, LayoutTemplate, UserCircle2,
 } from "lucide-react";
 import {
