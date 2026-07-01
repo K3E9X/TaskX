@@ -419,7 +419,7 @@ PORT=3000`}</code></pre>
         <aside className="hidden lg:block">
           <div className="sticky top-24">
             <div className="text-[11px] font-semibold tracking-wider text-muted-foreground mb-3">
-              DOCUMENTATION
+              {tr("DOCUMENTATION", "DOCUMENTATION")}
             </div>
             <nav className="flex flex-col gap-1">
               {filtered.map((s) => {
@@ -442,13 +442,13 @@ PORT=3000`}</code></pre>
                 );
               })}
               {filtered.length === 0 && (
-                <div className="text-xs text-muted-foreground px-2 py-1">No matches.</div>
+                <div className="text-xs text-muted-foreground px-2 py-1">{tr("Aucun résultat.", "No matches.")}</div>
               )}
             </nav>
             <div className="mt-6 rounded-xl border border-border/60 bg-card/40 p-4">
-              <div className="text-xs font-semibold">Need help?</div>
+              <div className="text-xs font-semibold">{tr("Besoin d'aide ?", "Need help?")}</div>
               <p className="text-xs text-muted-foreground mt-1">
-                Open an issue on GitHub or ping the AI assistant inside TaskX.
+                {tr("Ouvre une issue sur GitHub ou demande à l'assistant IA dans TaskX.", "Open an issue on GitHub or ping the AI assistant inside TaskX.")}
               </p>
               <a
                 href="https://github.com/K3E9X/TaskX/issues"
@@ -456,7 +456,7 @@ PORT=3000`}</code></pre>
                 rel="noopener noreferrer"
                 className="mt-2 inline-flex items-center gap-1 text-xs text-primary hover:underline"
               >
-                Report an issue <ArrowRight className="size-3" />
+                {tr("Signaler un problème", "Report an issue")} <ArrowRight className="size-3" />
               </a>
             </div>
           </div>
@@ -465,15 +465,18 @@ PORT=3000`}</code></pre>
         {/* Content */}
         <main>
           <div className="mb-10">
-            <div className="text-xs font-semibold tracking-wider text-primary mb-2">TASKX DOCS</div>
+            <div className="text-xs font-semibold tracking-wider text-primary mb-2">{tr("DOC TASKX", "TASKX DOCS")}</div>
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
-              Everything to run TaskX
+              {tr("Tout pour faire tourner TaskX", "Everything to run TaskX")}
             </h1>
             <p className="text-muted-foreground mt-3 max-w-2xl">
-              Cloud, self-hosted, AI providers, cron jobs, environment variables — the complete
-              reference for individual cyber pros running TaskX their way.
+              {tr(
+                "Cloud, auto-hébergement, fournisseurs IA, cron, variables d'environnement — la référence complète pour les pros cyber qui font tourner TaskX à leur façon.",
+                "Cloud, self-hosted, AI providers, cron jobs, environment variables — the complete reference for individual cyber pros running TaskX their way."
+              )}
             </p>
           </div>
+
 
           {/* Mobile search */}
           <div className="md:hidden mb-6">
