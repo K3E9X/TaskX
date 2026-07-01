@@ -153,7 +153,7 @@ function LoginPage() {
       <div className="min-h-screen flex items-center justify-center bg-background px-4 relative">
         <div className="absolute top-4 right-4"><LangToggle /></div>
         <div className="w-full max-w-sm text-center">
-          <div className="flex justify-center"><TaskXMark size={44} /></div>
+          <Link to="/" aria-label="TaskX home" className="flex justify-center"><TaskXMark size={44} /></Link>
           <h1 className="mt-6 text-2xl font-semibold tracking-tight">{t("auth.verify.title")}</h1>
           <p className="mt-3 text-sm text-muted-foreground">
             {t("auth.verify.body")} <span className="font-medium text-foreground">{pendingEmail}</span>
@@ -179,10 +179,10 @@ function LoginPage() {
       <div className="absolute top-4 right-4"><LangToggle /></div>
       <div className="w-full max-w-sm">
         <div className="mb-10 text-center">
-          <div className="flex justify-center"><TaskXMark size={44} /></div>
+          <Link to="/" aria-label="TaskX home" className="flex justify-center"><TaskXMark size={44} /></Link>
           <h1 className="mt-3 text-2xl font-semibold tracking-tight flex items-baseline justify-center">
             <span>Sign in to Task</span>
-            <span className="ml-[1px] bg-gradient-to-br from-[oklch(0.74_0.18_295)] to-[oklch(0.78_0.15_200)] bg-clip-text text-transparent font-bold">X</span>
+            <span className="ml-[1px] bg-gradient-to-br from-[oklch(0.88_0.14_195)] to-[oklch(0.72_0.15_195)] bg-clip-text text-transparent font-bold">X</span>
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">{t("app.tagline")}</p>
         </div>
