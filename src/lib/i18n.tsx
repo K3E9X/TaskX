@@ -955,7 +955,7 @@ const dict = {
     "land.footer.signin": "Sign in",
 
     "land.personas.eyebrow": "Who it's for",
-    "land.personas.title": "Built for your craft — not yet another SOC tool.",
+    "land.personas.title": "Built for your craft, not someone else's toolbox.",
     "land.personas.sub": "Every cyber pro DIYs the same kit: Notion + Obsidian + a few RSS feeds + a Trello. TaskX replaces all that with one fast personal workspace.",
     "land.personas.pentest.t": "Pentester / Red team",
     "land.personas.pentest.d": "Engagement notes, write-ups, OWASP checklists, exploit watch — without leaking a client.",
