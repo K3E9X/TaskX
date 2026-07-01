@@ -508,7 +508,7 @@ PORT=3000`}</code></pre>
             })}
             {filtered.length === 0 && (
               <div className="rounded-xl border border-dashed border-border p-10 text-center text-muted-foreground">
-                Nothing matches "{query}".
+                {tr("Aucun résultat pour «", "Nothing matches \"")}{query}{tr(" ».", "\".")}
               </div>
             )}
           </div>
