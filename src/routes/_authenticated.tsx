@@ -101,14 +101,21 @@ function AuthenticatedLayout() {
   useEffect(() => {
     if (!session || lastTracked.current === pathname) return;
     lastTracked.current = pathname;
-    track({
-      data: {
-        path: pathname,
-        user_agent: typeof navigator !== "undefined" ? navigator.userAgent.slice(0, 500) : undefined,
-        referrer: typeof document !== "undefined" ? document.referrer.slice(0, 500) : undefined,
-      },
-    }).catch(() => { /* silent */ });
+    (async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (!data.session?.access_token) return;
+        await track({
+          data: {
+            path: pathname,
+            user_agent: typeof navigator !== "undefined" ? navigator.userAgent.slice(0, 500) : undefined,
+            referrer: typeof document !== "undefined" ? document.referrer.slice(0, 500) : undefined,
+          },
+        });
+      } catch { /* silent */ }
+    })();
   }, [pathname, session, track]);
+
 
 
   if (loading) {
