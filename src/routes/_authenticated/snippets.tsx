@@ -233,7 +233,14 @@ function SnippetsPage() {
 
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-xs text-muted-foreground">{t("snip.command")}</label>
+                  <label className="text-xs text-muted-foreground flex items-center gap-2">
+                    {t("snip.command")}
+                    {extractVars(selected.command).length > 0 && (
+                      <Badge variant="secondary" className="text-[10px] font-mono">
+                        {extractVars(selected.command).length} var{extractVars(selected.command).length > 1 ? "s" : ""}
+                      </Badge>
+                    )}
+                  </label>
                   <Button size="sm" variant="ghost" className="h-6 px-2 text-xs gap-1" onClick={() => copy(selected.command)}>
                     <Copy className="h-3 w-3" /> {t("snip.copy")}
                   </Button>
@@ -242,9 +249,13 @@ function SnippetsPage() {
                   value={selected.command}
                   onChange={(e) => update.mutate({ id: selected.id, command: e.target.value })}
                   className="font-mono text-xs min-h-[160px]"
-                  placeholder="nmap -sV -p- target.com"
+                  placeholder="nmap -sV -p- {{TARGET}}"
                 />
+                <p className="mt-1 text-[10px] text-muted-foreground">
+                  Astuce : utilise <code className="font-mono">{`{{TARGET}}`}</code>, <code className="font-mono">{`{{PORT}}`}</code>… pour créer des variables remplies au moment de copier.
+                </p>
               </div>
+
 
               <div>
                 <label className="text-xs text-muted-foreground mb-1.5 block">{t("snip.description")}</label>
