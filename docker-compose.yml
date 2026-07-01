@@ -1,0 +1,64 @@
+## TaskX — self-hosted docker-compose
+## Runs the TaskX web app + a PostgreSQL database.
+## Auth/Storage/Realtime rely on an external Supabase project (Supabase Cloud
+## free tier, or a self-hosted Supabase stack). This compose file focuses on
+## running TaskX itself in a single container.
+##
+## Quickstart:
+##   cp .env.example .env    # fill in values
+##   docker compose up -d
+##   open http://localhost:3000
+
+services:
+  app:
+    image: node:20-bookworm-slim
+    container_name: taskx-app
+    working_dir: /app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      # Supabase (external project)
+      VITE_SUPABASE_URL: ${VITE_SUPABASE_URL}
+      VITE_SUPABASE_PUBLISHABLE_KEY: ${VITE_SUPABASE_PUBLISHABLE_KEY}
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_PUBLISHABLE_KEY: ${SUPABASE_PUBLISHABLE_KEY}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+      # AI provider — pick one: openrouter | qwen | zai | lovable
+      AI_PROVIDER: ${AI_PROVIDER:-openrouter}
+      AI_API_KEY: ${AI_API_KEY}
+      AI_MODEL: ${AI_MODEL:-}
+      AI_BASE_URL: ${AI_BASE_URL:-}
+    volumes:
+      - ./:/app
+    command: >
+      bash -lc "
+        corepack enable &&
+        npm install -g bun &&
+        bun install --frozen-lockfile &&
+        bun run build &&
+        bun run start
+      "
+
+  # Optional local PostgreSQL, if you don't use Supabase Cloud.
+  # You still need Supabase Auth/Realtime for full features — recommended path
+  # remains Supabase Cloud free tier.
+  db:
+    image: postgres:16-alpine
+    container_name: taskx-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-taskx}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-taskx}
+      POSTGRES_DB: ${POSTGRES_DB:-taskx}
+    ports:
+      - "5432:5432"
+    volumes:
+      - taskx_pgdata:/var/lib/postgresql/data
+    profiles:
+      - with-db
+
+volumes:
+  taskx_pgdata:

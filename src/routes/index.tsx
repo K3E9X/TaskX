@@ -160,6 +160,7 @@ function Nav({ t }: { t: T }) {
           <a href="#features" className="hover:text-foreground transition">{t("land.nav.features")}</a>
           <a href="#pricing" className="hover:text-foreground transition">{t("land.nav.pricing")}</a>
           <a href="#opensource" className="hover:text-foreground transition">{t("land.nav.opensource")}</a>
+          <a href="https://github.com/K3E9X/TaskX/blob/main/DOCUMENTATION.md" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition">{t("land.nav.docs")}</a>
           <a href="#faq" className="hover:text-foreground transition">{t("land.faq.eyebrow")}</a>
         </nav>
         <div className="flex items-center gap-2">
@@ -208,6 +209,38 @@ function Hero({ t }: { t: T }) {
             {t("land.hero.t2")}
           </span>
         </h1>
+
+        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xl">
+          <Link
+            to="/login"
+            className="group flex items-center gap-3 rounded-xl border border-border/70 bg-card/60 hover:bg-card hover:border-primary/60 px-4 py-3 transition"
+          >
+            <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <Cloud className="size-4" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="text-sm font-medium">{t("land.hero.deploy.cloud.t")}</div>
+              <div className="text-xs text-muted-foreground truncate">{t("land.hero.deploy.cloud.d")}</div>
+            </div>
+            <ArrowRight className="size-4 text-muted-foreground group-hover:text-primary transition" />
+          </Link>
+          <a
+            href="https://github.com/K3E9X/TaskX"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex items-center gap-3 rounded-xl border border-border/70 bg-card/60 hover:bg-card hover:border-primary/60 px-4 py-3 transition"
+          >
+            <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <Server className="size-4" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="text-sm font-medium">{t("land.hero.deploy.self.t")}</div>
+              <div className="text-xs text-muted-foreground truncate">{t("land.hero.deploy.self.d")}</div>
+            </div>
+            <Github className="size-4 text-muted-foreground group-hover:text-primary transition" />
+          </a>
+        </div>
+
         <p className="mt-6 text-lg text-muted-foreground max-w-2xl leading-relaxed">
           {t("land.hero.sub")}
         </p>
