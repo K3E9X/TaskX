@@ -114,28 +114,54 @@ function parseRss(xml: string): RssItem[] {
 }
 function parseCisaKev(json: unknown): RssItem[] {
   const data = json as { vulnerabilities?: Array<{ cveID: string; vulnerabilityName: string; shortDescription: string; dateAdded: string }> };
+  // CISA KEV = activement exploité → toujours critical.
   return newestFirst((data.vulnerabilities ?? []).map((v) => ({
     title: `${v.cveID} — ${v.vulnerabilityName}`,
     url: `https://nvd.nist.gov/vuln/detail/${v.cveID}`,
     summary: v.shortDescription,
     external_id: v.cveID,
     published_at: toIsoDate(v.dateAdded),
+    cvss: null,
+    severity: "critical" as const,
   }))).slice(0, FEED_PAGE_SIZE);
 }
 function parseNvd(json: unknown): RssItem[] {
-  const data = json as { vulnerabilities?: Array<{ cve: { id: string; descriptions: Array<{ lang: string; value: string }>; published: string } }> };
+  type NvdMetric = { cvssData?: { baseScore?: number; baseSeverity?: string } };
+  type NvdEntry = {
+    cve: {
+      id: string;
+      descriptions: Array<{ lang: string; value: string }>;
+      published: string;
+      metrics?: {
+        cvssMetricV31?: NvdMetric[];
+        cvssMetricV30?: NvdMetric[];
+        cvssMetricV2?: NvdMetric[];
+      };
+    };
+  };
+  const data = json as { vulnerabilities?: NvdEntry[] };
   return newestFirst((data.vulnerabilities ?? []).map((entry) => {
     const cve = entry.cve;
     const en = cve.descriptions.find((d) => d.lang === "en") ?? cve.descriptions[0];
+    const metric =
+      cve.metrics?.cvssMetricV31?.[0] ??
+      cve.metrics?.cvssMetricV30?.[0] ??
+      cve.metrics?.cvssMetricV2?.[0];
+    const score = metric?.cvssData?.baseScore ?? null;
+    const severity = severityFromCvss(score);
+    const scoreLabel = score != null ? ` (CVSS ${score.toFixed(1)})` : "";
     return {
-      title: `${cve.id}`,
+      title: `${cve.id}${scoreLabel}`,
       url: `https://nvd.nist.gov/vuln/detail/${cve.id}`,
       summary: en?.value?.slice(0, 1000) ?? null,
       external_id: cve.id,
       published_at: toIsoDate(cve.published),
+      cvss: score,
+      severity,
     };
   })).slice(0, FEED_PAGE_SIZE);
 }
+
 function isBlockedHostname(host: string): boolean {
   const h = host.toLowerCase();
   if (h === "localhost" || h.endsWith(".localhost") || h.endsWith(".local") || h.endsWith(".internal")) return true;
