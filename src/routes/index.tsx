@@ -193,7 +193,7 @@ function Hero({ t }: { t: T }) {
           </span>
         </h1>
         <p className="mt-6 text-lg text-muted-foreground max-w-2xl leading-relaxed">
-          Veille CVE filtrée par ta stack, snippets à variables <span className="font-mono text-primary">{"{{VAR}}"}</span>, runbooks Markdown, diagrammes Mermaid, palette <kbd className="rounded border border-border/70 bg-card/70 px-1.5 py-0.5 font-mono text-xs">⌘K</kbd> et assistant IA contextuel. Le second cerveau des pros cyber.
+          {t("land.hero.sub")}
         </p>
 
         <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -512,51 +512,15 @@ function PersonasSection({ t }: { t: T }) {
 
 function FeatureGrid({ t }: { t: T }) {
   const FEATURES: Array<{ icon: typeof Rss; title: string; desc: string }> = [
-    {
-      icon: Rss,
-      title: "Watch For You",
-      desc: "Veille CVE/CTI filtrée par ta stack (nginx, k8s, cisco…). Fini le bruit — que ce qui te concerne.",
-    },
-    {
-      icon: Terminal,
-      title: "Snippets à variables",
-      desc: "Commandes réutilisables avec {{HOST}}, {{USER}} — remplis, copie, exécute. Ton arsenal offensif ou défensif.",
-    },
-    {
-      icon: FileText,
-      title: "Runbooks & notes",
-      desc: "Markdown, tags, liens externes. Procédures IR, write-ups, cheat-sheets, tout recherchable.",
-    },
-    {
-      icon: GitBranch,
-      title: "Diagrammes Mermaid + IA",
-      desc: "Génère l'archi, le flow réseau ou un STRIDE via chat. Preview zoomable, versionnée.",
-    },
-    {
-      icon: Command,
-      title: "Palette ⌘K",
-      desc: "Créer, chercher, naviguer sans la souris. Une commande, tout va vite.",
-    },
-    {
-      icon: FolderKanban,
-      title: "Projets & missions",
-      desc: "Audits, missions RT, recherches, certifs — un endroit pour chaque contexte.",
-    },
-    {
-      icon: CheckSquare,
-      title: "Todos récurrents",
-      desc: "Snooze, tags, priorité, récurrence — tes rituels et tickets du jour au même endroit.",
-    },
-    {
-      icon: CalendarClock,
-      title: "Meetings",
-      desc: "Notes de réunion, décisions, points d'action — consignés, retrouvables.",
-    },
-    {
-      icon: Bot,
-      title: "Assistant IA contextuel",
-      desc: "Un chat global qui connaît la page où tu es. Réponses en markdown, prompts métier.",
-    },
+    { icon: Rss, title: t("land.fg.watch.t"), desc: t("land.fg.watch.d") },
+    { icon: Terminal, title: t("land.fg.snip.t"), desc: t("land.fg.snip.d") },
+    { icon: FileText, title: t("land.fg.notes.t"), desc: t("land.fg.notes.d") },
+    { icon: GitBranch, title: t("land.fg.mermaid.t"), desc: t("land.fg.mermaid.d") },
+    { icon: Command, title: t("land.fg.palette.t"), desc: t("land.fg.palette.d") },
+    { icon: FolderKanban, title: t("land.fg.projects.t"), desc: t("land.fg.projects.d") },
+    { icon: CheckSquare, title: t("land.fg.todos.t"), desc: t("land.fg.todos.d") },
+    { icon: CalendarClock, title: t("land.fg.meetings.t"), desc: t("land.fg.meetings.d") },
+    { icon: Bot, title: t("land.fg.ai.t"), desc: t("land.fg.ai.d") },
   ];
   return (
     <section id="features" className="mx-auto max-w-7xl px-6 py-24 md:py-32">
