@@ -127,11 +127,7 @@ function FeedsPage() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["feed_items"] }),
   });
 
-  const matchTagsFor = (x: FeedItem): string[] => {
-    if (stackTags.length === 0) return [];
-    const hay = `${x.title} ${x.summary ?? ""} ${x.tags.join(" ")}`.toLowerCase();
-    return stackTags.filter((tag) => new RegExp(`\\b${tag.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(hay));
-  };
+  const matchTagsFor = (x: FeedItem): string[] => matchStackTags(x, stackTags);
 
   const filtered = items
     .map((x) => ({ x, matches: matchTagsFor(x) }))
