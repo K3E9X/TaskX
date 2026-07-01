@@ -67,26 +67,16 @@ export const generateMorningBrief = createServerFn({ method: "POST" })
 
     let summary = "";
     try {
-      const apiKey = process.env.LOVABLE_API_KEY;
-      if (apiKey) {
-        const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-          body: JSON.stringify({
-            model: "google/gemini-2.5-flash",
-            messages: [
-              { role: "system", content: systemPrompt },
-              { role: "user", content: userPrompt },
-            ],
-          }),
-        });
-        if (res.ok) {
-          const j = await res.json();
-          summary = j.choices?.[0]?.message?.content?.trim() ?? "";
-        } else {
-          console.error("AI gateway error", res.status, await res.text());
-        }
-      }
+      const { chatCompletion } = await import("./ai-provider.server");
+      summary = (
+        await chatCompletion({
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt },
+          ],
+          fallbackModel: "google/gemini-2.5-flash",
+        })
+      ).trim();
     } catch (e) {
       console.error("Morning brief AI failed", e);
     }
