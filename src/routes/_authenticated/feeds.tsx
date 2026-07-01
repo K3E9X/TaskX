@@ -250,6 +250,11 @@ function FeedsPage() {
                     <Badge variant={SEV_VARIANT[x.severity]} className="h-5 px-1.5 text-[10px]">
                       {t(`feeds.sev.${x.severity}` as TKey)}
                     </Badge>
+                    {matches.length > 0 && (
+                      <Badge className="h-5 px-1.5 text-[10px] gap-1 bg-primary/15 text-primary border-primary/30" variant="outline">
+                        <Sparkles className="h-2.5 w-2.5" /> {matches.slice(0, 3).join(", ")}
+                      </Badge>
+                    )}
                     {x.external_id && <span className="text-[10px] font-mono text-muted-foreground">{x.external_id}</span>}
                     <span className="text-[10px] text-muted-foreground ml-auto">
                       {formatDistanceToNow(new Date(x.published_at), { addSuffix: true })}
