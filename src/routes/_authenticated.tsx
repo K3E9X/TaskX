@@ -218,7 +218,9 @@ function AuthenticatedLayout() {
       </div>
       <CommandPalette />
       <QuickCaptureMount />
+      <GlobalAssistant />
       <OnboardingDialog />
+
 
       {open && <div onClick={() => setOpen(false)} className="fixed inset-0 bg-black/30 z-30 md:hidden" />}
     </div>
