@@ -53,9 +53,10 @@ type Section = {
 };
 
 function DocsPage() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const [query, setQuery] = useState("");
   const [active, setActive] = useState<string>("getting-started");
+  const tr = (fr: string, en: string) => (lang === "fr" ? fr : en);
 
   const sections: Section[] = useMemo(
     () => [
