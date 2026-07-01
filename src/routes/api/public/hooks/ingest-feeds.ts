@@ -8,9 +8,21 @@ type RssItem = {
   summary: string | null;
   external_id: string | null;
   published_at: string;
+  cvss?: number | null;
+  severity?: "low" | "medium" | "high" | "critical" | null;
 };
 
 const FEED_PAGE_SIZE = 30;
+const CVSS_MIN = 7.5;
+
+function severityFromCvss(score: number | null | undefined): "low" | "medium" | "high" | "critical" | null {
+  if (score == null) return null;
+  if (score >= 9.0) return "critical";
+  if (score >= 7.0) return "high";
+  if (score >= 4.0) return "medium";
+  return "low";
+}
+
 
 function toIsoDate(raw: string | null | undefined): string {
   if (!raw) return new Date().toISOString();
@@ -133,24 +145,49 @@ function parseCisaKev(json: unknown): RssItem[] {
     summary: v.shortDescription,
     external_id: v.cveID,
     published_at: toIsoDate(v.dateAdded),
+    cvss: null,
+    severity: "critical" as const,
   }))).slice(0, FEED_PAGE_SIZE);
 }
 
 // --- NVD JSON ---
 function parseNvd(json: unknown): RssItem[] {
-  const data = json as { vulnerabilities?: Array<{ cve: { id: string; descriptions: Array<{ lang: string; value: string }>; published: string } }> };
+  type NvdMetric = { cvssData?: { baseScore?: number; baseSeverity?: string } };
+  type NvdEntry = {
+    cve: {
+      id: string;
+      descriptions: Array<{ lang: string; value: string }>;
+      published: string;
+      metrics?: {
+        cvssMetricV31?: NvdMetric[];
+        cvssMetricV30?: NvdMetric[];
+        cvssMetricV2?: NvdMetric[];
+      };
+    };
+  };
+  const data = json as { vulnerabilities?: NvdEntry[] };
   return newestFirst((data.vulnerabilities ?? []).map((entry) => {
     const cve = entry.cve;
     const en = cve.descriptions.find((d) => d.lang === "en") ?? cve.descriptions[0];
+    const metric =
+      cve.metrics?.cvssMetricV31?.[0] ??
+      cve.metrics?.cvssMetricV30?.[0] ??
+      cve.metrics?.cvssMetricV2?.[0];
+    const score = metric?.cvssData?.baseScore ?? null;
+    const severity = severityFromCvss(score);
+    const scoreLabel = score != null ? ` (CVSS ${score.toFixed(1)})` : "";
     return {
-      title: `${cve.id}`,
+      title: `${cve.id}${scoreLabel}`,
       url: `https://nvd.nist.gov/vuln/detail/${cve.id}`,
       summary: en?.value?.slice(0, 1000) ?? null,
       external_id: cve.id,
       published_at: toIsoDate(cve.published),
+      cvss: score,
+      severity,
     };
   })).slice(0, FEED_PAGE_SIZE);
 }
+
 
 // SSRF guard: only allow public https URLs, reject private/reserved IP ranges and non-DNS hostnames.
 function isBlockedHostname(host: string): boolean {
@@ -226,11 +263,20 @@ export const Route = createFileRoute("/api/public/hooks/ingest-feeds")({
 
         for (const src of sources ?? []) {
           try {
-            const items = await fetchSource(src.url);
+            const rawItems = await fetchSource(src.url);
+            // Pour CVE: filtre CVSS ≥ 7.5 (High/Critical). Autres sources: pas de filtre.
+            const items = src.source_type === "cve"
+              ? rawItems.filter((it) =>
+                  typeof it.cvss === "number"
+                    ? it.cvss >= CVSS_MIN
+                    : it.severity === "high" || it.severity === "critical"
+                )
+              : rawItems;
             if (items.length === 0) {
               results.push({ source: src.name, count: 0 });
               continue;
             }
+
 
             // Dedup: find existing external_ids / urls for this user
             const extIds = items.map((i) => i.external_id).filter(Boolean) as string[];
@@ -260,7 +306,7 @@ export const Route = createFileRoute("/api/public/hooks/ingest-feeds")({
               const rows = fresh.map((it) => ({
                 user_id: src.user_id,
                 source: src.source_type,
-                severity: src.default_severity,
+                severity: it.severity ?? src.default_severity,
                 title: it.title,
                 summary: it.summary,
                 url: it.url,

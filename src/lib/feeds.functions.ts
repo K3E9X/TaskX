@@ -8,9 +8,21 @@ type RssItem = {
   summary: string | null;
   external_id: string | null;
   published_at: string;
+  cvss?: number | null;
+  severity?: "low" | "medium" | "high" | "critical" | null;
 };
 
 const FEED_PAGE_SIZE = 30;
+const CVSS_MIN = 7.5;
+
+function severityFromCvss(score: number | null | undefined): "low" | "medium" | "high" | "critical" | null {
+  if (score == null) return null;
+  if (score >= 9.0) return "critical";
+  if (score >= 7.0) return "high";
+  if (score >= 4.0) return "medium";
+  return "low";
+}
+
 
 function toIsoDate(raw: string | null | undefined): string {
   if (!raw) return new Date().toISOString();
@@ -102,28 +114,54 @@ function parseRss(xml: string): RssItem[] {
 }
 function parseCisaKev(json: unknown): RssItem[] {
   const data = json as { vulnerabilities?: Array<{ cveID: string; vulnerabilityName: string; shortDescription: string; dateAdded: string }> };
+  // CISA KEV = activement exploité → toujours critical.
   return newestFirst((data.vulnerabilities ?? []).map((v) => ({
     title: `${v.cveID} — ${v.vulnerabilityName}`,
     url: `https://nvd.nist.gov/vuln/detail/${v.cveID}`,
     summary: v.shortDescription,
     external_id: v.cveID,
     published_at: toIsoDate(v.dateAdded),
+    cvss: null,
+    severity: "critical" as const,
   }))).slice(0, FEED_PAGE_SIZE);
 }
 function parseNvd(json: unknown): RssItem[] {
-  const data = json as { vulnerabilities?: Array<{ cve: { id: string; descriptions: Array<{ lang: string; value: string }>; published: string } }> };
+  type NvdMetric = { cvssData?: { baseScore?: number; baseSeverity?: string } };
+  type NvdEntry = {
+    cve: {
+      id: string;
+      descriptions: Array<{ lang: string; value: string }>;
+      published: string;
+      metrics?: {
+        cvssMetricV31?: NvdMetric[];
+        cvssMetricV30?: NvdMetric[];
+        cvssMetricV2?: NvdMetric[];
+      };
+    };
+  };
+  const data = json as { vulnerabilities?: NvdEntry[] };
   return newestFirst((data.vulnerabilities ?? []).map((entry) => {
     const cve = entry.cve;
     const en = cve.descriptions.find((d) => d.lang === "en") ?? cve.descriptions[0];
+    const metric =
+      cve.metrics?.cvssMetricV31?.[0] ??
+      cve.metrics?.cvssMetricV30?.[0] ??
+      cve.metrics?.cvssMetricV2?.[0];
+    const score = metric?.cvssData?.baseScore ?? null;
+    const severity = severityFromCvss(score);
+    const scoreLabel = score != null ? ` (CVSS ${score.toFixed(1)})` : "";
     return {
-      title: `${cve.id}`,
+      title: `${cve.id}${scoreLabel}`,
       url: `https://nvd.nist.gov/vuln/detail/${cve.id}`,
       summary: en?.value?.slice(0, 1000) ?? null,
       external_id: cve.id,
       published_at: toIsoDate(cve.published),
+      cvss: score,
+      severity,
     };
   })).slice(0, FEED_PAGE_SIZE);
 }
+
 function isBlockedHostname(host: string): boolean {
   const h = host.toLowerCase();
   if (h === "localhost" || h.endsWith(".localhost") || h.endsWith(".local") || h.endsWith(".internal")) return true;
@@ -180,7 +218,16 @@ export const refreshMyFeeds = createServerFn({ method: "POST" })
 
     for (const src of sources ?? []) {
       try {
-        const items = await fetchSource(src.url);
+        const rawItems = await fetchSource(src.url);
+        // Pour les sources CVE : ne garder que High/Critical (CVSS ≥ 7.5).
+        // Trop de bruit sinon. Les autres sources (CTI, RSS) passent telles quelles.
+        const items = src.source_type === "cve"
+          ? rawItems.filter((it) => {
+              if (typeof it.cvss === "number") return it.cvss >= CVSS_MIN;
+              // Pas de score (ex: CISA KEV) → on garde si severity high/critical.
+              return it.severity === "high" || it.severity === "critical";
+            })
+          : rawItems;
         if (items.length === 0) continue;
 
         const extIds = items.map((i) => i.external_id).filter(Boolean) as string[];
@@ -210,7 +257,7 @@ export const refreshMyFeeds = createServerFn({ method: "POST" })
           const rows = fresh.map((it) => ({
             user_id: userId,
             source: src.source_type,
-            severity: src.default_severity,
+            severity: it.severity ?? src.default_severity,
             title: it.title,
             summary: it.summary,
             url: it.url,
@@ -219,6 +266,7 @@ export const refreshMyFeeds = createServerFn({ method: "POST" })
             is_auto: true,
             tags: [src.name],
           }));
+
           const { error: insErr } = await supabaseAdmin.from("feed_items").insert(rows);
           if (insErr) throw new Error(insErr.message);
           inserted += rows.length;
