@@ -11,7 +11,6 @@ import {
   DropdownMenuCheckboxItem, DropdownMenuSeparator, DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { format, isPast, parseISO, isToday, startOfDay, endOfDay, subDays } from "date-fns";
-import { SendDigestButton } from "@/components/SendDigestButton";
 import { MorningBrief } from "@/components/MorningBrief";
 import {
   Sparkles, Star, ExternalLink, ShieldAlert, AlertTriangle, CheckSquare,
@@ -344,7 +343,6 @@ function DashboardPage() {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-          <SendDigestButton />
         </div>
       </div>
 
