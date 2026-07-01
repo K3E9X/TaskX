@@ -24,6 +24,10 @@ import {
   Search,
   Plus,
   Minus,
+  Github,
+  Cloud,
+  Server,
+
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -100,6 +104,7 @@ function LandingPage() {
       <FeatureGrid t={t} />
       <CockpitShowcase t={t} />
       <PricingSection t={t} />
+      <OpenSourceSection t={t} />
       <MetricsBand t={t} />
       <FaqSection t={t} />
       <CTA t={t} />
@@ -154,10 +159,21 @@ function Nav({ t }: { t: T }) {
           <a href="#personas" className="hover:text-foreground transition">{t("land.personas.eyebrow")}</a>
           <a href="#features" className="hover:text-foreground transition">{t("land.nav.features")}</a>
           <a href="#pricing" className="hover:text-foreground transition">{t("land.nav.pricing")}</a>
+          <a href="#opensource" className="hover:text-foreground transition">{t("land.nav.opensource")}</a>
           <a href="#faq" className="hover:text-foreground transition">{t("land.faq.eyebrow")}</a>
         </nav>
         <div className="flex items-center gap-2">
           <LangToggle />
+          <a
+            href="https://github.com/K3E9X/TaskX"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden sm:inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition px-2"
+            aria-label="GitHub"
+          >
+            <Github className="size-4" />
+            <span className="hidden lg:inline">GitHub</span>
+          </a>
           <Link to="/login">
             <Button variant="ghost" size="sm">{t("land.nav.signin")}</Button>
           </Link>
@@ -688,6 +704,106 @@ function PricingSection({ t }: { t: T }) {
             </Link>
           </div>
         </motion.div>
+      </div>
+    </section>
+  );
+}
+
+function OpenSourceSection({ t }: { t: T }) {
+  return (
+    <section id="opensource" className="border-t border-border/60">
+      <div className="mx-auto max-w-7xl px-6 py-24 md:py-32">
+        <div className="text-center max-w-2xl mx-auto">
+          <div className="text-xs uppercase tracking-widest text-primary">{t("land.os.eyebrow")}</div>
+          <h2 className="mt-3 text-3xl md:text-5xl font-semibold tracking-tight">
+            {t("land.os.title")}
+          </h2>
+          <p className="mt-4 text-muted-foreground">{t("land.os.sub")}</p>
+          <a
+            href="https://github.com/K3E9X/TaskX"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-6 inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/50 px-4 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:border-primary/50 transition"
+          >
+            <Github className="size-4" />
+            <span>{t("land.os.github")}</span>
+            <span className="text-primary">github.com/K3E9X/TaskX</span>
+          </a>
+        </div>
+
+        <div className="mt-14 grid md:grid-cols-2 gap-6">
+          {/* Cloud */}
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="relative rounded-2xl border border-primary/40 bg-card/70 backdrop-blur-xl p-8 overflow-hidden"
+          >
+            <div className="absolute -inset-6 rounded-3xl bg-gradient-to-tr from-primary/15 via-transparent to-primary/5 blur-2xl pointer-events-none" />
+            <div className="relative">
+              <div className="flex items-center gap-2">
+                <Cloud className="size-5 text-primary" />
+                <div className="text-sm font-medium">{t("land.os.cloud.title")}</div>
+                <Badge variant="outline" className="ml-auto text-[10px] gap-1">
+                  <Sparkles className="size-3" />
+                  {t("land.os.cloud.host")}
+                </Badge>
+              </div>
+              <p className="mt-4 text-muted-foreground text-sm">{t("land.os.cloud.desc")}</p>
+              <ul className="mt-6 space-y-2.5 text-sm">
+                {[t("land.os.cloud.b1"), t("land.os.cloud.b2"), t("land.os.cloud.b3"), t("land.os.cloud.b4")].map((b) => (
+                  <li key={b} className="flex items-start gap-2">
+                    <CheckCircle2 className="size-4 text-primary mt-0.5 shrink-0" />
+                    <span>{b}</span>
+                  </li>
+                ))}
+              </ul>
+              <Link to="/login" className="block mt-8">
+                <Button className="w-full gap-2 bg-gradient-to-r from-primary to-[oklch(0.72_0.14_180)] text-primary-foreground border-0">
+                  {t("land.os.cloud.cta")} <ArrowRight className="size-4" />
+                </Button>
+              </Link>
+            </div>
+          </motion.div>
+
+          {/* Self-hosted */}
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.05 }}
+            className="relative rounded-2xl border border-border/70 bg-card/70 backdrop-blur-xl p-8"
+          >
+            <div className="flex items-center gap-2">
+              <Server className="size-5 text-primary" />
+              <div className="text-sm font-medium">{t("land.os.self.title")}</div>
+              <Badge variant="outline" className="ml-auto text-[10px] gap-1">
+                <Terminal className="size-3" />
+                {t("land.os.self.host")}
+              </Badge>
+            </div>
+            <p className="mt-4 text-muted-foreground text-sm">{t("land.os.self.desc")}</p>
+            <ul className="mt-6 space-y-2.5 text-sm">
+              {[t("land.os.self.b1"), t("land.os.self.b2"), t("land.os.self.b3"), t("land.os.self.b4")].map((b) => (
+                <li key={b} className="flex items-start gap-2">
+                  <CheckCircle2 className="size-4 text-primary mt-0.5 shrink-0" />
+                  <span>{b}</span>
+                </li>
+              ))}
+            </ul>
+            <a
+              href="https://github.com/K3E9X/TaskX/blob/main/SELF_HOSTING.md"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-8 block"
+            >
+              <Button variant="outline" className="w-full gap-2 border-primary/40 hover:bg-primary/10">
+                <Github className="size-4" /> {t("land.os.self.cta")}
+              </Button>
+            </a>
+          </motion.div>
+        </div>
       </div>
     </section>
   );
