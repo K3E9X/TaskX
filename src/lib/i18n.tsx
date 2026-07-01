@@ -885,7 +885,7 @@ const dict = {
     "land.badge": "For pentesters, SOC, architects & CISOs",
     "land.hero.t1": "Your cyber craft,",
     "land.hero.t2": "in a single tab.",
-    "land.hero.sub": "CVE watch filtered by your stack, {{VAR}} snippets, Markdown runbooks, Mermaid diagrams, ⌘K palette and a context-aware AI assistant. The second brain for cyber pros.",
+    "land.hero.sub": "CVE watch filtered by your stack, snippets with variables, Markdown runbooks, Mermaid diagrams, ⌘K palette and a context-aware AI assistant — all on a single page.",
     "land.cta.primary": "Create my account — 30s",
     "land.cta.secondary": "See the preview",
     "land.bullet.free": "No credit card",
