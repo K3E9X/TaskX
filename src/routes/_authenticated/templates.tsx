@@ -47,19 +47,19 @@ function TemplatesPage() {
   const { data: profile } = useQuery({
     queryKey: ["profile-role"],
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("team_role").maybeSingle();
+      const { data } = await supabase.from("profiles").select("profile_type").maybeSingle();
       return data;
     },
   });
 
   // Default filter to user's role on first load
   useEffect(() => {
-    if (profile?.team_role && selectedRole === "all") {
-      const role = profile.team_role as TemplateRole;
+    if (profile?.profile_type && selectedRole === "all") {
+      const role = profile.profile_type as TemplateRole;
       if (ROLES.some((r) => r.id === role)) setSelectedRole(role);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profile?.team_role]);
+  }, [profile?.profile_type]);
 
   const filtered = useMemo(() => {
     return NOTE_TEMPLATES.filter((tpl) => {
