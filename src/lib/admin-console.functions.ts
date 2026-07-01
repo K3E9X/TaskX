@@ -100,8 +100,8 @@ export const listUsersDetailed = createServerFn({ method: "GET" })
         display_name: p?.display_name ?? "",
         first_name: p?.first_name ?? "",
         last_name: p?.last_name ?? "",
-        team_role: (p?.team_role ?? "architect") as
-          | "architect" | "pentester" | "forensic" | "analyst",
+        profile_type: (p?.profile_type ?? null) as
+          | "architect" | "pentester" | "forensic" | "soc" | "ciso" | null,
         avatar_url: p?.avatar_url ?? null,
         app_role: roleMap.get(u.id) ?? "member",
         last_ip: lastIp?.ip ?? null,
