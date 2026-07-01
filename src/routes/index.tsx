@@ -104,6 +104,7 @@ function LandingPage() {
       <FeatureGrid t={t} />
       <CockpitShowcase t={t} />
       <PricingSection t={t} />
+      <OpenSourceSection t={t} />
       <MetricsBand t={t} />
       <FaqSection t={t} />
       <CTA t={t} />
