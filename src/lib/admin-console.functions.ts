@@ -387,7 +387,7 @@ export const listAllContent = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) =>
     z.object({
-      table: z.enum(["notes", "bookmarks", "feed_items", "todos"]),
+      table: z.enum(["notes", "feed_items", "todos"]),
       limit: z.number().int().min(1).max(200).default(50),
     }).parse(d),
   )
