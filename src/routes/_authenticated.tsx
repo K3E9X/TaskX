@@ -46,6 +46,7 @@ const NAV: { to: string; key: TKey; icon: typeof LayoutDashboard }[] = [
   { to: "/meetings", key: "nav.meetings", icon: CalendarClock },
   { to: "/diagrams", key: "nav.diagrams", icon: GitBranch },
   { to: "/feeds", key: "nav.feeds", icon: Rss },
+  { to: "/stack", key: "nav.stack", icon: Package },
   { to: "/security", key: "nav.security", icon: ShieldCheck },
 ];
 
