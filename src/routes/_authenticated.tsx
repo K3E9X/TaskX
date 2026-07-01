@@ -21,6 +21,7 @@ import { AnnouncementBanner } from "@/components/admin/AnnouncementBanner";
 import { QuickCaptureDialog, useQuickCapture } from "@/components/QuickCaptureDialog";
 import { StreakBadge } from "@/components/StreakBadge";
 import { OnboardingDialog } from "@/components/OnboardingDialog";
+import { GlobalAssistant } from "@/components/GlobalAssistant";
 
 
 
@@ -217,7 +218,9 @@ function AuthenticatedLayout() {
       </div>
       <CommandPalette />
       <QuickCaptureMount />
+      <GlobalAssistant />
       <OnboardingDialog />
+
 
       {open && <div onClick={() => setOpen(false)} className="fixed inset-0 bg-black/30 z-30 md:hidden" />}
     </div>
