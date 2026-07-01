@@ -6,6 +6,7 @@ import { Sparkles, Send, Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { askAssistant } from "@/lib/assistant.functions";
+import { useI18n } from "@/lib/i18n";
 import { toast } from "sonner";
 
 type Msg = { role: "user" | "assistant"; content: string };
