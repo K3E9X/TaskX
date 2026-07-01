@@ -74,8 +74,12 @@ export function TaskXLogo({ size = 28, withWordmark = true, className = "" }: Pr
         <span className="text-[1.05rem] leading-none flex items-baseline">
           <span>Task</span>
           <span
-            className="ml-[1px] bg-gradient-to-br from-primary to-[oklch(0.72_0.14_180)] bg-clip-text text-transparent font-bold"
-            style={{ fontFeatureSettings: '"ss01"' }}
+            className="ml-[1px] bg-clip-text text-transparent font-bold"
+            style={{
+              fontFeatureSettings: '"ss01"',
+              backgroundImage:
+                "linear-gradient(135deg, oklch(0.88 0.14 195), oklch(0.72 0.15 195))",
+            }}
           >
             X
           </span>
