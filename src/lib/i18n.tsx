@@ -95,6 +95,7 @@ const dict = {
     "nav.meetings": "Meetings",
     "nav.diagrams": "Diagrammes",
     "nav.feeds": "Veille",
+    "nav.stack": "Mon Stack",
     "nav.tips": "Astuces",
     "nav.bookmarks": "Add-ons",
     "nav.team": "Équipe",
