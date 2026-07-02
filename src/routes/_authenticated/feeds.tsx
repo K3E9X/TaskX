@@ -111,13 +111,17 @@ function FeedsPage() {
   const { data: items = [], isLoading } = useQuery({
     queryKey: ["feed_items"],
     queryFn: async () => {
+      const cutoff = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString();
       const { data, error } = await supabase
-        .from("feed_items").select("*").order("published_at", { ascending: false });
+        .from("feed_items").select("*")
+        .gte("published_at", cutoff)
+        .order("published_at", { ascending: false });
       if (error) throw error;
       return data as FeedItem[];
     },
     refetchOnMount: "always",
     refetchOnWindowFocus: true,
+    refetchInterval: 5 * 60_000,
     staleTime: 0,
   });
 
