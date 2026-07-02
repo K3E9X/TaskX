@@ -138,7 +138,7 @@ function AuthenticatedLayout() {
             <div className="flex flex-col leading-none min-w-0">
               <span className="text-sm font-semibold tracking-tight flex items-baseline">
                 <span>Task</span>
-                <span className="ml-[1px] bg-gradient-to-br from-[oklch(0.74_0.18_295)] to-[oklch(0.78_0.15_200)] bg-clip-text text-transparent font-bold">X</span>
+                <span className="ml-[1px] bg-gradient-to-br from-[oklch(0.88_0.14_195)] to-[oklch(0.72_0.15_195)] bg-clip-text text-transparent font-bold">X</span>
               </span>
               <span className="mt-1 text-[10px] text-muted-foreground truncate">{t("app.tagline")}</span>
             </div>
