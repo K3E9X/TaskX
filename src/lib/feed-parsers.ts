@@ -189,7 +189,7 @@ export function parseNvd(json: unknown): RssItem[] {
 
 export async function fetchNvdRecent(parsed: URL): Promise<RssItem[]> {
   const end = new Date();
-  const start = new Date(end.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const start = new Date(end.getTime() - 14 * 24 * 60 * 60 * 1000);
   parsed.searchParams.set("pubStartDate", nvdDate(start));
   parsed.searchParams.set("pubEndDate", nvdDate(end));
   parsed.searchParams.set("resultsPerPage", "1");
