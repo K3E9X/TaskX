@@ -325,7 +325,7 @@ PORT=3000`}</code></pre>
               </thead>
               <tbody>
                 <tr><td><code>refresh-feeds-hourly</code></td><td>{tr("chaque heure", "every hour")}</td><td>{tr("Rafraîchit les feeds CVE / CTI", "Refresh CVE / CTI feeds")}</td></tr>
-                <tr><td><code>purge-old-feeds-daily</code></td><td>{tr("quotidien", "daily")}</td><td>{tr("Applique la rétention 7 jours", "Enforce 7-day retention")}</td></tr>
+                <tr><td><code>purge-old-feeds-daily</code></td><td>{tr("quotidien", "daily")}</td><td>{tr("Applique la rétention 14 jours", "Enforce 14-day retention")}</td></tr>
                 <tr><td><code>refresh-nuclei-index-daily</code></td><td>{tr("quotidien @ 04:00", "daily @ 04:00")}</td><td>{tr("Rafraîchit l'index Nuclei PoC", "Refresh Nuclei PoC index")}</td></tr>
                 <tr><td><code>email-queue-dispatch</code></td><td>{tr("fréquent", "frequent")}</td><td>{tr("Envoie les emails transactionnels", "Dispatch transactional emails")}</td></tr>
               </tbody>

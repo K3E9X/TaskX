@@ -460,7 +460,7 @@ const dict = {
     "land.pricing.cta": "Créer mon compte",
     "land.pricing.f1": "Tous les modules (todos, notes, runbooks, projets, routines, meetings, diagrammes)",
     "land.pricing.f2": "Veille CVE & CTI préconfigurée (Hacker News, BleepingComputer, CISA KEV, NVD)",
-    "land.pricing.f3": "Refresh automatique toutes les 30 minutes, purge auto à 7 jours",
+    "land.pricing.f3": "Refresh automatique toutes les 30 minutes, purge auto à 14 jours",
     "land.pricing.f4": "Assistant IA (résumé, reformulation, classification)",
     "land.pricing.f5": "Données chiffrées, hébergées en Europe, exportables à tout moment",
 
@@ -857,7 +857,7 @@ const dict = {
     "feeds.deleteConfirm": "Delete this item?",
     "feeds.empty": "No watch items yet. Add your first CVE, CTI alert or tweet to track.",
     "feeds.sources": "Sources",
-    "feeds.sourcesDesc": "CVE/CTI sources pulled automatically every 30 min. Items older than 7 days are purged.",
+    "feeds.sourcesDesc": "CVE/CTI sources pulled automatically every 30 min. Items older than 14 days are purged.",
     "feeds.addSource": "Add source",
     "feeds.sourceNamePh": "Name (e.g. Krebs on Security)",
     "feeds.sourceUrlPh": "Feed URL (RSS, Atom, JSON)",
@@ -1051,7 +1051,7 @@ const dict = {
     "land.pricing.cta": "Create my account",
     "land.pricing.f1": "Every module (todos, notes, runbooks, projects, routines, meetings, diagrams)",
     "land.pricing.f2": "CVE & CTI watch preconfigured (Hacker News, BleepingComputer, CISA KEV, NVD)",
-    "land.pricing.f3": "Auto-refresh every 30 minutes, 7-day auto-purge",
+    "land.pricing.f3": "Auto-refresh every 30 minutes, 14-day auto-purge",
     "land.pricing.f4": "AI assistant (summarize, rephrase, classify)",
     "land.pricing.f5": "Encrypted data, hosted in Europe, exportable any time",
 
